@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>地点地图 - 蛙噻！好摊</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body class="wiki-layout">
+    <header class="wiki-topbar">
+        <div class="wiki-logo">
+            <a href="../index.html">蛙噻！好摊 Wiki</a>
+        </div>
+        <div class="wiki-search">
+            <input type="text" placeholder="搜索百科..." id="searchInput">
+            <button onclick="searchLocations()">搜索</button>
+        </div>
+        <div class="wiki-user">
+            <span>欢迎访问</span>
+        </div>
+    </header>
+
+    <div class="wiki-container">
+        <aside class="wiki-sidebar">
+            <nav class="wiki-nav">
+                <div class="nav-section">
+                    <h3>百科分类</h3>
+                    <ul>
+                        <li><a href="../index.html">首页</a></li>
+                        <li><a href="world.html">世界观</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>角色</h3>
+                    <ul>
+                        <li><a href="characters.html">角色总览</a></li>
+                        <li><a href="characters.html?type=playable">可招募角色</a></li>
+                        <li><a href="characters.html?type=npc">NPC</a></li>
+                        <li><a href="characters.html?type=enemy">敌人</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>物品装备</h3>
+                    <ul>
+                        <li><a href="items.html">物品总览</a></li>
+                        <li><a href="items.html?type=weapon">武器</a></li>
+                        <li><a href="items.html?type=armor">防具</a></li>
+                        <li><a href="items.html?type=consumable">消耗品</a></li>
+                        <li><a href="items.html?type=material">材料</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>世界探索</h3>
+                    <ul>
+                        <li><a href="locations.html" class="active">地点总览</a></li>
+                        <li><a href="quests.html">任务剧情</a></li>
+                    </ul>
+                </div>
+            </nav>
+        </aside>
+
+        <main class="wiki-content">
+            <nav class="breadcrumb">
+                <a href="../index.html">首页</a> &gt; <span class="current">地点地图</span>
+            </nav>
+
+            <article class="wiki-article">
+                <h1 class="article-title">地点地图</h1>
+                
+                <div class="article-intro">
+                    <p>本页面收录了游戏世界中的所有地点，包括<strong>城镇</strong>、<strong>副本</strong>、<strong>野外</strong>和<strong>特殊地点</strong>。</p>
+                </div>
+
+                <div class="infobox">
+                    <div class="infobox-header">地点统计</div>
+                    <div class="infobox-row">
+                        <div class="infobox-label">城镇</div>
+                        <div class="infobox-value" id="townCount">-</div>
+                    </div>
+                    <div class="infobox-row">
+                        <div class="infobox-label">副本</div>
+                        <div class="infobox-value" id="dungeonCount">-</div>
+                    </div>
+                    <div class="infobox-row">
+                        <div class="infobox-label">野外</div>
+                        <div class="infobox-value" id="fieldCount">-</div>
+                    </div>
+                    <div class="infobox-row">
+                        <div class="infobox-label">总计</div>
+                        <div class="infobox-value" id="totalCount">-</div>
+                    </div>
+                </div>
+
+                <h2 id="list">地点列表</h2>
+                
+                <div class="filter-tabs">
+                    <button class="tab-btn active" onclick="filterLocations('all')">全部</button>
+                    <button class="tab-btn" onclick="filterLocations('town')">城镇</button>
+                    <button class="tab-btn" onclick="filterLocations('dungeon')">副本</button>
+                    <button class="tab-btn" onclick="filterLocations('field')">野外</button>
+                    <button class="tab-btn" onclick="filterLocations('special')">特殊</button>
+                </div>
+                
+                <div class="card-grid" id="locationGrid"></div>
+
+                <h2 id="add">添加新地点</h2>
+                <form id="addLocationForm" class="wiki-form">
+                    <div class="form-group">
+                        <label>地点名称</label>
+                        <input type="text" id="locName" placeholder="输入地点名称" required>
+                    </div>
+                    <div class="form-group">
+                        <label>地点类型</label>
+                        <select id="locType">
+                            <option value="town">城镇</option>
+                            <option value="dungeon">副本</option>
+                            <option value="field">野外</option>
+                            <option value="special">特殊</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>危险等级</label>
+                        <select id="locDanger">
+                            <option value="safe">安全</option>
+                            <option value="low">低危</option>
+                            <option value="medium">中危</option>
+                            <option value="high">高危</option>
+                            <option value="extreme">极危</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>地点描述</label>
+                        <textarea id="locDesc" placeholder="输入地点描述" rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>主要产出（用逗号分隔）</label>
+                        <input type="text" id="locLoot" placeholder="例如：铁矿石, 草药, 金币">
+                    </div>
+                    <button type="submit" class="btn-primary">添加地点</button>
+                </form>
+
+                <div class="article-footer">
+                    <p>最后更新于：2026-03-19 | 编辑次数：1</p>
+                </div>
+            </article>
+        </main>
+    </div>
+
+    <footer class="wiki-footer">
+        <p>&copy; 2026 《蛙噻！好摊》游戏百科 | 本百科由玩家共同维护</p>
+    </footer>
+
+    <script src="../js/main.js"></script>
+    <script>
+        let locations = JSON.parse(localStorage.getItem('wiki_locations')) || [
+            { id: 1, name: "起始城镇", type: "town", danger: "safe", description: "冒险开始的地方，这里有热闹的市场和友善的居民。", loot: ["基础材料", "普通商品"] },
+            { id: 2, name: "迷雾森林", type: "field", danger: "low", description: "城镇附近的森林，经常有低级怪物出没。", loot: ["木材", "草药", "低级素材"] },
+            { id: 3, name: "废弃矿洞", type: "dungeon", danger: "medium", description: "曾经繁荣的矿洞，现在被怪物占据。", loot: ["铁矿石", "铜矿石", "稀有矿石"] },
+            { id: 4, name: "商业之都", type: "town", danger: "safe", description: "大陆上最大的贸易城市。", loot: ["稀有商品", "高级材料", "珍贵情报"] },
+            { id: 5, name: "龙息山脉", type: "field", danger: "high", description: "传说中巨龙栖息的山脉。", loot: ["龙鳞", "稀有矿石", "传奇材料"] }
+        ];
+
+        function saveLocations() { localStorage.setItem('wiki_locations', JSON.stringify(locations)); }
+
+        function updateStats() {
+            document.getElementById('townCount').textContent = locations.filter(l => l.type === 'town').length;
+            document.getElementById('dungeonCount').textContent = locations.filter(l => l.type === 'dungeon').length;
+            document.getElementById('fieldCount').textContent = locations.filter(l => l.type === 'field').length;
+            document.getElementById('totalCount').textContent = locations.length;
+        }
+
+        function getTypeIcon(t) { return ''; }
+        function getTypeLabel(t) { const l={town:'城镇',dungeon:'副本',field:'野外',special:'特殊'}; return l[t]||t; }
+        function getDangerLabel(d) { const l={safe:'安全',low:'低危',medium:'中危',high:'高危',extreme:'极危'}; return l[d]||d; }
+
+        function renderLocations(filter='all') {
+            const grid=document.getElementById('locationGrid');
+            let filtered=locations;
+            if(filter!=='all') filtered=locations.filter(l=>l.type===filter);
+            if(filtered.length===0){ grid.innerHTML='<p style="color:var(--wiki-text-secondary);padding:20px;">暂无该类型的地点</p>'; return; }
+            grid.innerHTML=filtered.map(loc=>`
+                <div class="info-card">
+                    <h4>${loc.name}</h4>
+                    <div class="meta">
+                        <span class="type-badge ${loc.type}">${getTypeLabel(loc.type)}</span>
+                        <span class="danger-badge ${loc.danger}">${getDangerLabel(loc.danger)}</span>
+                    </div>
+                    <p class="description">${loc.description}</p>
+                    <div class="loot-box"><strong>主要产出：</strong><div class="tag-list">${loc.loot.map(i=>`<span class="tag-item">${i}</span>`).join('')}</div></div>
+                    <button onclick="deleteLocation(${loc.id})" class="btn-delete">删除</button>
+                </div>
+            `).join('');
+        }
+
+        function filterLocations(type){ document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active')); event.target.classList.add('active'); renderLocations(type); }
+        function searchLocations(){ const q=document.getElementById('searchInput').value.toLowerCase(); const filtered=locations.filter(l=>l.name.toLowerCase().includes(q)||l.description.toLowerCase().includes(q)); document.getElementById('locationGrid').innerHTML=filtered.map(loc=>`<div class="info-card"><h4>${loc.name}</h4><div class="meta"><span class="type-badge ${loc.type}">${getTypeLabel(loc.type)}</span><span class="danger-badge ${loc.danger}">${getDangerLabel(loc.danger)}</span></div><p class="description">${loc.description}</p><div class="loot-box"><strong>主要产出：</strong><div class="tag-list">${loc.loot.map(i=>`<span class="tag-item">${i}</span>`).join('')}</div></div><button onclick="deleteLocation(${loc.id})" class="btn-delete">删除</button></div>`).join(''); }
+
+        document.getElementById('addLocationForm').addEventListener('submit',function(e){
+            e.preventDefault();
+            locations.push({ id:Date.now(), name:document.getElementById('locName').value, type:document.getElementById('locType').value, danger:document.getElementById('locDanger').value, description:document.getElementById('locDesc').value, loot:document.getElementById('locLoot').value.split(',').map(s=>s.trim()).filter(s=>s) });
+            saveLocations(); renderLocations(); updateStats(); this.reset(); alert('地点添加成功！');
+        });
+
+        function deleteLocation(id){ if(confirm('确定删除？')){ locations=locations.filter(l=>l.id!==id); saveLocations(); renderLocations(); updateStats(); } }
+
+        renderLocations(); updateStats();
+    </script>
+</body>
+</html>

@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>蛙噻！好摊 - 游戏百科</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="wiki-layout">
+    <header class="wiki-topbar">
+        <div class="wiki-logo">
+            <a href="index.html">蛙噻！好摊 Wiki</a>
+        </div>
+        <div class="wiki-search">
+            <input type="text" placeholder="搜索百科..." id="searchInput">
+            <button onclick="search()">搜索</button>
+        </div>
+        <div class="wiki-user">
+            <span>欢迎访问</span>
+        </div>
+    </header>
+
+    <div class="wiki-container">
+        <aside class="wiki-sidebar">
+            <nav class="wiki-nav">
+                <div class="nav-section">
+                    <h3>百科分类</h3>
+                    <ul>
+                        <li><a href="index.html" class="active">首页</a></li>
+                        <li><a href="pages/world.html">世界观</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>角色</h3>
+                    <ul>
+                        <li><a href="pages/characters.html">角色总览</a></li>
+                        <li><a href="pages/characters.html?type=playable">可招募角色</a></li>
+                        <li><a href="pages/characters.html?type=npc">NPC</a></li>
+                        <li><a href="pages/characters.html?type=enemy">敌人</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>物品装备</h3>
+                    <ul>
+                        <li><a href="pages/items.html">物品总览</a></li>
+                        <li><a href="pages/items.html?type=weapon">武器</a></li>
+                        <li><a href="pages/items.html?type=armor">防具</a></li>
+                        <li><a href="pages/items.html?type=consumable">消耗品</a></li>
+                        <li><a href="pages/items.html?type=material">材料</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>世界探索</h3>
+                    <ul>
+                        <li><a href="pages/locations.html">地点总览</a></li>
+                        <li><a href="pages/quests.html">任务剧情</a></li>
+                    </ul>
+                </div>
+            </nav>
+        </aside>
+
+        <main class="wiki-content">
+            <nav class="breadcrumb">
+                <span class="current">首页</span>
+            </nav>
+
+            <article class="wiki-article">
+                <h1 class="article-title">欢迎来到《蛙噻！好摊》百科</h1>
+                
+                <div class="article-intro">
+                    <p>这是关于<strong>《蛙噻！好摊》</strong>的完整游戏百科。在这里你可以找到游戏的所有信息，包括<a href="pages/characters.html">角色</a>、<a href="pages/items.html">物品装备</a>、<a href="pages/locations.html">地点地图</a>、<a href="pages/quests.html">任务剧情</a>以及<a href="pages/world.html">世界观</a>等。</p>
+                </div>
+
+                <div class="wiki-toc">
+                    <h3>目录</h3>
+                    <ul>
+                        <li><a href="#overview">游戏简介</a></li>
+                        <li><a href="#features">游戏特色</a></li>
+                        <li><a href="#quickstart">快速开始</a></li>
+                        <li><a href="#categories">百科分类</a></li>
+                        <li><a href="#updates">最近更新</a></li>
+                    </ul>
+                </div>
+
+                <h2 id="overview">游戏简介</h2>
+                <p>在《蛙噻！好摊》这个充满机遇与挑战的世界里，你将扮演一位<strong>商战者</strong>——既是精明的商人，也是勇敢的战士。从一个小小的摊位开始，你需要在城镇中摆摊经商，在野外与怪物战斗，用智慧和勇气开拓属于自己的商业帝国。</p>
+                
+                <div class="info-box">
+                    <h4>游戏核心理念</h4>
+                    <ul>
+                        <li><strong>摆摊</strong>：购买低价商品，高价卖出，赚取差价</li>
+                        <li><strong>战斗</strong>：探索危险区域，击败怪物获取稀有材料</li>
+                        <li><strong>成长</strong>：提升等级，招募伙伴，扩大商业版图</li>
+                    </ul>
+                </div>
+
+                <h2 id="features">游戏特色</h2>
+                <div class="feature-grid">
+                    <div class="feature-item">
+                        <h4>自由摆摊</h4>
+                        <p>在不同城镇的集市上摆摊，根据市场需求调整商品价格，体验真实的商业经营乐趣。</p>
+                    </div>
+                    <div class="feature-item">
+                        <h4>策略战斗</h4>
+                        <p>招募各种角色组成队伍，搭配不同装备和技能，挑战各种强大的敌人。</p>
+                    </div>
+                    <div class="feature-item">
+                        <h4>开放世界</h4>
+                        <p>探索广阔的地图，从宁静的新手村到危险的龙息山脉，每个地点都有独特的资源和挑战。</p>
+                    </div>
+                    <div class="feature-item">
+                        <h4>角色成长</h4>
+                        <p>通过战斗和交易获得经验，提升角色等级，解锁新的技能和装备。</p>
+                    </div>
+                </div>
+
+                <h2 id="quickstart">快速开始</h2>
+                <ol>
+                    <li><strong>创建角色</strong>：选择你的起始形象和基础技能</li>
+                    <li><strong>第一次摆摊</strong>：在<a href="pages/locations.html">起始城镇</a>购买商品，摆下你的第一个摊位</li>
+                    <li><strong>完成新手任务</strong>：跟随<a href="pages/quests.html">任务指引</a>熟悉游戏机制</li>
+                    <li><strong>探索世界</strong>：前往<a href="pages/locations.html">迷雾森林</a>收集材料</li>
+                    <li><strong>招募伙伴</strong>：在<a href="pages/characters.html">角色图鉴</a>中查看可招募的伙伴</li>
+                </ol>
+
+                <h2 id="categories">百科分类导航</h2>
+                <table class="wiki-table">
+                    <thead>
+                        <tr>
+                            <th>分类</th>
+                            <th>描述</th>
+                            <th>条目数</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><a href="pages/characters.html">角色</a></td>
+                            <td>可招募角色、NPC、敌人等所有人物信息</td>
+                            <td id="charCount">加载中...</td>
+                        </tr>
+                        <tr>
+                            <td><a href="pages/items.html">物品装备</a></td>
+                            <td>武器、防具、消耗品、材料等所有物品</td>
+                            <td id="itemCount">加载中...</td>
+                        </tr>
+                        <tr>
+                            <td><a href="pages/locations.html">地点地图</a></td>
+                            <td>城镇、副本、野外等所有可探索地点</td>
+                            <td id="locCount">加载中...</td>
+                        </tr>
+                        <tr>
+                            <td><a href="pages/quests.html">任务剧情</a></td>
+                            <td>主线任务、支线任务、日常任务等</td>
+                            <td id="questCount">加载中...</td>
+                        </tr>
+                        <tr>
+                            <td><a href="pages/world.html">世界观</a></td>
+                            <td>游戏背景故事、历史、势力分布</td>
+                            <td>-</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h2 id="updates">最近更新</h2>
+                <div class="update-log">
+                    <div class="update-item">
+                        <span class="update-date">2026-03-19</span>
+                        <span class="update-type new">新增</span>
+                        <span class="update-content">《蛙噻！好摊》百科系统正式上线</span>
+                    </div>
+                </div>
+
+                <div class="article-footer">
+                    <p>最后更新于：2026-03-19 | 编辑次数：1</p>
+                </div>
+            </article>
+        </main>
+    </div>
+
+    <footer class="wiki-footer">
+        <p>&copy; 2026 《蛙噻！好摊》游戏百科 | 本百科由玩家共同维护</p>
+    </footer>
+
+    <script src="js/main.js"></script>
+    <script>
+        function loadStats() {
+            const chars = JSON.parse(localStorage.getItem('wiki_characters')) || [];
+            const items = JSON.parse(localStorage.getItem('wiki_items')) || [];
+            const locs = JSON.parse(localStorage.getItem('wiki_locations')) || [];
+            const quests = JSON.parse(localStorage.getItem('wiki_quests')) || [];
+
+            document.getElementById('charCount').textContent = chars.length + ' 条';
+            document.getElementById('itemCount').textContent = items.length + ' 条';
+            document.getElementById('locCount').textContent = locs.length + ' 条';
+            document.getElementById('questCount').textContent = quests.length + ' 条';
+        }
+
+        loadStats();
+    </script>
+</body>
+</html>

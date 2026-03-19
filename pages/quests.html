@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>任务剧情 - 蛙噻！好摊</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body class="wiki-layout">
+    <header class="wiki-topbar">
+        <div class="wiki-logo">
+            <a href="../index.html">蛙噻！好摊 Wiki</a>
+        </div>
+        <div class="wiki-search">
+            <input type="text" placeholder="搜索百科..." id="searchInput">
+            <button onclick="searchQuests()">搜索</button>
+        </div>
+        <div class="wiki-user">
+            <span>欢迎访问</span>
+        </div>
+    </header>
+
+    <div class="wiki-container">
+        <aside class="wiki-sidebar">
+            <nav class="wiki-nav">
+                <div class="nav-section">
+                    <h3>百科分类</h3>
+                    <ul>
+                        <li><a href="../index.html">首页</a></li>
+                        <li><a href="world.html">世界观</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>角色</h3>
+                    <ul>
+                        <li><a href="characters.html">角色总览</a></li>
+                        <li><a href="characters.html?type=playable">可招募角色</a></li>
+                        <li><a href="characters.html?type=npc">NPC</a></li>
+                        <li><a href="characters.html?type=enemy">敌人</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>物品装备</h3>
+                    <ul>
+                        <li><a href="items.html">物品总览</a></li>
+                        <li><a href="items.html?type=weapon">武器</a></li>
+                        <li><a href="items.html?type=armor">防具</a></li>
+                        <li><a href="items.html?type=consumable">消耗品</a></li>
+                        <li><a href="items.html?type=material">材料</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>世界探索</h3>
+                    <ul>
+                        <li><a href="locations.html">地点总览</a></li>
+                        <li><a href="quests.html" class="active">任务剧情</a></li>
+                    </ul>
+                </div>
+            </nav>
+        </aside>
+
+        <main class="wiki-content">
+            <nav class="breadcrumb">
+                <a href="../index.html">首页</a> &gt; <span class="current">任务剧情</span>
+            </nav>
+
+            <article class="wiki-article">
+                <h1 class="article-title">任务剧情</h1>
+                
+                <div class="article-intro">
+                    <p>本页面收录了游戏中的所有任务，包括<strong>主线任务</strong>、<strong>支线任务</strong>、<strong>日常任务</strong>和<strong>活动任务</strong>。</p>
+                </div>
+
+                <div class="infobox">
+                    <div class="infobox-header">任务统计</div>
+                    <div class="infobox-row">
+                        <div class="infobox-label">主线</div>
+                        <div class="infobox-value" id="mainCount">-</div>
+                    </div>
+                    <div class="infobox-row">
+                        <div class="infobox-label">支线</div>
+                        <div class="infobox-value" id="sideCount">-</div>
+                    </div>
+                    <div class="infobox-row">
+                        <div class="infobox-label">日常</div>
+                        <div class="infobox-value" id="dailyCount">-</div>
+                    </div>
+                    <div class="infobox-row">
+                        <div class="infobox-label">总计</div>
+                        <div class="infobox-value" id="totalCount">-</div>
+                    </div>
+                </div>
+
+                <h2 id="list">任务列表</h2>
+                
+                <div class="filter-tabs">
+                    <button class="tab-btn active" onclick="filterQuests('all')">全部</button>
+                    <button class="tab-btn" onclick="filterQuests('main')">主线</button>
+                    <button class="tab-btn" onclick="filterQuests('side')">支线</button>
+                    <button class="tab-btn" onclick="filterQuests('daily')">日常</button>
+                    <button class="tab-btn" onclick="filterQuests('event')">活动</button>
+                </div>
+                
+                <div class="card-grid" id="questGrid"></div>
+
+                <h2 id="add">添加新任务</h2>
+                <form id="addQuestForm" class="wiki-form">
+                    <div class="form-group">
+                        <label>任务名称</label>
+                        <input type="text" id="questName" placeholder="输入任务名称" required>
+                    </div>
+                    <div class="form-group">
+                        <label>任务类型</label>
+                        <select id="questType">
+                            <option value="main">主线</option>
+                            <option value="side">支线</option>
+                            <option value="daily">日常</option>
+                            <option value="event">活动</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>任务描述</label>
+                        <textarea id="questDesc" placeholder="输入任务描述" rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>任务目标</label>
+                        <textarea id="questObjective" placeholder="输入任务目标" rows="2"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>任务奖励</label>
+                        <input type="text" id="questReward" placeholder="例如：金币100, 经验值500">
+                    </div>
+                    <div class="form-group">
+                        <label>前置任务</label>
+                        <input type="text" id="questPrereq" placeholder="输入前置任务名称（如果没有留空）">
+                    </div>
+                    <button type="submit" class="btn-primary">添加任务</button>
+                </form>
+
+                <div class="article-footer">
+                    <p>最后更新于：2026-03-19 | 编辑次数：1</p>
+                </div>
+            </article>
+        </main>
+    </div>
+
+    <footer class="wiki-footer">
+        <p>&copy; 2026 《蛙噻！好摊》游戏百科 | 本百科由玩家共同维护</p>
+    </footer>
+
+    <script src="../js/main.js"></script>
+    <script>
+        let quests = JSON.parse(localStorage.getItem('wiki_quests')) || [
+            { id: 1, name: "第一次摆摊", type: "main", description: "老商人王叔教你如何在城镇广场摆下第一个摊位，开启你的商业之旅。", objective: "在城镇广场摆下摊位，卖出3件商品", reward: "金币50, 经验值100, 商人的认可", prereq: "无" },
+            { id: 2, name: "收集材料", type: "side", description: "铁匠铺需要一些铁矿石来打造装备，他愿意支付丰厚的报酬。", objective: "收集10个铁矿石", reward: "金币100, 经验值150, 铁剑x1", prereq: "无" },
+            { id: 3, name: "清理矿洞", type: "main", description: "废弃矿洞的怪物越来越多，威胁到了城镇的安全。", objective: "击败废弃矿洞中的10只怪物", reward: "金币300, 经验值500, 城镇通行证", prereq: "收集材料" },
+            { id: 4, name: "每日摆摊", type: "daily", description: "每天坚持摆摊是成为大商人的必经之路。", objective: "今日累计摆摊收入达到100金币", reward: "金币50, 经验值100, 活跃点数10", prereq: "无" },
+            { id: 5, name: "商路开拓", type: "main", description: "你的名声已经传到了商业之都，那里有更多机会等着你。", objective: "前往商业之都，与商会会长对话", reward: "金币500, 经验值800, 商会会员资格", prereq: "清理矿洞" }
+        ];
+
+        function saveQuests() { localStorage.setItem('wiki_quests', JSON.stringify(quests)); }
+
+        function updateStats() {
+            document.getElementById('mainCount').textContent = quests.filter(q => q.type === 'main').length;
+            document.getElementById('sideCount').textContent = quests.filter(q => q.type === 'side').length;
+            document.getElementById('dailyCount').textContent = quests.filter(q => q.type === 'daily').length;
+            document.getElementById('totalCount').textContent = quests.length;
+        }
+
+        function getTypeIcon(t) { return ''; }
+        function getTypeLabel(t) { const l={main:'主线',side:'支线',daily:'日常',event:'活动'}; return l[t]||t; }
+
+        function renderQuests(filter='all') {
+            const grid=document.getElementById('questGrid');
+            let filtered=quests;
+            if(filter!=='all') filtered=quests.filter(q=>q.type===filter);
+            if(filtered.length===0){ grid.innerHTML='<p style="color:var(--wiki-text-secondary);padding:20px;">暂无该类型的任务</p>'; return; }
+            grid.innerHTML=filtered.map(quest=>`
+                <div class="info-card">
+                    <h4>${quest.name}</h4>
+                    <div class="meta"><span class="type-badge ${quest.type}">${getTypeLabel(quest.type)}</span></div>
+                    <p class="description">${quest.description}</p>
+                    <div class="quest-details">
+                        <p><strong>目标：</strong>${quest.objective}</p>
+                        <p><strong>奖励：</strong>${quest.reward}</p>
+                        <p><strong>前置：</strong>${quest.prereq||'无'}</p>
+                    </div>
+                    <button onclick="deleteQuest(${quest.id})" class="btn-delete">删除</button>
+                </div>
+            `).join('');
+        }
+
+        function filterQuests(type){ document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active')); event.target.classList.add('active'); renderQuests(type); }
+        function searchQuests(){ const q=document.getElementById('searchInput').value.toLowerCase(); const filtered=quests.filter(quest=>quest.name.toLowerCase().includes(q)||quest.description.toLowerCase().includes(q)); document.getElementById('questGrid').innerHTML=filtered.map(quest=>`<div class="info-card"><h4>${quest.name}</h4><div class="meta"><span class="type-badge ${quest.type}">${getTypeLabel(quest.type)}</span></div><p class="description">${quest.description}</p><div class="quest-details"><p><strong>目标：</strong>${quest.objective}</p><p><strong>奖励：</strong>${quest.reward}</p><p><strong>前置：</strong>${quest.prereq||'无'}</p></div><button onclick="deleteQuest(${quest.id})" class="btn-delete">删除</button></div>`).join(''); }
+
+        document.getElementById('addQuestForm').addEventListener('submit',function(e){
+            e.preventDefault();
+            quests.push({ id:Date.now(), name:document.getElementById('questName').value, type:document.getElementById('questType').value, description:document.getElementById('questDesc').value, objective:document.getElementById('questObjective').value, reward:document.getElementById('questReward').value, prereq:document.getElementById('questPrereq').value||'无' });
+            saveQuests(); renderQuests(); updateStats(); this.reset(); alert('任务添加成功！');
+        });
+
+        function deleteQuest(id){ if(confirm('确定删除？')){ quests=quests.filter(q=>q.id!==id); saveQuests(); renderQuests(); updateStats(); } }
+
+        renderQuests(); updateStats();
+    </script>
+</body>
+</html>

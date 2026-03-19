@@ -1,0 +1,867 @@
+/* ==================== Wiki风格样式 ==================== */
+
+/* 基础样式重置 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --wiki-bg: #f6f6f6;
+    --wiki-content-bg: #ffffff;
+    --wiki-border: #a2a9b1;
+    --wiki-link: #3366cc;
+    --wiki-link-hover: #2a4b8d;
+    --wiki-text: #222222;
+    --wiki-text-secondary: #54595d;
+    --wiki-header-bg: #f8f9fa;
+    --wiki-sidebar-bg: #f8f9fa;
+    --wiki-accent: #3366cc;
+    --wiki-box-bg: #f8f9fa;
+    --wiki-toc-bg: #f8f9fa;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Lato', 'Helvetica', 'Arial', sans-serif;
+    background-color: var(--wiki-bg);
+    color: var(--wiki-text);
+    line-height: 1.6;
+    font-size: 14px;
+}
+
+/* ==================== Wiki顶部栏 ==================== */
+.wiki-topbar {
+    background: var(--wiki-content-bg);
+    border-bottom: 1px solid var(--wiki-border);
+    padding: 8px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.wiki-logo a {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--wiki-text);
+    text-decoration: none;
+}
+
+.wiki-search {
+    display: flex;
+    gap: 5px;
+}
+
+.wiki-search input {
+    padding: 6px 12px;
+    border: 1px solid var(--wiki-border);
+    border-radius: 2px;
+    width: 300px;
+    font-size: 13px;
+}
+
+.wiki-search button {
+    padding: 6px 12px;
+    background: var(--wiki-accent);
+    color: white;
+    border: none;
+    border-radius: 2px;
+    cursor: pointer;
+}
+
+.wiki-user {
+    font-size: 13px;
+    color: var(--wiki-text-secondary);
+}
+
+/* ==================== Wiki容器布局 ==================== */
+.wiki-container {
+    display: flex;
+    max-width: 1400px;
+    margin: 0 auto;
+    min-height: calc(100vh - 100px);
+}
+
+/* ==================== 左侧导航栏 ==================== */
+.wiki-sidebar {
+    width: 200px;
+    background: var(--wiki-sidebar-bg);
+    border-right: 1px solid var(--wiki-border);
+    padding: 20px 0;
+    flex-shrink: 0;
+}
+
+.nav-section {
+    margin-bottom: 20px;
+}
+
+.nav-section h3 {
+    font-size: 13px;
+    font-weight: bold;
+    color: var(--wiki-text-secondary);
+    padding: 8px 20px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.nav-section ul {
+    list-style: none;
+}
+
+.nav-section li a {
+    display: block;
+    padding: 6px 20px;
+    color: var(--wiki-link);
+    text-decoration: none;
+    font-size: 13px;
+    transition: background 0.2s;
+}
+
+.nav-section li a:hover {
+    background: rgba(0,0,0,0.05);
+}
+
+.nav-section li a.active {
+    color: var(--wiki-text);
+    font-weight: bold;
+    background: rgba(0,0,0,0.05);
+}
+
+/* ==================== 主内容区 ==================== */
+.wiki-content {
+    flex: 1;
+    background: var(--wiki-content-bg);
+    padding: 20px 30px;
+}
+
+/* 面包屑导航 */
+.breadcrumb {
+    font-size: 13px;
+    color: var(--wiki-text-secondary);
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--wiki-border);
+}
+
+.breadcrumb a {
+    color: var(--wiki-link);
+    text-decoration: none;
+}
+
+.breadcrumb a:hover {
+    text-decoration: underline;
+}
+
+.breadcrumb .current {
+    color: var(--wiki-text);
+    font-weight: bold;
+}
+
+/* ==================== 文章样式 ==================== */
+.wiki-article {
+    max-width: 900px;
+}
+
+.article-title {
+    font-size: 28px;
+    font-weight: normal;
+    border-bottom: 1px solid var(--wiki-border);
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+    font-family: 'Linux Libertine', 'Georgia', 'Times', serif;
+}
+
+.article-intro {
+    font-size: 14px;
+    line-height: 1.8;
+    margin-bottom: 20px;
+}
+
+.wiki-article h2 {
+    font-size: 21px;
+    font-weight: normal;
+    margin: 30px 0 15px 0;
+    border-bottom: 1px solid var(--wiki-border);
+    padding-bottom: 5px;
+    font-family: 'Linux Libertine', 'Georgia', 'Times', serif;
+}
+
+.wiki-article h3 {
+    font-size: 17px;
+    font-weight: bold;
+    margin: 25px 0 10px 0;
+}
+
+.wiki-article h4 {
+    font-size: 15px;
+    font-weight: bold;
+    margin: 20px 0 10px 0;
+}
+
+.wiki-article p {
+    margin-bottom: 15px;
+    line-height: 1.8;
+}
+
+.wiki-article a {
+    color: var(--wiki-link);
+    text-decoration: none;
+}
+
+.wiki-article a:hover {
+    text-decoration: underline;
+}
+
+.wiki-article ul, .wiki-article ol {
+    margin: 15px 0;
+    padding-left: 30px;
+}
+
+.wiki-article li {
+    margin-bottom: 8px;
+    line-height: 1.6;
+}
+
+/* ==================== 目录样式 ==================== */
+.wiki-toc {
+    background: var(--wiki-toc-bg);
+    border: 1px solid var(--wiki-border);
+    padding: 15px 20px;
+    margin: 20px 0;
+    width: 100%;
+}
+
+.wiki-toc h3 {
+    font-size: 14px;
+    font-weight: bold;
+    margin: 0 0 10px 0;
+    text-align: center;
+}
+
+.wiki-toc ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.wiki-toc li {
+    margin: 5px 0;
+}
+
+.wiki-toc a {
+    color: var(--wiki-link);
+    text-decoration: none;
+    font-size: 13px;
+}
+
+.wiki-toc a:hover {
+    text-decoration: underline;
+}
+
+/* ==================== 信息框 ==================== */
+.info-box {
+    background: var(--wiki-box-bg);
+    border: 1px solid var(--wiki-border);
+    padding: 15px 20px;
+    margin: 20px 0;
+    width: 100%;
+}
+
+.info-box h4 {
+    margin-top: 0;
+    font-size: 14px;
+    border-bottom: 1px solid var(--wiki-border);
+    padding-bottom: 8px;
+    margin-bottom: 12px;
+}
+
+.info-box ul {
+    margin: 0;
+    padding-left: 20px;
+}
+
+/* ==================== 表格样式 ==================== */
+.wiki-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    font-size: 13px;
+}
+
+.wiki-table th,
+.wiki-table td {
+    border: 1px solid var(--wiki-border);
+    padding: 8px 12px;
+    text-align: left;
+}
+
+.wiki-table th {
+    background: var(--wiki-box-bg);
+    font-weight: bold;
+}
+
+.wiki-table tr:nth-child(even) {
+    background: #f8f9fa;
+}
+
+.wiki-table tr:hover {
+    background: #eaecf0;
+}
+
+/* ==================== 特色网格 ==================== */
+.feature-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    margin: 20px 0;
+}
+
+.feature-item {
+    background: var(--wiki-box-bg);
+    border: 1px solid var(--wiki-border);
+    padding: 15px;
+}
+
+.feature-item h4 {
+    margin-top: 0;
+    font-size: 14px;
+}
+
+.feature-item p {
+    margin: 0;
+    font-size: 13px;
+    color: var(--wiki-text-secondary);
+}
+
+/* ==================== 更新日志 ==================== */
+.update-log {
+    margin: 20px 0;
+}
+
+.update-item {
+    padding: 10px 0;
+    border-bottom: 1px solid #eaecf0;
+    font-size: 13px;
+}
+
+.update-date {
+    color: var(--wiki-text-secondary);
+    margin-right: 10px;
+}
+
+.update-type {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-size: 11px;
+    margin-right: 10px;
+}
+
+.update-type.new {
+    background: #d4edda;
+    color: #155724;
+}
+
+.update-type.update {
+    background: #cce5ff;
+    color: #004085;
+}
+
+.update-type.fix {
+    background: #fff3cd;
+    color: #856404;
+}
+
+/* ==================== 文章底部 ==================== */
+.article-footer {
+    margin-top: 40px;
+    padding-top: 20px;
+    border-top: 1px solid var(--wiki-border);
+    font-size: 12px;
+    color: var(--wiki-text-secondary);
+}
+
+/* ==================== 页脚 ==================== */
+.wiki-footer {
+    background: var(--wiki-box-bg);
+    border-top: 1px solid var(--wiki-border);
+    padding: 20px;
+    text-align: center;
+    font-size: 12px;
+    color: var(--wiki-text-secondary);
+}
+
+/* ==================== 内容页面信息卡片 ==================== */
+.infobox {
+    float: right;
+    width: 270px;
+    margin: 0 0 20px 20px;
+    background: var(--wiki-box-bg);
+    border: 1px solid var(--wiki-border);
+    font-size: 12px;
+}
+
+.infobox-header {
+    background: #b0c4de;
+    padding: 10px;
+    text-align: center;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.infobox-image {
+    text-align: center;
+    padding: 10px;
+    background: #f8f9fa;
+}
+
+.infobox-image img {
+    max-width: 100%;
+    height: auto;
+}
+
+.infobox-row {
+    display: flex;
+    border-bottom: 1px solid var(--wiki-border);
+}
+
+.infobox-label {
+    width: 40%;
+    padding: 8px;
+    font-weight: bold;
+    background: #eaecf0;
+}
+
+.infobox-value {
+    width: 60%;
+    padding: 8px;
+}
+
+/* ==================== 卡片网格（用于列表页） ==================== */
+.card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 15px;
+    margin: 20px 0;
+}
+
+.info-card {
+    background: var(--wiki-content-bg);
+    border: 1px solid var(--wiki-border);
+    padding: 15px;
+    transition: box-shadow 0.2s;
+}
+
+.info-card:hover {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.info-card h4 {
+    font-size: 15px;
+    margin-bottom: 8px;
+    color: var(--wiki-link);
+}
+
+.info-card .meta {
+    font-size: 12px;
+    color: var(--wiki-text-secondary);
+    margin-bottom: 10px;
+}
+
+.info-card .description {
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+/* ==================== 筛选标签 ==================== */
+.filter-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 20px 0;
+    padding-bottom: 15px;
+    border-bottom: 1px solid var(--wiki-border);
+}
+
+.tab-btn {
+    padding: 6px 15px;
+    background: var(--wiki-box-bg);
+    border: 1px solid var(--wiki-border);
+    border-radius: 2px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: all 0.2s;
+}
+
+.tab-btn:hover {
+    background: #eaecf0;
+}
+
+.tab-btn.active {
+    background: var(--wiki-accent);
+    color: white;
+    border-color: var(--wiki-accent);
+}
+
+/* ==================== 表单样式 ==================== */
+.wiki-form {
+    max-width: 600px;
+    margin: 20px 0;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    font-size: 13px;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid var(--wiki-border);
+    border-radius: 2px;
+    font-size: 13px;
+    font-family: inherit;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: var(--wiki-accent);
+}
+
+.btn-primary {
+    padding: 8px 20px;
+    background: var(--wiki-accent);
+    color: white;
+    border: none;
+    border-radius: 2px;
+    cursor: pointer;
+    font-size: 13px;
+}
+
+.btn-primary:hover {
+    background: var(--wiki-link-hover);
+}
+
+.btn-delete {
+    padding: 4px 12px;
+    background: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 2px;
+    cursor: pointer;
+    font-size: 12px;
+    margin-top: 10px;
+}
+
+.btn-delete:hover {
+    background: #c82333;
+}
+
+/* ==================== 类型徽章 ==================== */
+.type-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 2px;
+    font-size: 11px;
+    margin-right: 5px;
+}
+
+.type-badge.playable,
+.type-badge.weapon,
+.type-badge.main,
+.type-badge.town {
+    background: #eaf3ff;
+    color: #3366cc;
+}
+
+.type-badge.npc,
+.type-badge.side,
+.type-badge.armor,
+.type-badge.dungeon {
+    background: #f3e5f5;
+    color: #7b1fa2;
+}
+
+.type-badge.enemy,
+.type-badge.consumable,
+.type-badge.daily,
+.type-badge.field {
+    background: #ffebee;
+    color: #c62828;
+}
+
+.type-badge.material,
+.type-badge.event,
+.type-badge.special {
+    background: #e8f5e9;
+    color: #2e7d32;
+}
+
+/* ==================== 稀有度徽章 ==================== */
+.rarity-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 2px;
+    font-size: 11px;
+}
+
+.rarity-badge.common {
+    background: #f5f5f5;
+    color: #616161;
+}
+
+.rarity-badge.uncommon {
+    background: #e8f5e9;
+    color: #2e7d32;
+}
+
+.rarity-badge.rare {
+    background: #e3f2fd;
+    color: #1565c0;
+}
+
+.rarity-badge.epic {
+    background: #f3e5f5;
+    color: #7b1fa2;
+}
+
+.rarity-badge.legendary {
+    background: #fff8e1;
+    color: #f57f17;
+}
+
+/* ==================== 危险等级徽章 ==================== */
+.danger-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 2px;
+    font-size: 11px;
+}
+
+.danger-badge.safe {
+    background: #e8f5e9;
+    color: #2e7d32;
+}
+
+.danger-badge.low {
+    background: #fff8e1;
+    color: #f9a825;
+}
+
+.danger-badge.medium {
+    background: #fff3e0;
+    color: #ef6c00;
+}
+
+.danger-badge.high {
+    background: #ffebee;
+    color: #c62828;
+}
+
+.danger-badge.extreme {
+    background: #4a148c;
+    color: white;
+}
+
+/* ==================== 效果框 ==================== */
+.effect-box,
+.loot-box {
+    margin-top: 10px;
+    padding: 8px;
+    background: var(--wiki-box-bg);
+    border-left: 3px solid var(--wiki-accent);
+    font-size: 12px;
+}
+
+/* ==================== 任务详情 ==================== */
+.quest-details {
+    margin-top: 10px;
+    padding: 10px;
+    background: var(--wiki-box-bg);
+    font-size: 12px;
+}
+
+.quest-details p {
+    margin-bottom: 5px;
+}
+
+/* ==================== 标签列表 ==================== */
+.tag-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin-top: 8px;
+}
+
+.tag-item {
+    padding: 2px 8px;
+    background: var(--wiki-box-bg);
+    border: 1px solid var(--wiki-border);
+    border-radius: 2px;
+    font-size: 11px;
+}
+
+/* ==================== 时间线 ==================== */
+.timeline {
+    position: relative;
+    padding-left: 25px;
+    margin: 20px 0;
+}
+
+.timeline::before {
+    content: '';
+    position: absolute;
+    left: 8px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: var(--wiki-border);
+}
+
+.timeline-item {
+    position: relative;
+    margin-bottom: 20px;
+    padding-left: 15px;
+}
+
+.timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -20px;
+    top: 4px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--wiki-accent);
+    border: 2px solid white;
+}
+
+.timeline-year {
+    font-weight: bold;
+    color: var(--wiki-accent);
+    font-size: 14px;
+    margin-bottom: 5px;
+}
+
+.timeline-content h4 {
+    font-size: 14px;
+    margin-bottom: 5px;
+}
+
+.timeline-content p {
+    font-size: 13px;
+    color: var(--wiki-text-secondary);
+    margin: 0;
+}
+
+/* ==================== 页面头部 ==================== */
+.page-header {
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid var(--wiki-border);
+}
+
+.page-header h2 {
+    font-size: 24px;
+    font-weight: normal;
+    margin-bottom: 5px;
+    font-family: 'Linux Libertine', 'Georgia', 'Times', serif;
+}
+
+.page-header p {
+    color: var(--wiki-text-secondary);
+    font-size: 13px;
+    margin: 0;
+}
+
+/* ==================== 内容区块 ==================== */
+.content-section {
+    margin-bottom: 30px;
+}
+
+.content-section h3 {
+    font-size: 17px;
+    border-bottom: 1px solid var(--wiki-border);
+    padding-bottom: 8px;
+    margin-bottom: 15px;
+}
+
+/* ==================== 响应式设计 ==================== */
+@media (max-width: 1024px) {
+    .wiki-sidebar {
+        width: 180px;
+    }
+}
+
+@media (max-width: 768px) {
+    .wiki-container {
+        flex-direction: column;
+    }
+    
+    .wiki-sidebar {
+        width: 100%;
+        border-right: none;
+        border-bottom: 1px solid var(--wiki-border);
+        padding: 10px 0;
+    }
+    
+    .nav-section {
+        margin-bottom: 10px;
+    }
+    
+    .wiki-content {
+        padding: 15px;
+    }
+    
+    .wiki-search input {
+        width: 200px;
+    }
+    
+    .feature-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .infobox {
+        float: none;
+        width: 100%;
+        margin: 20px 0;
+    }
+    
+    .card-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 480px) {
+    .wiki-topbar {
+        flex-wrap: wrap;
+        padding: 10px;
+    }
+    
+    .wiki-logo a {
+        font-size: 1.2rem;
+    }
+    
+    .wiki-search {
+        order: 3;
+        width: 100%;
+        margin-top: 10px;
+    }
+    
+    .wiki-search input {
+        width: 100%;
+    }
+}

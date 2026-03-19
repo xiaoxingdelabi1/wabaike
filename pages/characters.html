@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>角色图鉴 - 蛙噻！好摊</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body class="wiki-layout">
+    <header class="wiki-topbar">
+        <div class="wiki-logo">
+            <a href="../index.html">蛙噻！好摊 Wiki</a>
+        </div>
+        <div class="wiki-search">
+            <input type="text" placeholder="搜索百科..." id="searchInput">
+            <button onclick="searchCharacters()">搜索</button>
+        </div>
+        <div class="wiki-user">
+            <span>欢迎访问</span>
+        </div>
+    </header>
+
+    <div class="wiki-container">
+        <aside class="wiki-sidebar">
+            <nav class="wiki-nav">
+                <div class="nav-section">
+                    <h3>百科分类</h3>
+                    <ul>
+                        <li><a href="../index.html">首页</a></li>
+                        <li><a href="world.html">世界观</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>角色</h3>
+                    <ul>
+                        <li><a href="characters.html" class="active">角色总览</a></li>
+                        <li><a href="characters.html?type=playable">可招募角色</a></li>
+                        <li><a href="characters.html?type=npc">NPC</a></li>
+                        <li><a href="characters.html?type=enemy">敌人</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>物品装备</h3>
+                    <ul>
+                        <li><a href="items.html">物品总览</a></li>
+                        <li><a href="items.html?type=weapon">武器</a></li>
+                        <li><a href="items.html?type=armor">防具</a></li>
+                        <li><a href="items.html?type=consumable">消耗品</a></li>
+                        <li><a href="items.html?type=material">材料</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>世界探索</h3>
+                    <ul>
+                        <li><a href="locations.html">地点总览</a></li>
+                        <li><a href="quests.html">任务剧情</a></li>
+                    </ul>
+                </div>
+            </nav>
+        </aside>
+
+        <main class="wiki-content">
+            <nav class="breadcrumb">
+                <a href="../index.html">首页</a> &gt; <span class="current">角色图鉴</span>
+            </nav>
+
+            <article class="wiki-article">
+                <h1 class="article-title">角色图鉴</h1>
+                
+                <div class="article-intro">
+                    <p>本页面收录了游戏中的所有角色，包括<strong>可招募角色</strong>、<strong>NPC</strong>和<strong>敌人</strong>。点击角色名称可以查看详细信息。</p>
+                </div>
+
+                <div class="infobox">
+                    <div class="infobox-header">角色统计</div>
+                    <div class="infobox-row">
+                        <div class="infobox-label">可招募</div>
+                        <div class="infobox-value" id="playableCount">-</div>
+                    </div>
+                    <div class="infobox-row">
+                        <div class="infobox-label">NPC</div>
+                        <div class="infobox-value" id="npcCount">-</div>
+                    </div>
+                    <div class="infobox-row">
+                        <div class="infobox-label">敌人</div>
+                        <div class="infobox-value" id="enemyCount">-</div>
+                    </div>
+                    <div class="infobox-row">
+                        <div class="infobox-label">总计</div>
+                        <div class="infobox-value" id="totalCount">-</div>
+                    </div>
+                </div>
+
+                <h2 id="overview">角色列表</h2>
+                <p>以下是游戏中的所有角色，你可以使用下方的筛选器来查看特定类型的角色。</p>
+
+                <div class="filter-tabs">
+                    <button class="tab-btn active" onclick="filterCharacters('all')">全部</button>
+                    <button class="tab-btn" onclick="filterCharacters('playable')">可招募</button>
+                    <button class="tab-btn" onclick="filterCharacters('npc')">NPC</button>
+                    <button class="tab-btn" onclick="filterCharacters('enemy')">敌人</button>
+                </div>
+
+                <div class="card-grid" id="characterGrid"></div>
+
+                <h2 id="add">添加新角色</h2>
+                <p>使用下方的表单添加新的角色到百科中。</p>
+
+                <form id="addCharacterForm" class="wiki-form">
+                    <div class="form-group">
+                        <label>角色名称</label>
+                        <input type="text" id="charName" placeholder="输入角色名称" required>
+                    </div>
+                    <div class="form-group">
+                        <label>角色类型</label>
+                        <select id="charType">
+                            <option value="playable">可招募</option>
+                            <option value="npc">NPC</option>
+                            <option value="enemy">敌人</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>角色描述</label>
+                        <textarea id="charDesc" placeholder="输入角色描述" rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>技能（用逗号分隔）</label>
+                        <input type="text" id="charSkills" placeholder="例如：摆摊, 战斗, 交涉">
+                    </div>
+                    <button type="submit" class="btn-primary">添加角色</button>
+                </form>
+
+                <div class="article-footer">
+                    <p>最后更新于：2026-03-19 | 编辑次数：1</p>
+                </div>
+            </article>
+        </main>
+    </div>
+
+    <footer class="wiki-footer">
+        <p>&copy; 2026 《蛙噻！好摊》游戏百科 | 本百科由玩家共同维护</p>
+    </footer>
+
+    <script src="../js/main.js"></script>
+    <script>
+        let characters = JSON.parse(localStorage.getItem('wiki_characters')) || [
+            { id: 1, name: "主角", type: "playable", description: "从摆摊小贩开始的冒险者，怀揣着成为商业大亨的梦想。", skills: ["摆摊", "战斗", "交涉"] },
+            { id: 2, name: "老商人王叔", type: "npc", description: "在城镇广场摆摊多年的老商人，会给予新手很多有用的建议。", skills: ["经商", "鉴定", "口才"] },
+            { id: 3, name: "流浪剑客", type: "playable", description: "身怀绝技的剑客，因某些原因开始与你并肩作战。", skills: ["剑术", "闪避", "摆摊"] },
+            { id: 4, name: "盗贼小弟", type: "enemy", description: "经常在城镇周围出没的小毛贼，专门偷取商人的货物。", skills: ["偷窃", "逃跑"] }
+        ];
+
+        function saveCharacters() { localStorage.setItem('wiki_characters', JSON.stringify(characters)); }
+
+        function updateStats() {
+            document.getElementById('playableCount').textContent = characters.filter(c => c.type === 'playable').length;
+            document.getElementById('npcCount').textContent = characters.filter(c => c.type === 'npc').length;
+            document.getElementById('enemyCount').textContent = characters.filter(c => c.type === 'enemy').length;
+            document.getElementById('totalCount').textContent = characters.length;
+        }
+
+        function renderCharacters(filter = 'all') {
+            const grid = document.getElementById('characterGrid');
+            let filteredChars = filter === 'all' ? characters : characters.filter(c => c.type === filter);
+
+            if (filteredChars.length === 0) {
+                grid.innerHTML = '<p style="color: var(--wiki-text-secondary); padding: 20px;">暂无该类型的角色</p>';
+                return;
+            }
+
+            grid.innerHTML = filteredChars.map(char => `
+                <div class="info-card" data-type="${char.type}">
+                    <h4>${char.name}</h4>
+                    <div class="meta"><span class="type-badge ${char.type}">${getTypeLabel(char.type)}</span></div>
+                    <p class="description">${char.description}</p>
+                    <div class="tag-list">${char.skills.map(skill => `<span class="tag-item">${skill}</span>`).join('')}</div>
+                    <button onclick="deleteCharacter(${char.id})" class="btn-delete">删除</button>
+                </div>
+            `).join('');
+        }
+
+        function getTypeLabel(type) {
+            const labels = { 'playable': '可招募', 'npc': 'NPC', 'enemy': '敌人' };
+            return labels[type] || type;
+        }
+
+        function filterCharacters(type) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            renderCharacters(type);
+        }
+
+        function searchCharacters() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const filtered = characters.filter(char => char.name.toLowerCase().includes(query) || char.description.toLowerCase().includes(query));
+            document.getElementById('characterGrid').innerHTML = filtered.map(char => `
+                <div class="info-card" data-type="${char.type}">
+                    <h4>${char.name}</h4>
+                    <div class="meta"><span class="type-badge ${char.type}">${getTypeLabel(char.type)}</span></div>
+                    <p class="description">${char.description}</p>
+                    <div class="tag-list">${char.skills.map(skill => `<span class="tag-item">${skill}</span>`).join('')}</div>
+                    <button onclick="deleteCharacter(${char.id})" class="btn-delete">删除</button>
+                </div>
+            `).join('');
+        }
+
+        document.getElementById('addCharacterForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            characters.push({
+                id: Date.now(),
+                name: document.getElementById('charName').value,
+                type: document.getElementById('charType').value,
+                description: document.getElementById('charDesc').value,
+                skills: document.getElementById('charSkills').value.split(',').map(s => s.trim()).filter(s => s)
+            });
+            saveCharacters();
+            renderCharacters();
+            updateStats();
+            this.reset();
+            alert('角色添加成功！');
+        });
+
+        function deleteCharacter(id) {
+            if (confirm('确定要删除这个角色吗？')) {
+                characters = characters.filter(c => c.id !== id);
+                saveCharacters();
+                renderCharacters();
+                updateStats();
+            }
+        }
+
+        renderCharacters();
+        updateStats();
+    </script>
+</body>
+</html>
