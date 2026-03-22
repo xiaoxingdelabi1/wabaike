@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>物品装备 - 蛙噻！好摊</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body class="wiki-layout">
+    <header class="wiki-topbar">
+        <div class="wiki-logo">
+            <a href="../index.html">蛙噻！好摊</a>
+        </div>
+        <div class="wiki-search">
+            <input type="text" placeholder="搜索百科..." id="searchInput">
+            <button onclick="searchItems()">搜索</button>
+        </div>
+        <div class="wiki-user">
+            <span>欢迎访问</span>
+        </div>
+    </header>
+
+    <div class="wiki-container">
+        <aside class="wiki-sidebar">
+            <nav class="wiki-nav">
+                <div class="nav-section">
+                    <h3>百科分类</h3>
+                    <ul>
+                        <li><a href="../index.html">首页</a></li>
+                        <li><a href="game-intro.html">游戏介绍</a></li>
+                        <li><a href="world.html">世界观</a></li>
+                        <li><a href="factions.html">势力分布</a></li>
+                        <li><a href="history.html">历史年表</a></li>
+                        <li><a href="price-mechanism.html">价格机制</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>游戏特色</h3>
+                    <ul>
+                        <li><a href="bazaar.html">集市</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>游戏玩法</h3>
+                    <ul>
+                        <li><a href="market.html">摆摊系统</a></li>
+                        <li><a href="achievements.html">成就系统</a></li>
+                        <li><a href="combat.html">战斗系统</a></li>
+                        <li><a href="progression.html">成长系统</a></li>
+                        <li><a href="currency.html">货币系统</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>角色</h3>
+                    <ul>
+                        <li><a href="characters.html">角色总览</a></li>
+                        <li><a href="characters.html?type=playable">主要角色</a></li>
+                        <li><a href="characters.html?type=npc">NPC</a></li>
+                        <li><a href="enemies.html">敌人</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>物品装备</h3>
+                    <ul>
+                        <li><a href="items.html">物品总览</a></li>
+                        <li><a href="items.html?type=weapon">武器</a></li>
+                        <li><a href="items.html?type=armor">防具</a></li>
+                        <li><a href="items.html?type=consumable">消耗品</a></li>
+                        <li><a href="items.html?type=material">材料</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>世界探索</h3>
+                    <ul>
+                        <li><a href="locations.html">地点总览</a></li>
+                        <li><a href="map.html">游戏地图</a></li>
+                        <li><a href="quests.html">任务剧情</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>关于</h3>
+                    <ul>
+                        <li><a href="dev-thoughts.html">开发者随想</a></li>
+                    </ul>
+                </div>
+            </nav>
+        </aside>
+
+        <main class="wiki-content">
+            <nav class="breadcrumb">
+                <a href="../index.html">首页</a> &gt; <span class="current">物品装备</span>
+            </nav>
+
+            <article class="wiki-article">
+                <h1 class="article-title">物品装备</h1>
+                
+                <div class="article-intro">
+                    <p>本页面收录了游戏中的所有物品，包括<strong>武器</strong>、<strong>防具</strong>、<strong>消耗品</strong>、<strong>材料</strong>和<strong>特殊物品</strong>。</p>
+                </div>
+
+                <div class="infobox">
+                    <div class="infobox-header">物品统计</div>
+                    <div class="infobox-row">
+                        <div class="infobox-label">武器</div>
+                        <div class="infobox-value" id="weaponCount">-</div>
+                    </div>
+                    <div class="infobox-row">
+                        <div class="infobox-label">防具</div>
+                        <div class="infobox-value" id="armorCount">-</div>
+                    </div>
+                    <div class="infobox-row">
+                        <div class="infobox-label">消耗品</div>
+                        <div class="infobox-value" id="consumableCount">-</div>
+                    </div>
+                    <div class="infobox-row">
+                        <div class="infobox-label">材料</div>
+                        <div class="infobox-value" id="materialCount">-</div>
+                    </div>
+                    <div class="infobox-row">
+                        <div class="infobox-label">总计</div>
+                        <div class="infobox-value" id="totalCount">-</div>
+                    </div>
+                </div>
+
+                <h2 id="list">物品列表</h2>
+                
+                <div class="filter-tabs">
+                    <button class="tab-btn active" id="btn-all" onclick="filterItems('all')">全部</button>
+                    <button class="tab-btn" id="btn-weapon" onclick="filterItems('weapon')">武器</button>
+                    <button class="tab-btn" id="btn-armor" onclick="filterItems('armor')">防具</button>
+                    <button class="tab-btn" id="btn-consumable" onclick="filterItems('consumable')">消耗品</button>
+                    <button class="tab-btn" id="btn-material" onclick="filterItems('material')">材料</button>
+                    <button class="tab-btn" id="btn-special" onclick="filterItems('special')">特殊</button>
+                </div>
+                
+                <div class="card-grid" id="itemGrid"></div>
+
+                <h2 id="add">添加新物品</h2>
+                <form id="addItemForm" class="wiki-form">
+                    <div class="form-group">
+                        <label>物品名称</label>
+                        <input type="text" id="itemName" placeholder="输入物品名称" required>
+                    </div>
+                    <div class="form-group">
+                        <label>物品类型</label>
+                        <select id="itemType">
+                            <option value="weapon">武器</option>
+                            <option value="armor">防具</option>
+                            <option value="consumable">消耗品</option>
+                            <option value="material">材料</option>
+                            <option value="special">特殊</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>稀有度</label>
+                        <select id="itemRarity">
+                            <option value="common">普通</option>
+                            <option value="uncommon">优秀</option>
+                            <option value="rare">稀有</option>
+                            <option value="epic">史诗</option>
+                            <option value="legendary">传说</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>物品描述</label>
+                        <textarea id="itemDesc" placeholder="输入物品描述" rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>属性/效果</label>
+                        <input type="text" id="itemEffect" placeholder="例如：攻击力+10, 生命值+50">
+                    </div>
+                    <button type="submit" class="btn-primary">添加物品</button>
+                </form>
+
+                <div class="article-footer">
+                    <p>最后更新于：2026-03-19 | 编辑次数：1</p>
+                </div>
+            </article>
+        </main>
+    </div>
+
+    <footer class="wiki-footer">
+        <p>&copy; 2026 《蛙噻！好摊》游戏百科 | 本百科由玩家共同维护</p>
+    </footer>
+
+    <script src="../js/main.js"></script>
+    <script>
+        // 清除旧数据以确保使用新的物品列表
+        localStorage.removeItem('wiki_items');
+        
+        let items = [
+            // 武器
+            { id: 1, name: "新手木剑", type: "weapon", rarity: "common", description: "初学者使用的木剑，轻便但威力有限。", effect: "攻击力+5" },
+            { id: 2, name: "铁剑", type: "weapon", rarity: "uncommon", description: "用精铁打造的剑，比木剑更加锋利耐用。", effect: "攻击力+15" },
+            { id: 3, name: "布甲", type: "armor", rarity: "common", description: "用粗布缝制的简易护甲，提供基础防护。", effect: "防御力+3" },
+            
+            // 血药类消耗品
+            { id: 4, name: "小还丹", type: "consumable", rarity: "common", description: "用花果山灵草炼制的初级回血丹药，适合新手使用。", effect: "恢复生命值50点" },
+            { id: 5, name: "大还丹", type: "consumable", rarity: "uncommon", description: "比小还丹药效更强的回血丹药，炼制工艺更加复杂。", effect: "恢复生命值150点" },
+            { id: 6, name: "九转金丹", type: "consumable", rarity: "epic", description: "太上老君炼丹炉中炼制的仙丹，具有起死回生的功效。", effect: "恢复生命值500点，解除所有负面状态" },
+            { id: 7, name: "灵芝草", type: "consumable", rarity: "common", description: "生长在仙山的灵芝，嚼食后可恢复些许体力。", effect: "恢复生命值30点" },
+            { id: 8, name: "人参果", type: "consumable", rarity: "rare", description: "五庄观特产，闻一闻可活三百六十岁，吃一个可活四万七千年。", effect: "恢复生命值300点，永久增加生命上限10点" },
+            { id: 9, name: "蟠桃", type: "consumable", rarity: "epic", description: "王母娘娘蟠桃园中的仙桃，食之可延年益寿。", effect: "恢复生命值1000点，永久增加生命上限50点" },
+            { id: 10, name: "猴儿酒", type: "consumable", rarity: "uncommon", description: "花果山猴子们酿造的美酒，喝一口可恢复元气。", effect: "恢复生命值80点，攻击力+10%（持续30秒）" },
+            { id: 11, name: "唐僧肉", type: "consumable", rarity: "legendary", description: "传说吃了可以长生不老，但实际上只是唐僧的素斋。", effect: "恢复全部生命值，获得长生buff（持续1小时）" },
+            
+            // 材料
+            { id: 12, name: "铁矿石", type: "material", rarity: "common", description: "常见的矿石，可用于打造装备。", effect: "锻造材料" },
+            { id: 13, name: "灵草", type: "material", rarity: "common", description: "生长在灵气充沛之地的草药，是炼制丹药的基础材料。", effect: "炼丹材料" },
+            { id: 14, name: "仙草", type: "material", rarity: "uncommon", description: "比灵草更加稀有的草药，炼制高级丹药必备。", effect: "炼丹材料" },
+            { id: 15, name: "妖丹", type: "material", rarity: "rare", description: "妖怪体内凝结的内丹，蕴含着妖怪的修为精华。", effect: "炼丹/炼器材料" },
+            
+            // 虫类材料（花果山产出）
+            { id: 16, name: "灵虫", type: "material", rarity: "common", description: "花果山常见的灵虫，体内含有微弱的灵气，可用于炼制初级丹药。", effect: "炼丹材料，可炼制小还丹" },
+            { id: 17, name: "花蜜虫", type: "material", rarity: "common", description: "以花蜜为食的虫子，体内储存着花蜜精华，是炼制恢复类丹药的材料。", effect: "炼丹材料，增加丹药恢复效果" },
+            { id: 18, name: "仙草蚕", type: "material", rarity: "uncommon", description: "以仙草为食的蚕虫，体内蕴含着仙草的精华，十分珍贵。", effect: "炼丹材料，可炼制大还丹" },
+            { id: 19, name: "金蝉子", type: "material", rarity: "rare", description: "花果山特有的金色蝉虫，传说与唐僧前世同名，蕴含强大灵力。", effect: "炼丹材料，可炼制九转金丹" },
+            { id: 20, name: "百草虫", type: "material", rarity: "common", description: "以各种草药为食的虫子，是炼制解毒丹药的好材料。", effect: "炼丹材料，可炼制解毒丹" },
+            { id: 21, name: "灵芝虫", type: "material", rarity: "uncommon", description: "生活在灵芝附近的虫子，吸收了灵芝的灵气，十分稀有。", effect: "炼丹材料，大幅提升丹药品质" },
+            
+            // 特殊
+            { id: 22, name: "商人的算盘", type: "special", rarity: "rare", description: "传说中的商人使用的算盘，据说能带来好运。", effect: "交易时价格优惠10%" }
+        ];
+
+        function saveItems() { localStorage.setItem('wiki_items', JSON.stringify(items)); }
+
+        function updateStats() {
+            document.getElementById('weaponCount').textContent = items.filter(i => i.type === 'weapon').length;
+            document.getElementById('armorCount').textContent = items.filter(i => i.type === 'armor').length;
+            document.getElementById('consumableCount').textContent = items.filter(i => i.type === 'consumable').length;
+            document.getElementById('materialCount').textContent = items.filter(i => i.type === 'material').length;
+            document.getElementById('totalCount').textContent = items.length;
+        }
+
+        function getRarityIcon(r) { const i={common:'',uncommon:'',rare:'',epic:'',legendary:''}; return i[r]||''; }
+        function getTypeLabel(t) { const l={weapon:'武器',armor:'防具',consumable:'消耗品',material:'材料',special:'特殊'}; return l[t]||t; }
+        function getRarityLabel(r) { const l={common:'普通',uncommon:'优秀',rare:'稀有',epic:'史诗',legendary:'传说'}; return l[r]||r; }
+
+        function renderItems(filter='all') {
+            const grid=document.getElementById('itemGrid');
+            let filtered=items;
+            if(filter!=='all') filtered=items.filter(i=>i.type===filter);
+            if(filtered.length===0){ grid.innerHTML='<p style="color:var(--wiki-text-secondary);padding:20px;">暂无该类型的物品</p>'; return; }
+            grid.innerHTML=filtered.map(item=>`
+                <div class="info-card" data-type="${item.type}">
+                    <h4>${item.name}</h4>
+                    <div class="meta">
+                        <span class="type-badge ${item.type}">${getTypeLabel(item.type)}</span>
+                        <span class="rarity-badge ${item.rarity}">${getRarityLabel(item.rarity)}</span>
+                    </div>
+                    <p class="description">${item.description}</p>
+                    <div class="effect-box"><strong>效果：</strong>${item.effect}</div>
+                    <button onclick="deleteItem(${item.id})" class="btn-delete">删除</button>
+                </div>
+            `).join('');
+        }
+
+        function filterItems(type){
+            document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+            const btnId = 'btn-' + type;
+            const activeBtn = document.getElementById(btnId);
+            if(activeBtn) activeBtn.classList.add('active');
+            renderItems(type);
+        }
+        
+        function searchItems(){ 
+            const q=document.getElementById('searchInput').value.toLowerCase(); 
+            const filtered=items.filter(i=>i.name.toLowerCase().includes(q)||i.description.toLowerCase().includes(q)); 
+            document.getElementById('itemGrid').innerHTML=filtered.map(item=>`<div class="info-card"><h4>${item.name}</h4><div class="meta"><span class="type-badge ${item.type}">${getTypeLabel(item.type)}</span><span class="rarity-badge ${item.rarity}">${getRarityLabel(item.rarity)}</span></div><p class="description">${item.description}</p><div class="effect-box"><strong>效果：</strong>${item.effect}</div><button onclick="deleteItem(${item.id})" class="btn-delete">删除</button></div>`).join(''); 
+        }
+
+        document.getElementById('addItemForm').addEventListener('submit',function(e){
+            e.preventDefault();
+            items.push({ id:Date.now(), name:document.getElementById('itemName').value, type:document.getElementById('itemType').value, rarity:document.getElementById('itemRarity').value, description:document.getElementById('itemDesc').value, effect:document.getElementById('itemEffect').value });
+            saveItems(); renderItems(); updateStats(); this.reset(); alert('物品添加成功！');
+        });
+
+        function deleteItem(id){ if(confirm('确定删除？')){ items=items.filter(i=>i.id!==id); saveItems(); renderItems(); updateStats(); } }
+
+        // 处理URL参数，自动筛选并高亮侧边栏
+        function handleUrlParams(){
+            const params = new URLSearchParams(window.location.search);
+            const type = params.get('type');
+            
+            // 高亮侧边栏对应链接
+            document.querySelectorAll('.wiki-sidebar .nav-section li a').forEach(a => {
+                a.classList.remove('active');
+                if(a.getAttribute('href') === 'items.html' && !type){
+                    a.classList.add('active');
+                } else if(a.getAttribute('href') === 'items.html?type=' + type){
+                    a.classList.add('active');
+                }
+            });
+            
+            if(type && ['weapon','armor','consumable','material','special'].includes(type)){
+                filterItems(type);
+            } else {
+                renderItems();
+            }
+        }
+
+        handleUrlParams(); updateStats();
+    </script>
+</body>
+</html>

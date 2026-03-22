@@ -27,33 +27,64 @@
                     <h3>百科分类</h3>
                     <ul>
                         <li><a href="../index.html">首页</a></li>
+                        <li><a href="game-intro.html">游戏介绍</a></li>
                         <li><a href="world.html">世界观</a></li>
+                        <li><a href="factions.html">势力分布</a></li>
+                        <li><a href="history.html">历史年表</a></li>
+                        <li><a href="price-mechanism.html">价格机制</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>游戏特色</h3>
+                    <ul>
+                        <li><a href="bazaar.html">集市</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>游戏玩法</h3>
+                    <ul>
+                        <li><a href="market.html">摆摊系统</a></li>
+                        <li><a href="achievements.html">成就系统</a></li>
+                        <li><a href="combat.html">战斗系统</a></li>
+                        <li><a href="progression.html">成长系统</a></li>
+                        <li><a href="currency.html">货币系统</a></li>
                     </ul>
                 </div>
                 <div class="nav-section">
                     <h3>角色</h3>
                     <ul>
                         <li><a href="characters.html" class="active">角色总览</a></li>
-                        <li><a href="characters.html?type=playable">可招募角色</a></li>
+                        <li><a href="characters.html?type=playable">主要角色</a></li>
                         <li><a href="characters.html?type=npc">NPC</a></li>
-                        <li><a href="characters.html?type=enemy">敌人</a></li>
+                        <li><a href="enemies.html">敌人</a></li>
                     </ul>
                 </div>
                 <div class="nav-section">
                     <h3>物品装备</h3>
                     <ul>
                         <li><a href="items.html">物品总览</a></li>
-                        <li><a href="items.html?type=weapon">武器</a></li>
-                        <li><a href="items.html?type=armor">防具</a></li>
-                        <li><a href="items.html?type=consumable">消耗品</a></li>
-                        <li><a href="items.html?type=material">材料</a></li>
+                        <li><a href="weapon.html">武器</a></li>
+                        <li><a href="armor.html">防具</a></li>
+                        <li><a href="accessory.html">饰品</a></li>
+                        <li><a href="treasure.html">法宝</a></li>
+                        <li><a href="consumable.html">消耗品</a></li>
+                        <li><a href="material.html">材料</a></li>
+                        <li><a href="collection.html">收藏品</a></li>
+                        <li><a href="crafting.html">生活技能</a></li>
                     </ul>
                 </div>
                 <div class="nav-section">
                     <h3>世界探索</h3>
                     <ul>
                         <li><a href="locations.html">地点总览</a></li>
+                        <li><a href="map.html">游戏地图</a></li>
                         <li><a href="quests.html">任务剧情</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>关于</h3>
+                    <ul>
+                        <li><a href="dev-thoughts.html">开发者随想</a></li>
                     </ul>
                 </div>
             </nav>
@@ -68,13 +99,13 @@
                 <h1 class="article-title">角色图鉴</h1>
                 
                 <div class="article-intro">
-                    <p>本页面收录了游戏中的所有角色，包括<strong>可招募角色</strong>、<strong>NPC</strong>和<strong>敌人</strong>。点击角色名称可以查看详细信息。</p>
+                    <p>本页面收录了游戏中的所有角色，包括<strong>主要角色</strong>、<strong>NPC</strong>和<strong>敌人</strong>。点击角色名称可以查看详细信息。</p>
                 </div>
 
                 <div class="infobox">
                     <div class="infobox-header">角色统计</div>
                     <div class="infobox-row">
-                        <div class="infobox-label">可招募</div>
+                        <div class="infobox-label">主要角色</div>
                         <div class="infobox-value" id="playableCount">-</div>
                     </div>
                     <div class="infobox-row">
@@ -96,7 +127,7 @@
 
                 <div class="filter-tabs">
                     <button class="tab-btn active" onclick="filterCharacters('all')">全部</button>
-                    <button class="tab-btn" onclick="filterCharacters('playable')">可招募</button>
+                    <button class="tab-btn" onclick="filterCharacters('playable')">主要角色</button>
                     <button class="tab-btn" onclick="filterCharacters('npc')">NPC</button>
                     <button class="tab-btn" onclick="filterCharacters('enemy')">敌人</button>
                 </div>
@@ -114,7 +145,7 @@
                     <div class="form-group">
                         <label>角色类型</label>
                         <select id="charType">
-                            <option value="playable">可招募</option>
+                            <option value="playable">主要角色</option>
                             <option value="npc">NPC</option>
                             <option value="enemy">敌人</option>
                         </select>
@@ -180,7 +211,7 @@
         }
 
         function getTypeLabel(type) {
-            const labels = { 'playable': '可招募', 'npc': 'NPC', 'enemy': '敌人' };
+            const labels = { 'playable': '主要角色', 'npc': 'NPC', 'enemy': '敌人' };
             return labels[type] || type;
         }
 

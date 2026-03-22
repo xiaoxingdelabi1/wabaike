@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>货币系统 - 蛙噻！好摊</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        .currency-section {
+            margin-bottom: 32px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #000;
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #eaecf0;
+        }
+
+        .currency-pyramid {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            padding: 24px;
+            background: #f8f9fa;
+            border: 1px solid #e0e0e0;
+        }
+
+        .pyramid-tier {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px 32px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 16px;
+            color: #fff;
+            position: relative;
+            min-width: 200px;
+        }
+
+        .pyramid-tier::after {
+            content: '1000';
+            position: absolute;
+            right: -50px;
+            font-size: 12px;
+            color: #666;
+            font-weight: normal;
+        }
+
+        .pyramid-tier:last-child::after {
+            content: none;
+        }
+
+        .tier-wen { background: #8d6e63; width: 100px; }
+        .tier-tong { background: #b87333; width: 150px; }
+        .tier-yin { background: #78909c; width: 200px; }
+        .tier-jin { background: #ffa000; width: 250px; }
+        .tier-bing { background: #e53935; width: 300px; }
+
+        .conversion-arrow {
+            font-size: 20px;
+            color: #666;
+            margin: 0 8px;
+        }
+
+        .currency-detail {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .currency-card {
+            padding: 16px;
+            background: #f8f9fa;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .currency-icon {
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+
+        .currency-name {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+
+        .currency-value {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .currency-desc {
+            font-size: 13px;
+            color: #333;
+            line-height: 1.5;
+        }
+
+        .calculator {
+            background: #f8f9fa;
+            border: 1px solid #e0e0e0;
+            padding: 20px;
+            border-radius: 8px;
+        }
+
+        .calc-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+
+        .calc-input {
+            width: 120px;
+            padding: 8px 12px;
+            border: 1px solid #a2a9b1;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .calc-select {
+            padding: 8px 12px;
+            border: 1px solid #a2a9b1;
+            border-radius: 4px;
+            font-size: 14px;
+            background: #fff;
+        }
+
+        .calc-btn {
+            padding: 8px 20px;
+            background: #3366cc;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .calc-btn:hover {
+            background: #2952a3;
+        }
+
+        .calc-result {
+            padding: 12px;
+            background: #e8f5e9;
+            border: 1px solid #a5d6a7;
+            border-radius: 4px;
+            font-size: 14px;
+            color: #2e7d32;
+            min-height: 20px;
+        }
+
+        .source-grid, .use-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 16px;
+        }
+
+        .source-card, .use-card {
+            padding: 16px;
+            background: #f8f9fa;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+        }
+
+        .source-title, .use-title {
+            font-size: 15px;
+            font-weight: bold;
+            color: #000;
+            margin-bottom: 8px;
+        }
+
+        .source-desc, .use-desc {
+            font-size: 13px;
+            color: #666;
+            line-height: 1.5;
+            margin-bottom: 8px;
+        }
+
+        .currency-tags {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .currency-tag {
+            padding: 2px 8px;
+            font-size: 11px;
+            border-radius: 3px;
+            background: #e3f2fd;
+            color: #1565c0;
+        }
+
+        .example-list {
+            background: #f8f9fa;
+            border: 1px solid #e0e0e0;
+            padding: 16px;
+            border-radius: 8px;
+        }
+
+        .example-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .example-item:last-child {
+            border-bottom: none;
+        }
+
+        .example-wen {
+            font-size: 14px;
+            color: #666;
+            min-width: 150px;
+        }
+
+        .example-arrow {
+            color: #999;
+        }
+
+        .example-display {
+            font-size: 14px;
+            font-weight: bold;
+            color: #3366cc;
+        }
+
+        @media (max-width: 768px) {
+            .currency-detail {
+                grid-template-columns: 1fr;
+            }
+
+            .source-grid, .use-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .pyramid-tier {
+                min-width: 150px;
+                padding: 12px 20px;
+            }
+
+            .pyramid-tier::after {
+                right: -40px;
+                font-size: 10px;
+            }
+        }
+    </style>
+</head>
+<body class="wiki-layout">
+    <header class="wiki-topbar">
+        <div class="wiki-logo">
+            <a href="../index.html">蛙噻！好摊</a>
+        </div>
+        <div class="wiki-search">
+            <input type="text" placeholder="搜索..." id="searchInput">
+            <button onclick="search()">搜索</button>
+        </div>
+        <div class="wiki-user">
+            <span>欢迎访问</span>
+        </div>
+    </header>
+
+    <div class="wiki-container">
+        <aside class="wiki-sidebar">
+            <nav class="wiki-nav">
+                <div class="nav-section">
+                    <h3>百科分类</h3>
+                    <ul>
+                        <li><a href="../index.html">首页</a></li>
+                        <li><a href="game-intro.html">游戏介绍</a></li>
+                        <li><a href="world.html">世界观</a></li>
+                        <li><a href="factions.html">势力分布</a></li>
+                        <li><a href="history.html">历史年表</a></li>
+                        <li><a href="price-mechanism.html">价格机制</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>游戏特色</h3>
+                    <ul>
+                        <li><a href="bazaar.html">集市</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>游戏玩法</h3>
+                    <ul>
+                        <li><a href="market.html">摆摊系统</a></li>
+                        <li><a href="achievements.html">成就系统</a></li>
+                        <li><a href="combat.html">战斗系统</a></li>
+                        <li><a href="progression.html">成长系统</a></li>
+                        <li><a href="currency.html" class="active">货币系统</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>角色</h3>
+                    <ul>
+                        <li><a href="characters.html">角色总览</a></li>
+                        <li><a href="characters.html?type=playable">主要角色</a></li>
+                        <li><a href="characters.html?type=npc">NPC</a></li>
+                        <li><a href="enemies.html">敌人</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>物品装备</h3>
+                    <ul>
+                        <li><a href="items.html">物品总览</a></li>
+                        <li><a href="weapon.html">武器</a></li>
+                        <li><a href="armor.html">防具</a></li>
+                        <li><a href="accessory.html">饰品</a></li>
+                        <li><a href="treasure.html">法宝</a></li>
+                        <li><a href="consumable.html">消耗品</a></li>
+                        <li><a href="material.html">材料</a></li>
+                        <li><a href="collection.html">收藏品</a></li>
+                        <li><a href="crafting.html">生活技能</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>世界探索</h3>
+                    <ul>
+                        <li><a href="locations.html">地点总览</a></li>
+                        <li><a href="map.html">游戏地图</a></li>
+                        <li><a href="quests.html">任务剧情</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>关于</h3>
+                    <ul>
+                        <li><a href="dev-thoughts.html">随笔</a></li>
+                    </ul>
+                </div>
+            </nav>
+        </aside>
+
+        <main class="wiki-content">
+            <nav class="breadcrumb">
+                <a href="../index.html">首页</a> &gt; <span class="current">货币系统</span>
+            </nav>
+
+            <article class="wiki-article">
+                <h1 class="article-title">货币系统</h1>
+
+                <div class="article-intro">
+                    <p>《蛙噻！好摊》采用<strong>千进制货币体系</strong>，每1000个低级货币可兑换1个高级货币。从基础的"文"到最高级的"饼"，共五个层级，满足游戏中不同层次的交易需求。</p>
+                </div>
+
+                <div class="currency-section">
+                    <h2 class="section-title">货币层级</h2>
+                    <div class="currency-pyramid">
+                        <div class="pyramid-tier tier-bing">饼（最高级）</div>
+                        <div class="pyramid-tier tier-jin">金</div>
+                        <div class="pyramid-tier tier-yin">银</div>
+                        <div class="pyramid-tier tier-tong">铜</div>
+                        <div class="pyramid-tier tier-wen">文（基础）</div>
+                    </div>
+                    <p style="text-align: center; color: #666; margin-top: 16px; font-size: 13px;">
+                        每级货币 = 1000 × 下级货币
+                    </p>
+                </div>
+
+                <div class="currency-section">
+                    <h2 class="section-title">货币详情</h2>
+                    <div class="currency-detail">
+                        <div class="currency-card">
+                            <div class="currency-icon">文</div>
+                            <div class="currency-name" style="color: #8d6e63;">文</div>
+                            <div class="currency-value">1文 = 1文</div>
+                            <div class="currency-desc">最基础的货币单位，相当于铜钱，用于日常小额交易</div>
+                        </div>
+                        <div class="currency-card">
+                            <div class="currency-icon">铜</div>
+                            <div class="currency-name" style="color: #b87333;">铜</div>
+                            <div class="currency-value">1铜 = 1000文</div>
+                            <div class="currency-desc">铜质货币，常用于商店购买普通物品</div>
+                        </div>
+                        <div class="currency-card">
+                            <div class="currency-icon">银</div>
+                            <div class="currency-name" style="color: #78909c;">银</div>
+                            <div class="currency-value">1银 = 1000铜</div>
+                            <div class="currency-desc">银质货币，用于装备强化和技能学习</div>
+                        </div>
+                        <div class="currency-card">
+                            <div class="currency-icon">金</div>
+                            <div class="currency-name" style="color: #ffa000;">金</div>
+                            <div class="currency-value">1金 = 1000银</div>
+                            <div class="currency-desc">金质货币，用于购买高级装备和稀有道具</div>
+                        </div>
+                        <div class="currency-card">
+                            <div class="currency-icon">饼</div>
+                            <div class="currency-name" style="color: #e53935;">饼</div>
+                            <div class="currency-value">1饼 = 1000金</div>
+                            <div class="currency-desc">最高级货币，用于购买限定物品和特殊服务</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="currency-section">
+                    <h2 class="section-title">转换计算器</h2>
+                    <div class="calculator">
+                        <div class="calc-row">
+                            <input type="number" class="calc-input" id="calcAmount" placeholder="输入数量" min="0">
+                            <select class="calc-select" id="calcFrom">
+                                <option value="wen">文</option>
+                                <option value="tong">铜</option>
+                                <option value="yin">银</option>
+                                <option value="jin">金</option>
+                                <option value="bing">饼</option>
+                            </select>
+                            <span>转换为</span>
+                            <select class="calc-select" id="calcTo">
+                                <option value="wen">文</option>
+                                <option value="tong" selected>铜</option>
+                                <option value="yin">银</option>
+                                <option value="jin">金</option>
+                                <option value="bing">饼</option>
+                            </select>
+                            <button class="calc-btn" onclick="convertCurrency()">计算</button>
+                        </div>
+                        <div class="calc-result" id="calcResult">请输入数量进行转换</div>
+                    </div>
+                </div>
+
+                <div class="currency-section">
+                    <h2 class="section-title">货币获取途径</h2>
+                    <div class="source-grid">
+                        <div class="source-card">
+                            <div class="source-title">摆摊交易</div>
+                            <div class="source-desc">通过摆摊出售物品获得货币，是最主要的收入来源</div>
+                            <div class="currency-tags">
+                                <span class="currency-tag">文</span>
+                                <span class="currency-tag">铜</span>
+                                <span class="currency-tag">银</span>
+                            </div>
+                        </div>
+                        <div class="source-card">
+                            <div class="source-title">完成任务</div>
+                            <div class="source-desc">完成主线和支线任务可获得丰厚的货币奖励</div>
+                            <div class="currency-tags">
+                                <span class="currency-tag">文</span>
+                                <span class="currency-tag">铜</span>
+                                <span class="currency-tag">银</span>
+                                <span class="currency-tag">金</span>
+                            </div>
+                        </div>
+                        <div class="source-card">
+                            <div class="source-title">击败敌人</div>
+                            <div class="source-desc">战斗胜利后敌人会掉落一定数量的货币</div>
+                            <div class="currency-tags">
+                                <span class="currency-tag">文</span>
+                                <span class="currency-tag">铜</span>
+                            </div>
+                        </div>
+                        <div class="source-card">
+                            <div class="source-title">探索宝箱</div>
+                            <div class="source-desc">在世界地图中探索发现隐藏宝箱可获得货币</div>
+                            <div class="currency-tags">
+                                <span class="currency-tag">铜</span>
+                                <span class="currency-tag">银</span>
+                                <span class="currency-tag">金</span>
+                            </div>
+                        </div>
+                        <div class="source-card">
+                            <div class="source-title">成就奖励</div>
+                            <div class="source-desc">完成成就系统目标可获得大量高级货币</div>
+                            <div class="currency-tags">
+                                <span class="currency-tag">银</span>
+                                <span class="currency-tag">金</span>
+                                <span class="currency-tag">饼</span>
+                            </div>
+                        </div>
+                        <div class="source-card">
+                            <div class="source-title">每日签到</div>
+                            <div class="source-desc">每日登录游戏可领取签到奖励</div>
+                            <div class="currency-tags">
+                                <span class="currency-tag">文</span>
+                                <span class="currency-tag">铜</span>
+                                <span class="currency-tag">银</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="currency-section">
+                    <h2 class="section-title">货币使用场景</h2>
+                    <div class="use-grid">
+                        <div class="use-card">
+                            <div class="use-title">购买物品</div>
+                            <div class="use-desc">在商店或摆摊系统购买装备、材料、消耗品等</div>
+                            <div class="currency-tags">
+                                <span class="currency-tag">文</span>
+                                <span class="currency-tag">铜</span>
+                                <span class="currency-tag">银</span>
+                                <span class="currency-tag">金</span>
+                            </div>
+                        </div>
+                        <div class="use-card">
+                            <div class="use-title">装备强化</div>
+                            <div class="use-desc">强化武器和防具，提升角色战斗力</div>
+                            <div class="currency-tags">
+                                <span class="currency-tag">铜</span>
+                                <span class="currency-tag">银</span>
+                                <span class="currency-tag">金</span>
+                            </div>
+                        </div>
+                        <div class="use-card">
+                            <div class="use-title">技能学习</div>
+                            <div class="use-desc">学习新技能或升级现有技能</div>
+                            <div class="currency-tags">
+                                <span class="currency-tag">银</span>
+                                <span class="currency-tag">金</span>
+                            </div>
+                        </div>
+                        <div class="use-card">
+                            <div class="use-title">传送费用</div>
+                            <div class="use-desc">使用传送功能在地图间快速移动</div>
+                            <div class="currency-tags">
+                                <span class="currency-tag">文</span>
+                                <span class="currency-tag">铜</span>
+                            </div>
+                        </div>
+                        <div class="use-card">
+                            <div class="use-title">复活费用</div>
+                            <div class="use-desc">战斗失败后的复活消耗</div>
+                            <div class="currency-tags">
+                                <span class="currency-tag">铜</span>
+                                <span class="currency-tag">银</span>
+                            </div>
+                        </div>
+                        <div class="use-card">
+                            <div class="use-title">特殊道具</div>
+                            <div class="use-desc">购买稀有道具和限定物品</div>
+                            <div class="currency-tags">
+                                <span class="currency-tag">金</span>
+                                <span class="currency-tag">饼</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="currency-section">
+                    <h2 class="section-title">转换示例</h2>
+                    <div class="example-list">
+                        <div class="example-item">
+                            <span class="example-wen">5,000,000 文</span>
+                            <span class="example-arrow">=</span>
+                            <span class="example-display">5 铜</span>
+                        </div>
+                        <div class="example-item">
+                            <span class="example-wen">2,500,000,000 文</span>
+                            <span class="example-arrow">=</span>
+                            <span class="example-display">2 银 500 铜</span>
+                        </div>
+                        <div class="example-item">
+                            <span class="example-wen">1,500,000,000,000 文</span>
+                            <span class="example-arrow">=</span>
+                            <span class="example-display">1 饼 500 金</span>
+                        </div>
+                        <div class="example-item">
+                            <span class="example-wen">1,000 文</span>
+                            <span class="example-arrow">=</span>
+                            <span class="example-display">1 铜</span>
+                        </div>
+                        <div class="example-item">
+                            <span class="example-wen">1,000,000 文</span>
+                            <span class="example-arrow">=</span>
+                            <span class="example-display">1 银</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="article-footer">
+                    <p>最后更新于：2026-03-20</p>
+                </div>
+            </article>
+        </main>
+    </div>
+
+    <footer class="wiki-footer">
+        <p>&copy; 2026 《蛙噻！好摊》游戏百科 | 本百科由玩家共同维护</p>
+    </footer>
+
+    <script src="../js/main.js"></script>
+    <script>
+        const conversionRates = {
+            wen: 1,
+            tong: 1000,
+            yin: 1000000,
+            jin: 1000000000,
+            bing: 1000000000000
+        };
+
+        const currencyNames = {
+            wen: '文',
+            tong: '铜',
+            yin: '银',
+            jin: '金',
+            bing: '饼'
+        };
+
+        function convertCurrency() {
+            const amount = parseFloat(document.getElementById('calcAmount').value);
+            const from = document.getElementById('calcFrom').value;
+            const to = document.getElementById('calcTo').value;
+            const resultDiv = document.getElementById('calcResult');
+
+            if (isNaN(amount) || amount < 0) {
+                resultDiv.textContent = '请输入有效的数量';
+                return;
+            }
+
+            const wenValue = amount * conversionRates[from];
+            const targetValue = wenValue / conversionRates[to];
+
+            if (from === to) {
+                resultDiv.textContent = `${amount} ${currencyNames[from]} = ${amount} ${currencyNames[to]}`;
+                return;
+            }
+
+            // Convert to display format
+            let remaining = wenValue;
+            const parts = [];
+
+            const tiers = ['bing', 'jin', 'yin', 'tong', 'wen'];
+            for (const tier of tiers) {
+                const count = Math.floor(remaining / conversionRates[tier]);
+                if (count > 0) {
+                    parts.push(`${count} ${currencyNames[tier]}`);
+                    remaining %= conversionRates[tier];
+                }
+            }
+
+            const displayStr = parts.length > 0 ? parts.join(' ') : `0 ${currencyNames[to]}`;
+            resultDiv.textContent = `${amount} ${currencyNames[from]} = ${targetValue.toLocaleString()} ${currencyNames[to]}（约 ${displayStr}）`;
+        }
+    </script>
+</body>
+</html>

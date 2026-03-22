@@ -1,0 +1,1342 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>成长系统 - 蛙噻！好摊</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        .progression-overview {
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+            border: 1px solid #a2a9b1;
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+
+        .level-progression {
+            padding: 20px;
+            background: #f8f9fa;
+            border: 1px solid #a2a9b1;
+            margin: 16px 0;
+        }
+
+        .exp-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 16px 0;
+        }
+
+        .exp-table th,
+        .exp-table td {
+            border: 1px solid #a2a9b1;
+            padding: 10px;
+            text-align: center;
+        }
+
+        .exp-table th {
+            background: #f0f0f0;
+        }
+
+        .attribute-growth {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin: 16px 0;
+        }
+
+        .growth-card {
+            padding: 16px;
+            background: #fff;
+            border: 1px solid #a2a9b1;
+        }
+
+        .growth-card h4 {
+            margin: 0 0 12px 0;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #a2a9b1;
+        }
+
+        .skill-tree-section {
+            padding: 20px;
+            background: #f8f9fa;
+            border: 1px solid #a2a9b1;
+            margin: 16px 0;
+        }
+
+        .skill-tree {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            margin: 16px 0;
+        }
+
+        .tree-branch {
+            padding: 16px;
+            background: #fff;
+            border: 1px solid #ddd;
+        }
+
+        .tree-branch h4 {
+            margin: 0 0 12px 0;
+            padding: 8px 12px;
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+        }
+
+        .skill-nodes {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .skill-node {
+            padding: 8px 16px;
+            background: #fff;
+            border: 2px solid #a2a9b1;
+            text-align: center;
+            min-width: 100px;
+        }
+
+        .skill-node.unlocked {
+            background: #c8e6c9;
+            border-color: #4caf50;
+        }
+
+        .equipment-upgrade {
+            margin: 24px 0;
+            padding: 20px;
+            background: #fff;
+            border: 1px solid #a2a9b1;
+        }
+
+        .upgrade-path {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            padding: 20px;
+            background: #f8f9fa;
+            margin: 16px 0;
+        }
+
+        .upgrade-step {
+            padding: 12px 20px;
+            background: #fff;
+            border: 2px solid #a2a9b1;
+            text-align: center;
+        }
+
+        .upgrade-arrow {
+            font-size: 24px;
+            color: #666;
+        }
+
+        .business-growth {
+            margin: 24px 0;
+            padding: 20px;
+            background: #fff;
+            border: 1px solid #a2a9b1;
+        }
+
+        .reputation-section {
+            margin: 24px 0;
+            padding: 20px;
+            background: #fff;
+            border: 1px solid #a2a9b1;
+        }
+
+        .reputation-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 16px;
+            margin: 16px 0;
+        }
+
+        .reputation-item {
+            padding: 16px;
+            background: #f8f9fa;
+            border: 1px solid #e0e0e0;
+        }
+
+        .reputation-name {
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .reputation-level {
+            font-size: 12px;
+            padding: 2px 8px;
+            background: #e3f2fd;
+            display: inline-block;
+            margin-bottom: 8px;
+        }
+
+        .route-section {
+            margin: 24px 0;
+            padding: 20px;
+            background: #fff;
+            border: 1px solid #a2a9b1;
+        }
+
+        .route-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
+            margin: 16px 0;
+        }
+
+        .route-card {
+            padding: 20px;
+            background: #f8f9fa;
+            border: 2px solid #a2a9b1;
+        }
+
+        .route-card.combat { border-color: #ef5350; }
+        .route-card.business { border-color: #66bb6a; }
+        .route-card.balanced { border-color: #42a5f5; }
+
+        .route-card h4 {
+            margin: 0 0 12px 0;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #a2a9b1;
+        }
+
+        .route-card.combat h4 { border-color: #ef5350; }
+        .route-card.business h4 { border-color: #66bb6a; }
+        .route-card.balanced h4 { border-color: #42a5f5; }
+
+        .mechanic-section {
+            margin: 24px 0;
+            padding: 20px;
+            background: #fff;
+            border: 1px solid #a2a9b1;
+        }
+
+        .mechanic-section h3 {
+            margin-top: 0;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #a2a9b1;
+        }
+
+        .tip-box {
+            background: #fffbeb;
+            border-left: 4px solid #f59e0b;
+            padding: 12px 16px;
+            margin: 12px 0;
+        }
+
+        .tip-box h5 {
+            margin: 0 0 8px 0;
+            color: #92400e;
+        }
+
+        .highlight-box {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            border: 2px solid #2196f3;
+            border-radius: 8px;
+            padding: 16px;
+            margin: 16px 0;
+            font-size: 16px;
+        }
+
+        .tip-text {
+            color: #666;
+            font-size: 14px;
+            font-style: italic;
+            margin-top: 12px;
+        }
+
+        .exp-curve-visual {
+            margin: 20px 0;
+        }
+
+        .curve-description {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 16px;
+            margin: 16px 0;
+        }
+
+        .curve-phase {
+            padding: 16px;
+            background: #fff;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+        }
+
+        .curve-phase h5 {
+            margin: 0 0 12px 0;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .curve-phase p {
+            margin: 8px 0;
+            font-size: 14px;
+        }
+
+        .exp-source-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 16px;
+            margin: 16px 0;
+        }
+
+        .source-item {
+            padding: 16px;
+            background: #fff;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+        }
+
+        .source-item h4 {
+            margin: 0 0 12px 0;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #e3f2fd;
+        }
+
+        .milestone-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin: 16px 0;
+        }
+
+        .milestone-item {
+            display: flex;
+            gap: 16px;
+            padding: 16px;
+            background: #fff;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+        }
+
+        .milestone-item.highlight {
+            border-color: #ff9800;
+            background: #fff8e1;
+        }
+
+        .milestone-item.ultimate {
+            border-color: #9c27b0;
+            background: #f3e5f5;
+        }
+
+        .milestone-level {
+            min-width: 80px;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            font-size: 24px;
+            font-weight: bold;
+            border-radius: 50%;
+        }
+
+        .milestone-item.highlight .milestone-level {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .milestone-item.ultimate .milestone-level {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+        }
+
+        .milestone-content {
+            flex: 1;
+        }
+
+        .milestone-content h4 {
+            margin: 0 0 8px 0;
+            color: #333;
+        }
+
+        .milestone-content p {
+            margin: 0 0 12px 0;
+            color: #666;
+        }
+
+        .milestone-content ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+
+        .milestone-content li {
+            margin: 4px 0;
+            color: #555;
+        }
+
+        /* 经验曲线图表样式 */
+        .exp-chart-container {
+            background: #fff;
+            border: 1px solid #a2a9b1;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .exp-chart {
+            width: 100%;
+            height: 400px;
+        }
+
+        .chart-legend {
+            display: flex;
+            justify-content: center;
+            gap: 24px;
+            margin-top: 16px;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: #555;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 4px;
+            border-radius: 2px;
+        }
+
+        .legend-color.curve {
+            background: linear-gradient(90deg, #4caf50, #2196f3);
+        }
+
+        .legend-color.milestone {
+            background: #ff9800;
+        }
+
+        .chart-tooltip {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.8);
+            color: #fff;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 13px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s;
+            z-index: 100;
+        }
+
+        .chart-tooltip.visible {
+            opacity: 1;
+        }
+
+        /* 阶段标签样式 */
+        .phase-tag {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 3px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .phase-tag.fast {
+            background: #c8e6c9;
+            color: #2e7d32;
+        }
+
+        .phase-tag.steady {
+            background: #bbdefb;
+            color: #1565c0;
+        }
+
+        .phase-tag.challenge {
+            background: #ffcc80;
+            color: #e65100;
+        }
+
+        .phase-tag.peak {
+            background: #e1bee7;
+            color: #7b1fa2;
+        }
+    </style>
+</head>
+<body class="wiki-layout">
+    <header class="wiki-topbar">
+        <div class="wiki-logo">
+            <a href="../index.html">蛙噻！好摊</a>
+        </div>
+        <div class="wiki-search">
+            <input type="text" placeholder="搜索百科..." id="searchInput">
+            <button onclick="search()">搜索</button>
+        </div>
+        <div class="wiki-user">
+            <span>欢迎访问</span>
+        </div>
+    </header>
+
+    <div class="wiki-container">
+        <aside class="wiki-sidebar">
+            <nav class="wiki-nav">
+                <div class="nav-section">
+                    <h3>百科分类</h3>
+                    <ul>
+                        <li><a href="../index.html">首页</a></li>
+                        <li><a href="game-intro.html">游戏介绍</a></li>
+                        <li><a href="world.html">世界观</a></li>
+                        <li><a href="factions.html">势力分布</a></li>
+                        <li><a href="history.html">历史年表</a></li>
+                        <li><a href="price-mechanism.html">价格机制</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>游戏特色</h3>
+                    <ul>
+                        <li><a href="bazaar.html">集市</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>游戏玩法</h3>
+                    <ul>
+                        <li><a href="market.html">摆摊系统</a></li>
+                        <li><a href="achievements.html">成就系统</a></li>
+                        <li><a href="combat.html">战斗系统</a></li>
+                        <li><a href="progression.html" class="active">成长系统</a></li>
+                        <li><a href="currency.html">货币系统</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>角色</h3>
+                    <ul>
+                        <li><a href="characters.html">角色总览</a></li>
+                        <li><a href="characters.html?type=playable">主要角色</a></li>
+                        <li><a href="characters.html?type=npc">NPC</a></li>
+                        <li><a href="enemies.html">敌人</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>物品装备</h3>
+                    <ul>
+                        <li><a href="items.html">物品总览</a></li>
+                        <li><a href="weapon.html">武器</a></li>
+                        <li><a href="armor.html">防具</a></li>
+                        <li><a href="accessory.html">饰品</a></li>
+                        <li><a href="treasure.html">法宝</a></li>
+                        <li><a href="consumable.html">消耗品</a></li>
+                        <li><a href="material.html">材料</a></li>
+                        <li><a href="collection.html">收藏品</a></li>
+                        <li><a href="crafting.html">生活技能</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>世界探索</h3>
+                    <ul>
+                        <li><a href="locations.html">地点总览</a></li>
+                        <li><a href="map.html">游戏地图</a></li>
+                        <li><a href="quests.html">任务剧情</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>关于</h3>
+                    <ul>
+                        <li><a href="dev-thoughts.html">开发者随想</a></li>
+                    </ul>
+                </div>
+            </nav>
+        </aside>
+
+        <main class="wiki-content">
+            <nav class="breadcrumb">
+                <a href="../index.html">首页</a> &gt; <span class="current">成长系统</span>
+            </nav>
+
+            <article class="wiki-article">
+                <h1 class="article-title">成长系统</h1>
+                
+                <div class="article-intro">
+                    <p>成长系统是《蛙噻！好摊》中角色变强的核心机制。从一只普通的小青蛙成长为一代传奇，你需要不断提升<strong>等级</strong>、强化<strong>属性</strong>、学习<strong>技能</strong>、升级<strong>装备</strong>，并在商业道路上积累<strong>声望</strong>。成长系统提供了多条发展路线，让你可以打造独一无二的角色。</p>
+                    <p class="highlight-box">本游戏采用<strong>200级上限</strong>设计，经验曲线参考暗黑破坏神、流放之路等顶级刷宝类RPG MMO，前期快速升级获得成就感，后期追求极致的渐进式体验。</p>
+                </div>
+
+                <div class="wiki-toc">
+                    <h3>目录</h3>
+                    <ul>
+                        <li><a href="#overview">系统概述</a></li>
+                        <li><a href="#level">等级系统</a></li>
+                        <li><a href="#exp-curve">经验曲线</a></li>
+                        <li><a href="#exp-sources">经验获取</a></li>
+                        <li><a href="#milestone">里程碑奖励</a></li>
+                        <li><a href="#attributes">属性成长</a></li>
+                        <li><a href="#skills">技能成长</a></li>
+                        <li><a href="#equipment">装备成长</a></li>
+                        <li><a href="#business">商业成长</a></li>
+                        <li><a href="#reputation">声望系统</a></li>
+                        <li><a href="#routes">成长路线</a></li>
+                    </ul>
+                </div>
+
+                <div class="progression-overview" id="overview">
+                    <h2>系统概述</h2>
+                    <p>成长系统包含以下核心模块，共同构成角色的成长体系：</p>
+                    <ul>
+                        <li><strong>等级系统</strong>：通过获取经验提升等级，解锁新功能</li>
+                        <li><strong>属性成长</strong>：提升基础属性，增强战斗和生存能力</li>
+                        <li><strong>技能成长</strong>：学习新技能，强化已有技能</li>
+                        <li><strong>装备成长</strong>：强化、进阶、传承装备</li>
+                        <li><strong>商业成长</strong>：提升商业等级和技能</li>
+                        <li><strong>声望系统</strong>：在各地区建立声望，获得特权</li>
+                    </ul>
+                </div>
+
+                <div class="mechanic-section" id="level">
+                    <h3>等级系统</h3>
+                    <p>角色等级是衡量实力的基础指标，最高可达<strong>200级</strong>。本系统采用顶级刷宝类RPG MMO的经验曲线设计，为玩家提供长期且富有成就感的成长体验。</p>
+                    
+                    <div class="level-progression">
+                        <h4>等级阶段（7阶段设计）</h4>
+                        <table class="exp-table">
+                            <thead>
+                                <tr>
+                                    <th>阶段</th>
+                                    <th>等级范围</th>
+                                    <th>阶段名称</th>
+                                    <th>特点</th>
+                                    <th>经验占比</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>1</td>
+                                    <td>1-30级</td>
+                                    <td>新手冒险者</td>
+                                    <td>极速成长，熟悉游戏机制</td>
+                                    <td>约1%</td>
+                                </tr>
+                                <tr>
+                                    <td>2</td>
+                                    <td>31-60级</td>
+                                    <td>初出茅庐</td>
+                                    <td>快速成长，解锁核心玩法</td>
+                                    <td>约4%</td>
+                                </tr>
+                                <tr>
+                                    <td>3</td>
+                                    <td>61-90级</td>
+                                    <td>经验丰富</td>
+                                    <td>稳定发展，专精路线选择</td>
+                                    <td>约10%</td>
+                                </tr>
+                                <tr>
+                                    <td>4</td>
+                                    <td>91-120级</td>
+                                    <td>高手境界</td>
+                                    <td>挑战高级内容，追求更强装备</td>
+                                    <td>约15%</td>
+                                </tr>
+                                <tr>
+                                    <td>5</td>
+                                    <td>121-150级</td>
+                                    <td>大师级别</td>
+                                    <td>追求极致装备，挑战极限</td>
+                                    <td>约20%</td>
+                                </tr>
+                                <tr>
+                                    <td>6</td>
+                                    <td>151-180级</td>
+                                    <td>传奇境界</td>
+                                    <td>巅峰挑战，成为服务器强者</td>
+                                    <td>约25%</td>
+                                </tr>
+                                <tr>
+                                    <td>7</td>
+                                    <td>181-200级</td>
+                                    <td>神话境界</td>
+                                    <td>终极追求，达到游戏巅峰</td>
+                                    <td>约25%</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <h4>关键等级经验表</h4>
+                    <table class="exp-table">
+                        <thead>
+                            <tr>
+                                <th>等级</th>
+                                <th>升级所需经验</th>
+                                <th>累计经验</th>
+                                <th>里程碑说明</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>1-2</td>
+                                <td>100</td>
+                                <td>100</td>
+                                <td>首次升级，开启冒险</td>
+                            </tr>
+                            <tr>
+                                <td>30</td>
+                                <td>12,950</td>
+                                <td>约10万</td>
+                                <td>解锁进阶职业/专精</td>
+                            </tr>
+                            <tr>
+                                <td>50</td>
+                                <td>86,500</td>
+                                <td>约95万</td>
+                                <td>第一个里程碑</td>
+                            </tr>
+                            <tr>
+                                <td>60</td>
+                                <td>224,400</td>
+                                <td>约250万</td>
+                                <td>解锁高级装备</td>
+                            </tr>
+                            <tr>
+                                <td>90</td>
+                                <td>3,915,100</td>
+                                <td>约430万</td>
+                                <td>解锁传说难度</td>
+                            </tr>
+                            <tr style="background:#fff3cd">
+                                <td>100</td>
+                                <td>10,154,400</td>
+                                <td>约1,117万</td>
+                                <td>原满级，新的起点</td>
+                            </tr>
+                            <tr>
+                                <td>120</td>
+                                <td>97,951,850</td>
+                                <td>约9,311万</td>
+                                <td>解锁大师技能</td>
+                            </tr>
+                            <tr>
+                                <td>150</td>
+                                <td>2,934,632,000</td>
+                                <td>约27.4亿</td>
+                                <td>解锁传奇装备打造</td>
+                            </tr>
+                            <tr>
+                                <td>180</td>
+                                <td>87,921,309,250</td>
+                                <td>约820亿</td>
+                                <td>传奇巅峰</td>
+                            </tr>
+                            <tr style="background:#d4edda">
+                                <td>200</td>
+                                <td>84,811,471,870</td>
+                                <td>约791亿</td>
+                                <td>神话境界，终极等级</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <p class="tip-text">经验曲线采用指数型增长，后期每级所需经验大幅增加，体现刷宝类RPG MMO的持久追求感</p>
+                </div>
+
+                <div class="mechanic-section" id="exp-curve">
+                    <h3>经验曲线设计</h3>
+                    <p>本游戏的经验曲线参考了《暗黑破坏神》、《流放之路》等顶级刷宝类RPG MMO的设计理念，采用<strong>指数型递增</strong>曲线，为玩家提供长期且富有成就感的成长体验。</p>
+                    
+                    <!-- 经验曲线图表 -->
+                    <div class="exp-chart-container">
+                        <h4>经验曲线可视化</h4>
+                        <svg class="exp-chart" viewBox="0 0 800 400" preserveAspectRatio="xMidYMid meet">
+                            <!-- 背景网格 -->
+                            <defs>
+                                <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+                                    <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#e0e0e0" stroke-width="1"/>
+                                </pattern>
+                            </defs>
+                            <rect width="800" height="400" fill="url(#grid)" />
+                            
+                            <!-- 坐标轴 -->
+                            <line x1="60" y1="350" x2="750" y2="350" stroke="#333" stroke-width="2" />
+                            <line x1="60" y1="350" x2="60" y2="30" stroke="#333" stroke-width="2" />
+                            
+                            <!-- X轴标签 -->
+                            <text x="60" y="375" text-anchor="middle" font-size="12" fill="#666">0</text>
+                            <text x="198" y="375" text-anchor="middle" font-size="12" fill="#666">50</text>
+                            <text x="336" y="375" text-anchor="middle" font-size="12" fill="#666">100</text>
+                            <text x="474" y="375" text-anchor="middle" font-size="12" fill="#666">150</text>
+                            <text x="612" y="375" text-anchor="middle" font-size="12" fill="#666">200</text>
+                            <text x="405" y="395" text-anchor="middle" font-size="14" fill="#333" font-weight="bold">等级</text>
+                            
+                            <!-- Y轴标签 -->
+                            <text x="45" y="355" text-anchor="end" font-size="12" fill="#666">0</text>
+                            <text x="45" y="280" text-anchor="end" font-size="12" fill="#666">1%</text>
+                            <text x="45" y="205" text-anchor="end" font-size="12" fill="#666">10%</text>
+                            <text x="45" y="130" text-anchor="end" font-size="12" fill="#666">50%</text>
+                            <text x="45" y="55" text-anchor="end" font-size="12" fill="#666">100%</text>
+                            <text x="20" y="190" text-anchor="middle" font-size="14" fill="#333" font-weight="bold" transform="rotate(-90 20 190)">累计经验占比</text>
+                            
+                            <!-- 经验曲线 -->
+                            <path id="expCurve" d="M 60 350 Q 100 340, 198 320 T 336 250 T 474 150 T 612 50 L 750 30" 
+                                  fill="none" stroke="url(#curveGradient)" stroke-width="3" stroke-linecap="round"/>
+                            
+                            <!-- 曲线渐变 -->
+                            <defs>
+                                <linearGradient id="curveGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                    <stop offset="0%" style="stop-color:#4caf50"/>
+                                    <stop offset="50%" style="stop-color:#2196f3"/>
+                                    <stop offset="100%" style="stop-color:#9c27b0"/>
+                                </linearGradient>
+                            </defs>
+                            
+                            <!-- 关键节点标记 -->
+                            <!-- 50级节点 -->
+                            <circle cx="198" cy="320" r="6" fill="#ff9800" stroke="#fff" stroke-width="2"/>
+                            <text x="198" y="305" text-anchor="middle" font-size="11" fill="#ff9800" font-weight="bold">50级</text>
+                            
+                            <!-- 100级节点 -->
+                            <circle cx="336" cy="250" r="6" fill="#ff9800" stroke="#fff" stroke-width="2"/>
+                            <text x="336" y="235" text-anchor="middle" font-size="11" fill="#ff9800" font-weight="bold">100级</text>
+                            
+                            <!-- 150级节点 -->
+                            <circle cx="474" cy="150" r="6" fill="#ff9800" stroke="#fff" stroke-width="2"/>
+                            <text x="474" y="135" text-anchor="middle" font-size="11" fill="#ff9800" font-weight="bold">150级</text>
+                            
+                            <!-- 200级节点 -->
+                            <circle cx="612" cy="50" r="8" fill="#9c27b0" stroke="#fff" stroke-width="3"/>
+                            <text x="612" y="30" text-anchor="middle" font-size="12" fill="#9c27b0" font-weight="bold">200级</text>
+                            
+                            <!-- 阶段标注 -->
+                            <rect x="70" y="40" width="80" height="20" fill="#c8e6c9" rx="3"/>
+                            <text x="110" y="54" text-anchor="middle" font-size="11" fill="#2e7d32">快速成长期</text>
+                            
+                            <rect x="230" y="40" width="80" height="20" fill="#bbdefb" rx="3"/>
+                            <text x="270" y="54" text-anchor="middle" font-size="11" fill="#1565c0">稳定发展期</text>
+                            
+                            <rect x="390" y="40" width="80" height="20" fill="#ffcc80" rx="3"/>
+                            <text x="430" y="54" text-anchor="middle" font-size="11" fill="#e65100">挑战期</text>
+                            
+                            <rect x="520" y="40" width="80" height="20" fill="#e1bee7" rx="3"/>
+                            <text x="560" y="54" text-anchor="middle" font-size="11" fill="#7b1fa2">巅峰追求期</text>
+                        </svg>
+                        
+                        <div class="chart-legend">
+                            <div class="legend-item">
+                                <div class="legend-color curve"></div>
+                                <span>经验曲线</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color milestone"></div>
+                                <span>关键里程碑</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="exp-curve-visual">
+                        <h4>曲线特点</h4>
+                        <div class="curve-description">
+                            <div class="curve-phase">
+                                <h5><span class="phase-tag fast">快速</span> 快速成长期 (1-50级)</h5>
+                                <p>经验递增率：8-10%</p>
+                                <p>特点：玩家快速获得成就感，熟悉游戏机制</p>
+                                <p>升级时间：几分钟到几小时</p>
+                            </div>
+                            <div class="curve-phase">
+                                <h5><span class="phase-tag steady">稳定</span> 稳定发展期 (51-100级)</h5>
+                                <p>经验递增率：10-12%</p>
+                                <p>特点：稳定成长，开始专精路线选择</p>
+                                <p>升级时间：数小时到一天</p>
+                            </div>
+                            <div class="curve-phase">
+                                <h5><span class="phase-tag challenge">挑战</span> 挑战期 (101-150级)</h5>
+                                <p>经验递增率：12-16%</p>
+                                <p>特点：需要挑战高难度内容，追求更强装备</p>
+                                <p>升级时间：数天到一周</p>
+                            </div>
+                            <div class="curve-phase">
+                                <h5><span class="phase-tag peak">巅峰</span> 巅峰追求期 (151-200级)</h5>
+                                <p>经验递增率：16-20%</p>
+                                <p>特点：顶级玩家的追求，每级都是巨大成就</p>
+                                <p>升级时间：数周到数月</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tip-box">
+                        <h5>顶级游戏设计理念</h5>
+                        <ul>
+                            <li><strong>前期爽快</strong>：快速升级让玩家迅速融入游戏世界</li>
+                            <li><strong>中期投入</strong>：需要一定时间投入，建立角色归属感</li>
+                            <li><strong>后期追求</strong>：顶级玩家展示实力和毅力的舞台</li>
+                            <li><strong>社交驱动</strong>：高等级成为服务器中的身份象征</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="mechanic-section" id="exp-sources">
+                    <h3>经验获取途径</h3>
+                    <p>游戏提供多样化的经验获取途径，满足不同玩家的游戏偏好。</p>
+                    
+                    <div class="exp-source-list">
+                        <div class="source-item">
+                            <h4>击败敌人</h4>
+                            <p><strong>经验范围：</strong>10 - 100,000+</p>
+                            <p>基础经验来源，与敌人等级和稀有度挂钩。击败精英怪和BOSS获得大量经验加成。</p>
+                        </div>
+                        <div class="source-item">
+                            <h4>完成任务</h4>
+                            <p><strong>经验范围：</strong></p>
+                            <ul>
+                                <li>主线任务：1,000 - 500,000</li>
+                                <li>支线任务：500 - 100,000</li>
+                                <li>日常任务：1,000 - 50,000</li>
+                            </ul>
+                            <p>主线任务经验最丰厚，建议优先完成。</p>
+                        </div>
+                        <div class="source-item">
+                            <h4>摆摊交易</h4>
+                            <p><strong>经验计算：</strong>交易额 x 1%</p>
+                            <p>商业活动获得稳定经验，高价值交易获得更多经验。体现本作"摆摊"特色。</p>
+                        </div>
+                        <div class="source-item">
+                            <h4>探索发现</h4>
+                            <p><strong>经验范围：</strong>500 - 50,000（一次性）</p>
+                            <p>首次探索新地图、新地点获得一次性经验奖励。优先探索高等级区域。</p>
+                        </div>
+                        <div class="source-item">
+                            <h4>成就达成</h4>
+                            <p><strong>经验范围：</strong>1,000 - 200,000</p>
+                            <p>完成特定成就目标获得经验奖励。关注可快速完成的成就。</p>
+                        </div>
+                        <div class="source-item">
+                            <h4>副本挑战</h4>
+                            <p><strong>经验范围：</strong></p>
+                            <ul>
+                                <li>普通难度：5,000 - 50,000</li>
+                                <li>困难难度：20,000 - 200,000</li>
+                                <li>传说难度：100,000 - 1,000,000</li>
+                            </ul>
+                            <p>组队挑战更高难度副本，获得丰厚经验奖励。</p>
+                        </div>
+                    </div>
+
+                    <h4>经验加成系统</h4>
+                    <table class="exp-table">
+                        <thead>
+                            <tr>
+                                <th>加成类型</th>
+                                <th>加成比例</th>
+                                <th>说明</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>VIP加成</td>
+                                <td>10% - 50%</td>
+                                <td>根据VIP等级提供永久加成</td>
+                            </tr>
+                            <tr>
+                                <td>经验药水</td>
+                                <td>20% - 100%</td>
+                                <td>限时道具，持续30分钟-2小时</td>
+                            </tr>
+                            <tr>
+                                <td>组队加成</td>
+                                <td>5% - 20%</td>
+                                <td>队伍人数越多，加成越高</td>
+                            </tr>
+                            <tr>
+                                <td>双倍经验时间</td>
+                                <td>100%</td>
+                                <td>特定时段或活动开启</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="mechanic-section" id="milestone">
+                    <h3>里程碑奖励</h3>
+                    <p>在通往200级的道路上，特定等级会解锁重要的游戏内容和丰厚奖励。</p>
+                    
+                    <div class="milestone-list">
+                        <div class="milestone-item">
+                            <div class="milestone-level">30级</div>
+                            <div class="milestone-content">
+                                <h4>进阶职业解锁</h4>
+                                <p>角色可以选择专精方向，开启更强大的技能</p>
+                                <ul>
+                                    <li>解锁进阶职业/专精选择</li>
+                                    <li>获得进阶技能树</li>
+                                    <li>解锁职业专属装备</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="milestone-item">
+                            <div class="milestone-level">60级</div>
+                            <div class="milestone-content">
+                                <h4>高级装备解锁</h4>
+                                <p>可以穿戴更强大的装备，开启装备附魔功能</p>
+                                <ul>
+                                    <li>解锁紫色品质装备穿戴</li>
+                                    <li>解锁装备附魔系统</li>
+                                    <li>获得高级强化材料包</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="milestone-item">
+                            <div class="milestone-level">90级</div>
+                            <div class="milestone-content">
+                                <h4>传说难度解锁</h4>
+                                <p>挑战更高难度的内容，获得顶级装备</p>
+                                <ul>
+                                    <li>解锁传说难度副本</li>
+                                    <li>解锁橙色装备掉落</li>
+                                    <li>获得传说挑战者称号</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="milestone-item highlight">
+                            <div class="milestone-level">100级</div>
+                            <div class="milestone-content">
+                                <h4>原满级突破</h4>
+                                <p>旧版本的满级，新版本的新起点</p>
+                                <ul>
+                                    <li>解锁100-200级升级路径</li>
+                                    <li>获得突破者称号</li>
+                                    <li>解锁新的装备等级</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="milestone-item">
+                            <div class="milestone-level">120级</div>
+                            <div class="milestone-content">
+                                <h4>大师技能解锁</h4>
+                                <p>技能系统全面升级，技能效果大幅提升</p>
+                                <ul>
+                                    <li>解锁大师级技能</li>
+                                    <li>技能等级上限提升至15级</li>
+                                    <li>获得大师之证</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="milestone-item">
+                            <div class="milestone-level">150级</div>
+                            <div class="milestone-content">
+                                <h4>传奇装备打造</h4>
+                                <p>可以自己打造传说级装备，成为服务器顶级玩家</p>
+                                <ul>
+                                    <li>解锁传奇装备打造</li>
+                                    <li>解锁神话材料采集</li>
+                                    <li>获得传奇工匠称号</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="milestone-item ultimate">
+                            <div class="milestone-level">200级</div>
+                            <div class="milestone-content">
+                                <h4>神话境界达成</h4>
+                                <p>达到游戏巅峰，获得独一无二的荣耀</p>
+                                <ul>
+                                    <li>解锁终极称号「神话」</li>
+                                    <li>解锁神话外观套装</li>
+                                    <li>进入全服排行榜</li>
+                                    <li>解锁隐藏剧情</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mechanic-section" id="attributes">
+                    <h3>属性成长</h3>
+                    <p>属性决定了角色的基础能力，包括战斗属性和商业属性。</p>
+                    
+                    <h4>基础属性</h4>
+                    <div class="attribute-growth">
+                        <div class="growth-card">
+                            <h4>战斗属性</h4>
+                            <ul>
+                                <li><strong>力量</strong>：影响攻击力</li>
+                                <li><strong>体质</strong>：影响生命值和防御</li>
+                                <li><strong>敏捷</strong>：影响速度和暴击</li>
+                                <li><strong>智力</strong>：影响技能效果</li>
+                            </ul>
+                        </div>
+                        <div class="growth-card">
+                            <h4>商业属性</h4>
+                            <ul>
+                                <li><strong>魅力</strong>：影响交易成功率</li>
+                                <li><strong>洞察</strong>：影响价格判断</li>
+                                <li><strong>口才</strong>：影响议价能力</li>
+                                <li><strong>运气</strong>：影响稀有物品获取</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <h4>成长曲线</h4>
+                    <p>不同属性的成长曲线不同：</p>
+                    <ul>
+                        <li><strong>线性成长</strong>：每级稳定提升，如生命值</li>
+                        <li><strong>递减成长</strong>：后期提升变慢，需要更多投入</li>
+                        <li><strong>阶梯成长</strong>：特定等级大幅提升</li>
+                    </ul>
+
+                    <div class="tip-box">
+                        <h5>属性分配建议</h5>
+                        <ul>
+                            <li>根据成长路线优先提升核心属性</li>
+                            <li>不要忽视防御属性，生存才能输出</li>
+                            <li>商业属性在中后期同样重要</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="mechanic-section" id="skills">
+                    <h3>技能成长</h3>
+                    <p>技能是角色能力的重要组成部分，通过技能树系统可以自由发展。</p>
+                    
+                    <div class="skill-tree-section">
+                        <h4>技能树结构</h4>
+                        <p>技能分为三大分支，每个分支有独立的技能树：</p>
+                        
+                        <div class="skill-tree">
+                            <div class="tree-branch">
+                                <h4>战斗分支</h4>
+                                <div class="skill-nodes">
+                                    <div class="skill-node unlocked">基础攻击</div>
+                                    <div class="skill-node unlocked">重击</div>
+                                    <div class="skill-node">连斩</div>
+                                    <div class="skill-node">破甲</div>
+                                    <div class="skill-node">旋风斩</div>
+                                    <div class="skill-node">终极剑技</div>
+                                </div>
+                            </div>
+                            
+                            <div class="tree-branch">
+                                <h4>防御分支</h4>
+                                <div class="skill-nodes">
+                                    <div class="skill-node unlocked">护盾</div>
+                                    <div class="skill-node unlocked">铁壁</div>
+                                    <div class="skill-node">反击</div>
+                                    <div class="skill-node">嘲讽</div>
+                                    <div class="skill-node">无敌</div>
+                                    <div class="skill-node">绝对防御</div>
+                                </div>
+                            </div>
+                            
+                            <div class="tree-branch">
+                                <h4>商业分支</h4>
+                                <div class="skill-nodes">
+                                    <div class="skill-node unlocked">讨价还价</div>
+                                    <div class="skill-node unlocked">市场洞察</div>
+                                    <div class="skill-node">批量交易</div>
+                                    <div class="skill-node">投资眼光</div>
+                                    <div class="skill-node">垄断市场</div>
+                                    <div class="skill-node">商业帝国</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h4>技能点获取</h4>
+                    <ul>
+                        <li>升级时获得固定技能点</li>
+                        <li>完成特定任务奖励技能点</li>
+                        <li>使用技能书可以直接学习技能</li>
+                    </ul>
+
+                    <h4>技能升级</h4>
+                    <p>已学习的技能可以通过消耗技能点升级：</p>
+                    <ul>
+                        <li>每升1级，技能效果提升10%</li>
+                        <li>最高可升至10级</li>
+                        <li>某些技能在5级和10级时会解锁额外效果</li>
+                    </ul>
+                </div>
+
+                <div class="equipment-upgrade" id="equipment">
+                    <h3>装备成长</h3>
+                    <p>装备可以通过多种方式成长，不断提升战斗力。</p>
+                    
+                    <h4>装备强化</h4>
+                    <p>消耗强化材料和金币提升装备基础属性：</p>
+                    <div class="upgrade-path">
+                        <div class="upgrade-step">+0</div>
+                        <span class="upgrade-arrow">→</span>
+                        <div class="upgrade-step">+1</div>
+                        <span class="upgrade-arrow">→</span>
+                        <div class="upgrade-step">+2</div>
+                        <span class="upgrade-arrow">→</span>
+                        <div class="upgrade-step">...</div>
+                        <span class="upgrade-arrow">→</span>
+                        <div class="upgrade-step">+10</div>
+                    </div>
+                    <ul>
+                        <li>强化等级越高，成功率越低</li>
+                        <li>失败时可能降级或损坏</li>
+                        <li>使用保护道具可以防止失败惩罚</li>
+                    </ul>
+
+                    <h4>装备进阶</h4>
+                    <p>当装备强化到+10后，可以进行进阶：</p>
+                    <ul>
+                        <li>进阶后装备品质提升（白→绿→蓝→紫→橙）</li>
+                        <li>进阶后强化等级归零，但基础属性大幅提升</li>
+                        <li>需要特定的进阶材料</li>
+                    </ul>
+
+                    <h4>装备传承</h4>
+                    <p>获得新装备时，可以将旧装备的强化等级传承：</p>
+                    <ul>
+                        <li>传承会损失部分强化等级</li>
+                        <li>只能传承给同类型装备</li>
+                        <li>需要消耗传承石</li>
+                    </ul>
+                </div>
+
+                <div class="business-growth" id="business">
+                    <h3>商业成长</h3>
+                    <p>作为一只经商的青蛙，商业能力的成长同样重要。</p>
+                    
+                    <h4>商业等级</h4>
+                    <p>通过交易积累经验，提升商业等级：</p>
+                    <table class="wiki-table">
+                        <thead>
+                            <tr>
+                                <th>商业等级</th>
+                                <th>称号</th>
+                                <th>解锁功能</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>1-10级</td>
+                                <td>学徒商人</td>
+                                <td>基础交易</td>
+                            </tr>
+                            <tr>
+                                <td>11-30级</td>
+                                <td>行商</td>
+                                <td>批量交易、议价</td>
+                            </tr>
+                            <tr>
+                                <td>31-60级</td>
+                                <td>富商</td>
+                                <td>稀有商品交易</td>
+                            </tr>
+                            <tr>
+                                <td>61-100级</td>
+                                <td>商业大亨</td>
+                                <td>垄断、连锁经营</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h4>商业技能</h4>
+                    <ul>
+                        <li><strong>价格洞察</strong>：更准确地判断商品价格</li>
+                        <li><strong>议价大师</strong>：提高议价成功率</li>
+                        <li><strong>批量交易</strong>：一次性交易更多商品</li>
+                        <li><strong>投资眼光</strong>：发现潜在的商机</li>
+                    </ul>
+                </div>
+
+                <div class="reputation-section" id="reputation">
+                    <h3>声望系统</h3>
+                    <p>在各地区建立声望可以获得诸多好处。</p>
+                    
+                    <h4>声望等级</h4>
+                    <div class="reputation-list">
+                        <div class="reputation-item">
+                            <div class="reputation-name">长安城声望</div>
+                            <span class="reputation-level">中立</span>
+                            <p>大唐国都，商业繁荣</p>
+                            <p><strong>奖励：</strong>交易税率降低</p>
+                        </div>
+                        <div class="reputation-item">
+                            <div class="reputation-name">花果山声望</div>
+                            <span class="reputation-level">友好</span>
+                            <p>你的故乡，猴群聚集地</p>
+                            <p><strong>奖励：</strong>特产购买优惠</p>
+                        </div>
+                        <div class="reputation-item">
+                            <div class="reputation-name">火焰山声望</div>
+                            <span class="reputation-level">尊敬</span>
+                            <p>牛魔王的地盘</p>
+                            <p><strong>奖励：</strong>火抗装备折扣</p>
+                        </div>
+                        <div class="reputation-item">
+                            <div class="reputation-name">雷音寺声望</div>
+                            <span class="reputation-level">崇敬</span>
+                            <p>佛教圣地</p>
+                            <p><strong>奖励：</strong>稀有道具购买权</p>
+                        </div>
+                    </div>
+
+                    <h4>提升声望的方式</h4>
+                    <ul>
+                        <li><strong>完成任务</strong>：帮助当地居民</li>
+                        <li><strong>捐赠</strong>：向当地势力捐赠物资</li>
+                        <li><strong>交易</strong>：在当地进行大量交易</li>
+                        <li><strong>击败敌人</strong>：清除当地威胁</li>
+                    </ul>
+
+                    <h4>声望商店</h4>
+                    <p>达到一定声望等级后，可以进入声望商店购买特殊物品：</p>
+                    <ul>
+                        <li>稀有装备和材料</li>
+                        <li>独特的称号和外观</li>
+                        <li>特殊的技能书</li>
+                        <li>限量版商品</li>
+                    </ul>
+                </div>
+
+                <div class="route-section" id="routes">
+                    <h3>成长路线</h3>
+                    <p>游戏提供了多条成长路线，你可以根据自己的喜好选择发展方向。</p>
+                    
+                    <div class="route-cards">
+                        <div class="route-card combat">
+                            <h4>战斗型</h4>
+                            <p><strong>核心特点：</strong>专注于战斗能力，成为强大的战士</p>
+                            <p><strong>主要属性：</strong>力量、体质、敏捷</p>
+                            <p><strong>核心技能：</strong>攻击技能、防御技能</p>
+                            <p><strong>适合玩家：</strong>喜欢挑战强敌、享受战斗乐趣</p>
+                            <p><strong>优势：</strong>战斗效率高，能快速击败敌人获取稀有材料</p>
+                            <p><strong>劣势：</strong>商业能力较弱，赚钱较慢</p>
+                        </div>
+                        <div class="route-card business">
+                            <h4>商业型</h4>
+                            <p><strong>核心特点：</strong>专注于商业经营，成为富甲一方的商人</p>
+                            <p><strong>主要属性：</strong>魅力、洞察、口才</p>
+                            <p><strong>核心技能：</strong>商业技能、议价技能</p>
+                            <p><strong>适合玩家：</strong>喜欢经营、享受赚钱乐趣</p>
+                            <p><strong>优势：</strong>赚钱快，能购买最好的装备</p>
+                            <p><strong>劣势：</strong>战斗能力弱，需要避开强敌</p>
+                        </div>
+                        <div class="route-card balanced">
+                            <h4>平衡型</h4>
+                            <p><strong>核心特点：</strong>战斗和商业均衡发展</p>
+                            <p><strong>主要属性：</strong>各项属性均衡分配</p>
+                            <p><strong>核心技能：</strong>兼顾战斗和商业技能</p>
+                            <p><strong>适合玩家：</strong>喜欢全面发展、体验所有内容</p>
+                            <p><strong>优势：</strong>适应性强，能应对各种情况</p>
+                            <p><strong>劣势：</strong>没有特别突出的优势</p>
+                        </div>
+                    </div>
+
+                    <div class="tip-box">
+                        <h5>路线选择建议</h5>
+                        <ul>
+                            <li>新手建议先选择平衡型，熟悉游戏后再专精</li>
+                            <li>游戏后期可以通过道具重置属性点，尝试不同路线</li>
+                            <li>某些高难度内容需要特定路线才能挑战</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="article-footer">
+                    <p>最后更新于：2026-03-20 | 编辑次数：1</p>
+                </div>
+            </article>
+        </main>
+    </div>
+
+    <footer class="wiki-footer">
+        <p>&copy; 2026 《蛙噻！好摊》游戏百科 | 本百科由玩家共同维护</p>
+    </footer>
+
+    <script src="../js/main.js"></script>
+</body>
+</html>

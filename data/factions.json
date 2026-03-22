@@ -1,0 +1,567 @@
+{
+  "factions": [
+    {
+      "id": "tianting",
+      "name": "天庭",
+      "tier": 1,
+      "type": "celestial",
+      "description": "道教最高统治机构，掌控天界秩序，统领三十六重天。玉皇大帝为最高统治者，下设四大天王、二十八宿、雷部、火部等众多仙官。",
+      "leader": "玉皇大帝",
+      "territory": [77, 79],
+      "headquarters": "凌霄宝殿",
+      "strength": 100000,
+      "relationships": {
+        "allies": ["tianting_shanghui", "datangguo", "chechiguo", "donghai_longgong"],
+        "enemies": ["yaozu", "jileishan", "shituoling"],
+        "trade": ["nverguo", "wuzhuangguan"]
+      },
+      "shop": [
+        {"id": "tianding_1", "name": "九转金丹", "price": 10000, "reputationRequired": 5000, "description": "天庭秘制的仙丹，可大幅提升修为"},
+        {"id": "tianding_2", "name": "蟠桃", "price": 5000, "reputationRequired": 3000, "description": "王母娘娘蟠桃园所产，延年益寿"},
+        {"id": "tianding_3", "name": "天兵符", "price": 2000, "reputationRequired": 1000, "description": "可召唤天兵协助战斗"}
+      ],
+      "quests": [
+        {"id": "tq_1", "name": "剿灭妖邪", "description": "前往指定地点消灭作乱的妖怪", "reward": 500, "reputation": 200},
+        {"id": "tq_2", "name": "护送仙使", "description": "护送天庭使者安全到达目的地", "reward": 800, "reputation": 300}
+      ],
+      "skills": [
+        {"id": "ts_1", "name": "天罡护体", "description": "获得天罡之气护体，防御力+20%", "reputationRequired": 5000},
+        {"id": "ts_2", "name": "雷霆万钧", "description": "召唤天雷攻击敌人，攻击力+25%", "reputationRequired": 8000}
+      ],
+      "reputation": 0
+    },
+    {
+      "id": "fomen",
+      "name": "佛门",
+      "tier": 1,
+      "type": "buddhist",
+      "description": "佛教最高统治机构，掌控西天取经大业，以慈悲为怀，普度众生。如来佛祖为最高领袖，四大菩萨、五百罗汉、三千诸佛共同护持佛法。",
+      "leader": "如来佛祖",
+      "territory": [73, 74],
+      "headquarters": "大雷音寺",
+      "strength": 95000,
+      "relationships": {
+        "allies": ["leiyinsi", "tianzhuguo", "guanyin", "wuzhuangguan"],
+        "enemies": ["yaozu", "shituoling", "jileishan"],
+        "trade": ["nverguo", "jisai"]
+      },
+      "shop": [
+        {"id": "fomen_1", "name": "佛珠", "price": 3000, "reputationRequired": 2000, "description": "加持过的佛珠，可净化妖气"},
+        {"id": "fomen_2", "name": "金刚经", "price": 1500, "reputationRequired": 1000, "description": "佛经抄本，研读可增长智慧"},
+        {"id": "fomen_3", "name": "舍利子", "price": 8000, "reputationRequired": 6000, "description": "高僧圆寂后留下的圣物"}
+      ],
+      "quests": [
+        {"id": "fq_1", "name": "化缘布施", "description": "为寺庙募集善款和物资", "reward": 400, "reputation": 150},
+        {"id": "fq_2", "name": "降妖伏魔", "description": "用佛法感化或降伏妖怪", "reward": 600, "reputation": 250}
+      ],
+      "skills": [
+        {"id": "fs_1", "name": "佛光普照", "description": "释放佛光，对妖族伤害+30%", "reputationRequired": 5000},
+        {"id": "fs_2", "name": "金刚不坏", "description": "获得金刚护体，受到伤害-20%", "reputationRequired": 8000}
+      ],
+      "reputation": 0
+    },
+    {
+      "id": "yaozu",
+      "name": "妖族联盟",
+      "tier": 1,
+      "type": "demon",
+      "description": "妖族最高统治机构，代表天下妖族利益。由七大圣后裔和各大妖王共同组成，与天庭、佛门形成三足鼎立之势。",
+      "leader": "七大圣议会",
+      "territory": [37, 51],
+      "headquarters": "积雷山摩云洞",
+      "strength": 80000,
+      "relationships": {
+        "allies": ["jileishan", "shituoling", "huaguoshan_zongzu"],
+        "enemies": ["tianting", "fomen", "tianting_shanghui"],
+        "trade": ["nverguo", "yaoshi"]
+      },
+      "shop": [
+        {"id": "yaozu_1", "name": "妖丹", "price": 2500, "reputationRequired": 1500, "description": "妖族修炼凝结的内丹"},
+        {"id": "yaozu_2", "name": "化形草", "price": 4000, "reputationRequired": 3000, "description": "可帮助妖怪更好化为人形"},
+        {"id": "yaozu_3", "name": "万妖令", "price": 6000, "reputationRequired": 5000, "description": "妖族身份的象征，可调动小妖"}
+      ],
+      "quests": [
+        {"id": "yq_1", "name": "猎杀天兵", "description": "击败巡逻的天兵天将", "reward": 700, "reputation": 300},
+        {"id": "yq_2", "name": "抢夺供品", "description": "从寺庙抢夺香火供品", "reward": 500, "reputation": 200}
+      ],
+      "skills": [
+        {"id": "ys_1", "name": "妖气冲天", "description": "释放妖气，攻击力+20%", "reputationRequired": 5000},
+        {"id": "ys_2", "name": "百妖护体", "description": "召唤妖族之力护体，防御力+25%", "reputationRequired": 8000}
+      ],
+      "reputation": 0
+    },
+    {
+      "id": "tianting_shanghui",
+      "name": "天庭商会",
+      "tier": 2,
+      "type": "celestial",
+      "description": "天庭直属商业组织，掌控四大部洲主要贸易通道。由太白金星主管，在天界和人间都设有分部，是三界最大的商业组织。",
+      "leader": "太白金星",
+      "territory": [2, 6, 66],
+      "headquarters": "天庭商部",
+      "strength": 30000,
+      "relationships": {
+        "allies": ["tianting", "datangguo", "donghai_longgong"],
+        "enemies": ["yaozu", "yaoshi"],
+        "trade": ["nverguo", "tianzhuguo", "jisai"]
+      },
+      "shop": [
+        {"id": "ts_1", "name": "天庭通行证", "price": 1000, "reputationRequired": 500, "description": "可在天庭商会享受折扣"},
+        {"id": "ts_2", "name": "仙界丝绸", "price": 800, "reputationRequired": 300, "description": "天界特产的丝绸，人间罕见"},
+        {"id": "ts_3", "name": "灵石", "price": 500, "reputationRequired": 100, "description": "蕴含灵气的石头，修炼必备"}
+      ],
+      "quests": [
+        {"id": "tsq_1", "name": "运送货物", "description": "将商会的货物安全运送到指定地点", "reward": 600, "reputation": 250},
+        {"id": "tsq_2", "name": "收集特产", "description": "收集各地的特产货物", "reward": 400, "reputation": 150}
+      ],
+      "skills": [
+        {"id": "tss_1", "name": "商贾之道", "description": "交易时价格优惠15%", "reputationRequired": 3000},
+        {"id": "tss_2", "name": "货源广阔", "description": "商店商品种类+3", "reputationRequired": 6000}
+      ],
+      "reputation": 0
+    },
+    {
+      "id": "leiyinsi",
+      "name": "雷音寺",
+      "tier": 2,
+      "type": "buddhist",
+      "description": "佛门核心圣地，如来佛祖讲法之处。是取经之路的终点，也是佛法传播的中心。寺内供奉着无数佛像，香火鼎盛。",
+      "leader": "如来佛祖",
+      "territory": [73, 74],
+      "headquarters": "大雄宝殿",
+      "strength": 50000,
+      "relationships": {
+        "allies": ["fomen", "tianzhuguo", "guanyin"],
+        "enemies": ["yaozu", "shituoling", "jileishan"],
+        "trade": ["nverguo", "jisai", "tianzhuguo"]
+      },
+      "shop": [
+        {"id": "lys_1", "name": "真经抄本", "price": 2000, "reputationRequired": 1000, "description": "雷音寺珍藏的佛经抄本"},
+        {"id": "lys_2", "name": "佛前供香", "price": 300, "reputationRequired": 100, "description": "供奉佛祖的上好香料"},
+        {"id": "lys_3", "name": "袈裟", "price": 1500, "reputationRequired": 800, "description": "僧人所穿的法衣"}
+      ],
+      "quests": [
+        {"id": "lyq_1", "name": "诵经祈福", "description": "为信众诵经祈福", "reward": 300, "reputation": 100},
+        {"id": "lyq_2", "name": "护法卫道", "description": "保护寺庙免受妖邪侵扰", "reward": 800, "reputation": 350}
+      ],
+      "skills": [
+        {"id": "lyskill_1", "name": "佛法精深", "description": "对妖族伤害+20%", "reputationRequired": 4000},
+        {"id": "lyskill_2", "name": "慈悲为怀", "description": "受到的治疗效果+25%", "reputationRequired": 7000}
+      ],
+      "reputation": 0
+    },
+    {
+      "id": "donghai_longgong",
+      "name": "东海龙宫",
+      "tier": 2,
+      "type": "celestial",
+      "description": "四海龙王之首，掌控东海及水族。龙宫藏宝无数，是三界水产和珍珠的主要来源。与天庭关系密切，常年向天庭进贡。",
+      "leader": "东海龙王",
+      "territory": [4],
+      "headquarters": "水晶宫",
+      "strength": 35000,
+      "relationships": {
+        "allies": ["tianting", "tianting_shanghui"],
+        "enemies": ["yaozu", "heifengshan"],
+        "trade": ["nverguo", "aolai", "penglai"]
+      },
+      "shop": [
+        {"id": "dh_1", "name": "避水珠", "price": 3000, "reputationRequired": 1500, "description": "可在水中自由呼吸的宝珠"},
+        {"id": "dh_2", "name": "夜明珠", "price": 2000, "reputationRequired": 1000, "description": "龙宫特产的夜明珠，照明用"},
+        {"id": "dh_3", "name": "龙鳞甲", "price": 5000, "reputationRequired": 3000, "description": "用龙鳞打造的护甲"}
+      ],
+      "quests": [
+        {"id": "dhq_1", "name": "镇压海妖", "description": "击败作乱的海妖", "reward": 700, "reputation": 300},
+        {"id": "dhq_2", "name": "寻找珍珠", "description": "潜入深海寻找珍稀珍珠", "reward": 500, "reputation": 200}
+      ],
+      "skills": [
+        {"id": "dhs_1", "name": "御水之术", "description": "在水中移动速度+30%", "reputationRequired": 3000},
+        {"id": "dhs_2", "name": "龙族血脉", "description": "生命值+20%", "reputationRequired": 6000}
+      ],
+      "reputation": 0
+    },
+    {
+      "id": "difu",
+      "name": "地府",
+      "tier": 2,
+      "type": "neutral",
+      "description": "幽冥之主，掌控生死轮回。十殿阎罗分管地府事务，判官掌管生死簿。地府是亡魂归宿，也是阴阳两界的交汇点。",
+      "leader": "十殿阎罗",
+      "territory": [],
+      "headquarters": "幽冥地府",
+      "strength": 40000,
+      "relationships": {
+        "allies": ["tianting", "fomen"],
+        "enemies": ["yaozu"],
+        "trade": ["wuzhuangguan", "nverguo"]
+      },
+      "shop": [
+        {"id": "df_1", "name": "还魂丹", "price": 8000, "reputationRequired": 4000, "description": "可让濒死之人恢复生机的丹药"},
+        {"id": "df_2", "name": "阴阳镜", "price": 3000, "reputationRequired": 1500, "description": "可看到亡魂的镜子"},
+        {"id": "df_3", "name": "生死簿残页", "price": 10000, "reputationRequired": 6000, "description": "记载生死的簿册残页"}
+      ],
+      "quests": [
+        {"id": "dfq_1", "name": "引渡亡魂", "description": "帮助迷路的亡魂前往地府", "reward": 600, "reputation": 250},
+        {"id": "dfq_2", "name": "捉拿逃魂", "description": "捉拿从地府逃出的恶魂", "reward": 800, "reputation": 350}
+      ],
+      "skills": [
+        {"id": "dfs_1", "name": "阴阳眼", "description": "可以看到隐藏的灵体", "reputationRequired": 4000},
+        {"id": "dfs_2", "name": "不死之身", "description": "死亡后复活一次", "reputationRequired": 8000}
+      ],
+      "reputation": 0
+    },
+    {
+      "id": "wuzhuangguan",
+      "name": "五庄观",
+      "tier": 2,
+      "type": "neutral",
+      "description": "镇元大仙的道场，地仙之祖。观内种植着人参果树，是三界闻名的仙家圣地。镇元大仙与世无争，但实力深不可测。",
+      "leader": "镇元大仙",
+      "territory": [16],
+      "headquarters": "五庄观",
+      "strength": 45000,
+      "relationships": {
+        "allies": ["tianting", "fomen"],
+        "enemies": [],
+        "trade": ["nverguo", "difu", "datangguo"]
+      },
+      "shop": [
+        {"id": "wzg_1", "name": "人参果", "price": 10000, "reputationRequired": 5000, "description": "闻一闻活三百六十岁，吃一个活四万七千年"},
+        {"id": "wzg_2", "name": "仙家丹药", "price": 3000, "reputationRequired": 2000, "description": "五庄观炼制的丹药"},
+        {"id": "wzg_3", "name": "地仙典籍", "price": 2500, "reputationRequired": 1500, "description": "记载地仙修炼之法的典籍"}
+      ],
+      "quests": [
+        {"id": "wzgq_1", "name": "照料果树", "description": "帮助照料人参果树", "reward": 500, "reputation": 200},
+        {"id": "wzgq_2", "name": "采集仙草", "description": "前往指定地点采集仙草", "reward": 600, "reputation": 250}
+      ],
+      "skills": [
+        {"id": "wzgs_1", "name": "地仙之体", "description": "生命值和法力值+15%", "reputationRequired": 4000},
+        {"id": "wzgs_2", "name": "长生不老", "description": "每回合恢复5%生命值", "reputationRequired": 8000}
+      ],
+      "reputation": 0
+    },
+    {
+      "id": "huaguoshan_zongzu",
+      "name": "花果山宗族",
+      "tier": 2,
+      "type": "demon",
+      "description": "孙悟空旧部，妖族中的正义派。虽然孙悟空已成佛，但花果山的猴群依然团结，守护着大圣的故乡。",
+      "leader": "四健将",
+      "territory": [1, 3],
+      "headquarters": "水帘洞",
+      "strength": 25000,
+      "relationships": {
+        "allies": ["yaozu", "fomen"],
+        "enemies": ["tianting"],
+        "trade": ["nverguo", "aolai"]
+      },
+      "shop": [
+        {"id": "hgs_1", "name": "猴儿酒", "price": 500, "reputationRequired": 200, "description": "花果山特产的美酒"},
+        {"id": "hgs_2", "name": "灵桃", "price": 800, "reputationRequired": 400, "description": "花果山仙桃，食用可恢复体力"},
+        {"id": "hgs_3", "name": "大圣遗物", "price": 5000, "reputationRequired": 3000, "description": "孙悟空留下的物品"}
+      ],
+      "quests": [
+        {"id": "hgsq_1", "name": "守护花果山", "description": "击退入侵花果山的敌人", "reward": 600, "reputation": 250},
+        {"id": "hgsq_2", "name": "寻找大圣足迹", "description": "寻找孙悟空留下的痕迹", "reward": 400, "reputation": 150}
+      ],
+      "skills": [
+        {"id": "hgss_1", "name": "猴王之势", "description": "攻击力+15%", "reputationRequired": 3000},
+        {"id": "hgss_2", "name": "七十二变", "description": "可以变化形态躲避攻击", "reputationRequired": 7000}
+      ],
+      "reputation": 0
+    },
+    {
+      "id": "jileishan",
+      "name": "积雷山",
+      "tier": 2,
+      "type": "demon",
+      "description": "牛魔王势力，妖族中的实力派。牛魔王号称平天大圣，是七大圣之首，实力强大，手下妖兵众多。",
+      "leader": "牛魔王",
+      "territory": [37, 38],
+      "headquarters": "摩云洞",
+      "strength": 40000,
+      "relationships": {
+        "allies": ["yaozu", "shituoling"],
+        "enemies": ["tianting", "fomen"],
+        "trade": ["nverguo", "yaoshi"]
+      },
+      "shop": [
+        {"id": "jls_1", "name": "牛魔之角", "price": 3000, "reputationRequired": 1500, "description": "牛魔王的角制成的饰品"},
+        {"id": "jls_2", "name": "妖王宝藏", "price": 5000, "reputationRequired": 3000, "description": "积雷山收藏的宝物"},
+        {"id": "jls_3", "name": "芭蕉扇", "price": 8000, "reputationRequired": 5000, "description": "铁扇公主的芭蕉扇仿制品"}
+      ],
+      "quests": [
+        {"id": "jlsq_1", "name": "挑战牛魔王", "description": "接受牛魔王的挑战", "reward": 1000, "reputation": 400},
+        {"id": "jlsq_2", "name": "收集妖丹", "description": "收集指定数量的妖丹", "reward": 700, "reputation": 300}
+      ],
+      "skills": [
+        {"id": "jlss_1", "name": "牛魔之力", "description": "攻击力+25%", "reputationRequired": 4000},
+        {"id": "jlss_2", "name": "平天之势", "description": "防御力+25%", "reputationRequired": 7000}
+      ],
+      "reputation": 0
+    },
+    {
+      "id": "shituoling",
+      "name": "狮驼岭",
+      "tier": 2,
+      "type": "demon",
+      "description": "三魔势力，妖族中的激进派。青狮、白象、大鹏三魔盘踞于此，是取经路上最危险的妖族势力。",
+      "leader": "狮驼岭三魔",
+      "territory": [51, 52],
+      "headquarters": "狮驼洞",
+      "strength": 45000,
+      "relationships": {
+        "allies": ["yaozu", "jileishan"],
+        "enemies": ["tianting", "fomen", "leiyinsi"],
+        "trade": ["yaoshi"]
+      },
+      "shop": [
+        {"id": "stl_1", "name": "狮鬃", "price": 2000, "reputationRequired": 1000, "description": "青狮的鬃毛"},
+        {"id": "stl_2", "name": "象骨", "price": 2500, "reputationRequired": 1200, "description": "白象的骨头"},
+        {"id": "stl_3", "name": "大鹏羽", "price": 4000, "reputationRequired": 2000, "description": "大鹏金翅雕的羽毛"}
+      ],
+      "quests": [
+        {"id": "stlq_1", "name": "猎杀取经人", "description": "袭击路过的取经人", "reward": 900, "reputation": 400},
+        {"id": "stlq_2", "name": "收集人魂", "description": "收集人类魂魄", "reward": 800, "reputation": 350}
+      ],
+      "skills": [
+        {"id": "stls_1", "name": "三魔附体", "description": "全属性+15%", "reputationRequired": 5000},
+        {"id": "stls_2", "name": "妖气滔天", "description": "对佛门伤害+30%", "reputationRequired": 8000}
+      ],
+      "reputation": 0
+    },
+    {
+      "id": "nverguo",
+      "name": "女儿国",
+      "tier": 2,
+      "type": "neutral",
+      "description": "神秘的女子国度，举国皆是女子。女儿国保持中立，与各方势力都有贸易往来，是三界重要的贸易枢纽。",
+      "leader": "女儿国国王",
+      "territory": [32],
+      "headquarters": "女儿国王宫",
+      "strength": 20000,
+      "relationships": {
+        "allies": [],
+        "enemies": [],
+        "trade": ["tianting", "fomen", "yaozu", "tianting_shanghui", "datangguo", "tianzhuguo"]
+      },
+      "shop": [
+        {"id": "nvg_1", "name": "女儿红", "price": 600, "reputationRequired": 300, "description": "女儿国特产的美酒"},
+        {"id": "nvg_2", "name": "胭脂", "price": 400, "reputationRequired": 200, "description": "女儿国特产的化妆品"},
+        {"id": "nvg_3", "name": "子母河水", "price": 2000, "reputationRequired": 1000, "description": "神奇的河水"}
+      ],
+      "quests": [
+        {"id": "nvgq_1", "name": "护送商队", "description": "护送女儿国的商队", "reward": 500, "reputation": 200},
+        {"id": "nvgq_2", "name": "寻找特产", "description": "为女儿国寻找稀有特产", "reward": 600, "reputation": 250}
+      ],
+      "skills": [
+        {"id": "nvgs_1", "name": "商贾精通", "description": "交易价格优惠20%", "reputationRequired": 3000},
+        {"id": "nvgs_2", "name": "中立庇护", "description": "不会被任何势力主动攻击", "reputationRequired": 6000}
+      ],
+      "reputation": 0
+    },
+    {
+      "id": "datangguo",
+      "name": "大唐国",
+      "tier": 2,
+      "type": "celestial",
+      "description": "人间最强国度，南赡部洲霸主。唐太宗李世民统治下的大唐国力强盛，文化繁荣，是取经之路的起点。",
+      "leader": "唐太宗",
+      "territory": [6],
+      "headquarters": "长安城",
+      "strength": 50000,
+      "relationships": {
+        "allies": ["tianting", "tianting_shanghui"],
+        "enemies": ["yaozu"],
+        "trade": ["nverguo", "tianzhuguo", "jisai"]
+      },
+      "shop": [
+        {"id": "dt_1", "name": "唐三彩", "price": 800, "reputationRequired": 400, "description": "大唐特产的艺术品"},
+        {"id": "dt_2", "name": "丝绸", "price": 600, "reputationRequired": 300, "description": "大唐的丝绸"},
+        {"id": "dt_3", "name": "茶叶", "price": 400, "reputationRequired": 200, "description": "大唐的茶叶"}
+      ],
+      "quests": [
+        {"id": "dtq_1", "name": "护送唐僧", "description": "护送唐僧西天取经", "reward": 1000, "reputation": 400},
+        {"id": "dtq_2", "name": "平定叛乱", "description": "平定国内的叛乱", "reward": 700, "reputation": 300}
+      ],
+      "skills": [
+        {"id": "dts_1", "name": "大唐威严", "description": "对人形敌人伤害+20%", "reputationRequired": 4000},
+        {"id": "dts_2", "name": "盛世繁华", "description": "获得金钱+20%", "reputationRequired": 7000}
+      ],
+      "reputation": 0
+    },
+    {
+      "id": "chechiguo",
+      "name": "车迟国",
+      "tier": 2,
+      "type": "celestial",
+      "description": "信奉道教的国家，国内有三位国师。车迟国与天庭关系密切，是道教在人间的重要据点。",
+      "leader": "车迟国国王",
+      "territory": [26, 27],
+      "headquarters": "车迟国王宫",
+      "strength": 25000,
+      "relationships": {
+        "allies": ["tianting"],
+        "enemies": ["fomen", "yaozu"],
+        "trade": ["datangguo", "wuzhuangguan"]
+      },
+      "shop": [
+        {"id": "cc_1", "name": "道袍", "price": 500, "reputationRequired": 250, "description": "道士穿的袍子"},
+        {"id": "cc_2", "name": "法器", "price": 1500, "reputationRequired": 800, "description": "道教法器"},
+        {"id": "cc_3", "name": "丹药", "price": 2000, "reputationRequired": 1000, "description": "道教炼制的丹药"}
+      ],
+      "quests": [
+        {"id": "ccq_1", "name": "弘扬道教", "description": "传播道教教义", "reward": 500, "reputation": 200},
+        {"id": "ccq_2", "name": "斗法", "description": "与佛门弟子斗法", "reward": 800, "reputation": 350}
+      ],
+      "skills": [
+        {"id": "ccs_1", "name": "道法自然", "description": "法力值+20%", "reputationRequired": 3000},
+        {"id": "ccs_2", "name": "三清护体", "description": "受到道法伤害-30%", "reputationRequired": 6000}
+      ],
+      "reputation": 0
+    },
+    {
+      "id": "tianzhuguo",
+      "name": "天竺国",
+      "tier": 2,
+      "type": "buddhist",
+      "description": "西方极乐世界附近的国度，佛法昌盛。天竺国是佛门的重要支持者，也是取经目的地的最后一站。",
+      "leader": "天竺国国王",
+      "territory": [70],
+      "headquarters": "天竺国王宫",
+      "strength": 30000,
+      "relationships": {
+        "allies": ["fomen", "leiyinsi"],
+        "enemies": ["yaozu"],
+        "trade": ["nverguo", "datangguo", "jisai"]
+      },
+      "shop": [
+        {"id": "tz_1", "name": "天竺丝绸", "price": 700, "reputationRequired": 350, "description": "天竺特产的丝绸"},
+        {"id": "tz_2", "name": "佛经", "price": 1000, "reputationRequired": 500, "description": "天竺的佛经"},
+        {"id": "tz_3", "name": "佛器", "price": 2500, "reputationRequired": 1500, "description": "佛教法器"}
+      ],
+      "quests": [
+        {"id": "tzq_1", "name": "保护佛法", "description": "保护天竺国的佛法传播", "reward": 600, "reputation": 250},
+        {"id": "tzq_2", "name": "迎接取经人", "description": "迎接西天取经的僧人", "reward": 800, "reputation": 350}
+      ],
+      "skills": [
+        {"id": "tzs_1", "name": "佛法无边", "description": "对妖族伤害+25%", "reputationRequired": 4000},
+        {"id": "tzs_2", "name": "极乐世界", "description": "受到的治疗效果+30%", "reputationRequired": 7000}
+      ],
+      "reputation": 0
+    }
+  ],
+  "localFactions": [
+    {"id": "heifengshan", "name": "黑风山", "tier": 3, "type": "demon", "leader": "黑熊精", "territory": [12], "parentFaction": "yaozu"},
+    {"id": "huangfengling", "name": "黄风岭", "tier": 3, "type": "demon", "leader": "黄风怪", "territory": [13], "parentFaction": "yaozu"},
+    {"id": "baihuling", "name": "白虎岭", "tier": 3, "type": "demon", "leader": "白骨精", "territory": [17], "parentFaction": "yaozu"},
+    {"id": "pingdingshan", "name": "平顶山", "tier": 3, "type": "demon", "leader": "金角银角", "territory": [20, 21], "parentFaction": "yaozu"},
+    {"id": "haoshan", "name": "号山", "tier": 3, "type": "demon", "leader": "红孩儿", "territory": [23, 24], "parentFaction": "jileishan"},
+    {"id": "jindoushan", "name": "金兜山", "tier": 3, "type": "demon", "leader": "独角兕", "territory": [30, 31], "parentFaction": "yaozu"},
+    {"id": "dudishan", "name": "毒敌山", "tier": 3, "type": "demon", "leader": "蝎子精", "territory": [33, 34], "parentFaction": "yaozu"},
+    {"id": "pansiling", "name": "盘丝岭", "tier": 3, "type": "demon", "leader": "蜘蛛精", "territory": [48, 49], "parentFaction": "yaozu"},
+    {"id": "biqiuguo", "name": "比丘国", "tier": 3, "type": "neutral", "leader": "比丘国国王", "territory": [53, 54], "parentFaction": null},
+    {"id": "xiankongshan", "name": "陷空山", "tier": 3, "type": "demon", "leader": "地涌夫人", "territory": [55, 56], "parentFaction": "yaozu"},
+    {"id": "zhujieshan", "name": "竹节山", "tier": 3, "type": "demon", "leader": "九灵元圣", "territory": [64, 65], "parentFaction": "yaozu"},
+    {"id": "qinglongshan", "name": "青龙山", "tier": 3, "type": "demon", "leader": "三犀牛", "territory": [67, 68], "parentFaction": "yaozu"},
+    {"id": "jingjiling", "name": "荆棘岭", "tier": 3, "type": "demon", "leader": "树精", "territory": [41, 42], "parentFaction": "yaozu"},
+    {"id": "zhuziguo", "name": "朱紫国", "tier": 3, "type": "neutral", "leader": "朱紫国国王", "territory": [45, 46, 47], "parentFaction": null},
+    {"id": "jisaiguo", "name": "祭赛国", "tier": 3, "type": "buddhist", "leader": "祭赛国国王", "territory": [39, 40], "parentFaction": "fomen"},
+    {"id": "fangcunshan", "name": "方寸山", "tier": 3, "type": "neutral", "leader": "菩提祖师", "territory": [5, 78], "parentFaction": null},
+    {"id": "guanyin", "name": "观音禅院", "tier": 3, "type": "buddhist", "leader": "观音菩萨", "territory": [11], "parentFaction": "fomen"},
+    {"id": "yaoshi", "name": "妖市", "tier": 3, "type": "demon", "leader": "妖市之主", "territory": [], "parentFaction": "yaozu"},
+    {"id": "penglai", "name": "蓬莱仙岛", "tier": 3, "type": "celestial", "leader": "八仙", "territory": [76], "parentFaction": "tianting"},
+    {"id": "doushuai", "name": "兜率宫", "tier": 3, "type": "celestial", "leader": "太上老君", "territory": [79], "parentFaction": "tianting"}
+  ],
+  "reputationLevels": [
+    {"name": "仇恨", "min": -10000, "max": -5000, "discount": 1.5, "hostile": true},
+    {"name": "敌对", "min": -4999, "max": -1000, "discount": 1.5, "hostile": false},
+    {"name": "冷淡", "min": -999, "max": 0, "discount": 1.0, "hostile": false},
+    {"name": "友善", "min": 1, "max": 1000, "discount": 0.9, "hostile": false},
+    {"name": "尊敬", "min": 1001, "max": 5000, "discount": 0.85, "hostile": false},
+    {"name": "崇敬", "min": 5001, "max": 10000, "discount": 0.8, "hostile": false},
+    {"name": "崇拜", "min": 10001, "max": 999999, "discount": 0.75, "hostile": false}
+  ],
+  "events": [
+    {
+      "id": "evt_1",
+      "type": "conflict",
+      "name": "天庭围剿积雷山",
+      "description": "天庭派遣天兵天将围剿积雷山，牛魔王召集妖族抵抗。",
+      "factions": ["tianting", "jileishan"],
+      "duration": 72,
+      "rewards": {"tianting": {"reputation": 500, "gold": 2000}, "jileishan": {"reputation": 500, "gold": 2000}},
+      "active": false
+    },
+    {
+      "id": "evt_2",
+      "type": "cooperation",
+      "name": "佛门法会",
+      "description": "雷音寺举办盛大法会，邀请各方势力参加。",
+      "factions": ["fomen", "leiyinsi", "tianzhuguo"],
+      "duration": 48,
+      "rewards": {"fomen": {"reputation": 300, "gold": 1000}, "participants": {"reputation": 200, "gold": 500}},
+      "active": false
+    },
+    {
+      "id": "evt_3",
+      "type": "crisis",
+      "name": "东海龙宫危机",
+      "description": "东海龙宫遭到不明势力袭击，龙王请求援助。",
+      "factions": ["donghai_longgong"],
+      "duration": 24,
+      "rewards": {"donghai_longgong": {"reputation": 800, "gold": 3000}},
+      "active": false
+    },
+    {
+      "id": "evt_4",
+      "type": "celebration",
+      "name": "蟠桃盛会",
+      "description": "王母娘娘举办蟠桃盛会，邀请各路神仙参加。",
+      "factions": ["tianting"],
+      "duration": 12,
+      "rewards": {"tianting": {"reputation": 400, "gold": 1500}, "participants": {"reputation": 200, "item": "蟠桃"}},
+      "active": false
+    },
+    {
+      "id": "evt_5",
+      "type": "conflict",
+      "name": "妖族联盟进攻车迟国",
+      "description": "妖族联盟发动对车迟国的进攻，道教国家面临危机。",
+      "factions": ["yaozu", "chechiguo"],
+      "duration": 60,
+      "rewards": {"yaozu": {"reputation": 600, "gold": 2500}, "chechiguo": {"reputation": 600, "gold": 2500}},
+      "active": false
+    },
+    {
+      "id": "evt_6",
+      "type": "trade",
+      "name": "女儿国贸易节",
+      "description": "女儿国举办盛大贸易节，各方商人云集。",
+      "factions": ["nverguo"],
+      "duration": 36,
+      "rewards": {"nverguo": {"reputation": 300, "gold": 2000}, "traders": {"discount": 0.8}},
+      "active": false
+    },
+    {
+      "id": "evt_7",
+      "type": "conflict",
+      "name": "狮驼岭伏击取经人",
+      "description": "狮驼岭三魔设下埋伏，准备伏击取经队伍。",
+      "factions": ["shituoling", "fomen"],
+      "duration": 48,
+      "rewards": {"shituoling": {"reputation": 700, "gold": 3000}, "fomen": {"reputation": 700, "gold": 3000}},
+      "active": false
+    },
+    {
+      "id": "evt_8",
+      "type": "cooperation",
+      "name": "五庄观论道大会",
+      "description": "镇元大仙邀请各方修道者参加论道大会。",
+      "factions": ["wuzhuangguan", "tianting", "fomen"],
+      "duration": 24,
+      "rewards": {"wuzhuangguan": {"reputation": 400, "gold": 1500}, "participants": {"reputation": 250, "gold": 800}},
+      "active": false
+    }
+  ]
+}

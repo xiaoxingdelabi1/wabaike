@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>饰品 - 蛙噻！好摊</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        /* 物品卡片样式 */
+        .item-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+            margin: 16px 0;
+        }
+        .item-card {
+            background: var(--wiki-box-bg);
+            border: 1px solid var(--wiki-border);
+            padding: 12px;
+        }
+        .item-card h4 {
+            margin: 0 0 8px 0;
+            color: var(--wiki-text);
+            font-size: 15px;
+        }
+        .item-card .meta {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+        .item-card .description {
+            font-size: 13px;
+            color: var(--wiki-text-secondary);
+            margin: 0 0 8px 0;
+        }
+        .item-card .effect-box {
+            background: var(--wiki-content-bg);
+            padding: 8px;
+            font-size: 12px;
+            border-left: 3px solid var(--wiki-link);
+        }
+
+        /* 类型标签 */
+        .type-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            font-size: 11px;
+            border-radius: 2px;
+        }
+        .type-badge.accessory {
+            background: #f3e5f5;
+            color: #7b1fa2;
+        }
+
+        /* 稀有度标签 */
+        .rarity-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            font-size: 11px;
+            border-radius: 2px;
+        }
+        .rarity-badge.common {
+            background: #f5f5f5;
+            color: #616161;
+        }
+        .rarity-badge.uncommon {
+            background: #e8f5e9;
+            color: #388e3c;
+        }
+        .rarity-badge.rare {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+        .rarity-badge.epic {
+            background: #f3e5f5;
+            color: #7b1fa2;
+        }
+        .rarity-badge.legendary {
+            background: #fff8e1;
+            color: #f57f17;
+        }
+
+        /* 信息框 - Wiki风格 */
+        .info-box {
+            background: var(--wiki-box-bg);
+            border: 1px solid var(--wiki-border);
+            border-left: 4px solid var(--wiki-link);
+            padding: 12px;
+            margin: 12px 0;
+        }
+        .tip-box {
+            background: #e3f2fd;
+            border: 1px solid #90caf9;
+            border-left: 4px solid #2196f3;
+            padding: 12px;
+            margin: 12px 0;
+        }
+
+        /* 筛选标签 */
+        .filter-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 16px 0;
+        }
+        .filter-tabs .tab-btn {
+            padding: 6px 12px;
+            background: var(--wiki-box-bg);
+            border: 1px solid var(--wiki-border);
+            cursor: pointer;
+            font-size: 13px;
+            margin-right: 0;
+        }
+        .filter-tabs .tab-btn:hover {
+            background: var(--wiki-header-bg);
+        }
+        .filter-tabs .tab-btn.active {
+            background: var(--wiki-content-bg);
+            font-weight: bold;
+            color: var(--wiki-text);
+        }
+    </style>
+</head>
+<body class="wiki-layout">
+    <header class="wiki-topbar">
+        <div class="wiki-logo">
+            <a href="../index.html">蛙噻！好摊</a>
+        </div>
+        <div class="wiki-search">
+            <input type="text" placeholder="搜索百科..." id="searchInput">
+            <button onclick="search()">搜索</button>
+        </div>
+        <div class="wiki-user">
+            <span>欢迎访问</span>
+        </div>
+    </header>
+
+    <div class="wiki-container">
+        <aside class="wiki-sidebar">
+            <nav class="wiki-nav">
+                <div class="nav-section">
+                    <h3>百科分类</h3>
+                    <ul>
+                        <li><a href="../index.html">首页</a></li>
+                        <li><a href="game-intro.html">游戏介绍</a></li>
+                        <li><a href="world.html">世界观</a></li>
+                        <li><a href="factions.html">势力分布</a></li>
+                        <li><a href="history.html">历史年表</a></li>
+                        <li><a href="price-mechanism.html">价格机制</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>游戏特色</h3>
+                    <ul>
+                        <li><a href="bazaar.html">集市</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>游戏玩法</h3>
+                    <ul>
+                        <li><a href="market.html">摆摊系统</a></li>
+                        <li><a href="achievements.html">成就系统</a></li>
+                        <li><a href="combat.html">战斗系统</a></li>
+                        <li><a href="progression.html">成长系统</a></li>
+                        <li><a href="currency.html">货币系统</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>角色</h3>
+                    <ul>
+                        <li><a href="characters.html">角色总览</a></li>
+                        <li><a href="characters.html?type=playable">主要角色</a></li>
+                        <li><a href="characters.html?type=npc">NPC</a></li>
+                        <li><a href="enemies.html">敌人</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>物品装备</h3>
+                    <ul>
+                        <li><a href="items.html">物品总览</a></li>
+                        <li><a href="weapon.html">武器</a></li>
+                        <li><a href="armor.html">防具</a></li>
+                        <li><a href="accessory.html" class="active">饰品</a></li>
+                        <li><a href="treasure.html">法宝</a></li>
+                        <li><a href="consumable.html">消耗品</a></li>
+                        <li><a href="material.html">材料</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>世界探索</h3>
+                    <ul>
+                        <li><a href="locations.html">地点总览</a></li>
+                        <li><a href="map.html">游戏地图</a></li>
+                        <li><a href="quests.html">任务剧情</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>关于</h3>
+                    <ul>
+                        <li><a href="dev-thoughts.html">开发者随想</a></li>
+                    </ul>
+                </div>
+            </nav>
+        </aside>
+
+        <main class="wiki-content">
+            <nav class="breadcrumb">
+                <a href="../index.html">首页</a> &gt; <a href="items.html">物品装备</a> &gt; <span class="current">饰品</span>
+            </nav>
+
+            <article class="wiki-article">
+                <h1 class="article-title">饰品</h1>
+                
+                <div class="info-box">
+                    <strong>饰品系统简介：</strong>饰品是提供额外属性加成和特殊效果的重要装备。与武器防具不同，饰品通常提供独特的属性如暴击率、闪避率、抗性等，是完善角色build的关键。
+                </div>
+
+                <h2>饰品种类</h2>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>饰品类型</th>
+                            <th>主要属性</th>
+                            <th>次要属性</th>
+                            <th>说明</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>项链</td>
+                            <td>生命值、法力值</td>
+                            <td>回复效果、生命恢复</td>
+                            <td>提升生存和续航能力</td>
+                        </tr>
+                        <tr>
+                            <td>戒指</td>
+                            <td>攻击力、暴击率</td>
+                            <td>命中率、攻击速度</td>
+                            <td>提升输出能力</td>
+                        </tr>
+                        <tr>
+                            <td>手镯</td>
+                            <td>防御力、闪避率</td>
+                            <td>格挡率、减伤</td>
+                            <td>提升防御和机动性</td>
+                        </tr>
+                        <tr>
+                            <td>腰带</td>
+                            <td>背包容量、负重</td>
+                            <td>生命恢复、抗性</td>
+                            <td>实用性和生存兼顾</td>
+                        </tr>
+                        <tr>
+                            <td>玉佩</td>
+                            <td>全属性抗性</td>
+                            <td>特殊状态免疫</td>
+                            <td>针对特定敌人或环境</td>
+                        </tr>
+                        <tr>
+                            <td>耳环</td>
+                            <td>法术攻击、法力值</td>
+                            <td>法术暴击、法力恢复</td>
+                            <td>提升法术输出能力</td>
+                        </tr>
+                        <tr>
+                            <td>面具</td>
+                            <td>特殊效果</td>
+                            <td>伪装、威慑</td>
+                            <td>提供独特战斗效果</td>
+                        </tr>
+                        <tr>
+                            <td>勋章</td>
+                            <td>全属性</td>
+                            <td>荣誉加成、特殊称号</td>
+                            <td>象征身份和成就</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h2>饰品列表</h2>
+                <div class="filter-tabs">
+                    <button class="tab-btn active" onclick="filterAccessories('all')">全部</button>
+                    <button class="tab-btn" onclick="filterAccessories('necklace')">项链</button>
+                    <button class="tab-btn" onclick="filterAccessories('ring')">戒指</button>
+                    <button class="tab-btn" onclick="filterAccessories('bracelet')">手镯</button>
+                    <button class="tab-btn" onclick="filterAccessories('belt')">腰带</button>
+                    <button class="tab-btn" onclick="filterAccessories('pendant')">玉佩</button>
+                    <button class="tab-btn" onclick="filterAccessories('earring')">耳环</button>
+                    <button class="tab-btn" onclick="filterAccessories('mask')">面具</button>
+                    <button class="tab-btn" onclick="filterAccessories('medal')">勋章</button>
+                </div>
+                <div class="item-grid" id="accessoryGrid"></div>
+
+                <h2>饰品获取途径</h2>
+                <div class="tip-box">
+                    <ul>
+                        <li><strong>击败敌人</strong>：精英怪和BOSS有概率掉落饰品</li>
+                        <li><strong>商店购买</strong>：首饰店出售基础饰品</li>
+                        <li><strong>任务奖励</strong>：完成特定任务可获得专属饰品</li>
+                        <li><strong>合成制作</strong>：收集材料后合成高级饰品</li>
+                        <li><strong>探索宝箱</strong>：隐藏宝箱中有概率开出稀有饰品</li>
+                    </ul>
+                </div>
+
+                <h2>饰品强化</h2>
+                <p>饰品可以通过以下方式提升属性：</p>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>强化方式</th>
+                            <th>所需材料</th>
+                            <th>效果</th>
+                            <th>成功率</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>强化+1~+5</td>
+                            <td>宝石碎片 x3</td>
+                            <td>主属性+10%</td>
+                            <td>100%</td>
+                        </tr>
+                        <tr>
+                            <td>强化+6~+10</td>
+                            <td>宝石碎片 x5 + 金币</td>
+                            <td>主属性+20%</td>
+                            <td>80%</td>
+                        </tr>
+                        <tr>
+                            <td>强化+11~+15</td>
+                            <td>完整宝石 x3 + 妖丹 x1</td>
+                            <td>主属性+35%</td>
+                            <td>60%</td>
+                        </tr>
+                        <tr>
+                            <td>镶嵌宝石</td>
+                            <td>各类宝石</td>
+                            <td>附加额外属性</td>
+                            <td>100%</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="article-footer">
+                    <p>最后更新于：2026-03-21 | 编辑次数：1</p>
+                </div>
+            </article>
+        </main>
+    </div>
+
+    <footer class="wiki-footer">
+        <p>&copy; 2026 《蛙噻！好摊》游戏百科 | 本百科由玩家共同维护</p>
+    </footer>
+
+    <script src="../js/main.js"></script>
+    <script>
+        let accessories = [
+            // 项链
+            { id: 101, name: "铁项链", type: "necklace", rarity: "common", description: "普通的铁制项链，几乎没有什么特殊效果。", effect: "生命值+20" },
+            { id: 102, name: "银项链", type: "necklace", rarity: "uncommon", description: "银制的项链，具有一定的灵气。", effect: "生命值+50，法力值+20" },
+            { id: 103, name: "定海珠项链", type: "necklace", rarity: "rare", description: "镶嵌定海珠碎片的项链，蕴含海洋之力。", effect: "生命值+100，法力值+50，水抗性+10%" },
+            { id: 104, name: "观音玉坠", type: "necklace", rarity: "epic", description: "观音菩萨赐予的玉坠，具有强大的治愈之力。", effect: "生命值+200，生命恢复+10/秒，受到治疗效果+20%" },
+            { id: 105, name: "金蝉子项链", type: "necklace", rarity: "legendary", description: "唐僧前世金蝉子留下的项链，蕴含轮回之力。", effect: "生命值+500，死亡时有20%概率复活并恢复50%生命" },
+            
+            // 戒指
+            { id: 106, name: "铁戒指", type: "ring", rarity: "common", description: "普通的铁戒指，稍微增加一点攻击力。", effect: "攻击力+3" },
+            { id: 107, name: "铜戒指", type: "ring", rarity: "common", description: "铜制的戒指，比铁戒指好一些。", effect: "攻击力+5" },
+            { id: 108, name: "紧箍咒戒指", type: "ring", rarity: "rare", description: "模仿大圣紧箍咒制作的戒指，能激发潜能。", effect: "攻击力+15，暴击率+5%" },
+            { id: 109, name: "金刚琢戒指", type: "ring", rarity: "epic", description: "金刚琢碎片打造的戒指，坚不可摧。", effect: "攻击力+30，暴击率+10%，暴击伤害+20%" },
+            { id: 110, name: "乾坤圈", type: "ring", rarity: "legendary", description: "哪吒的乾坤圈，拥有毁天灭地的力量。", effect: "攻击力+60，暴击率+20%，攻击时有10%概率造成双倍伤害" },
+            
+            // 手镯
+            { id: 111, name: "皮护腕", type: "bracelet", rarity: "common", description: "皮革制成的护腕，提供基础防护。", effect: "防御力+2，闪避率+2%" },
+            { id: 112, name: "铁手镯", type: "bracelet", rarity: "uncommon", description: "铁制手镯，坚固耐用。", effect: "防御力+5，闪避率+3%" },
+            { id: 113, name: "金丝护腕", type: "bracelet", rarity: "rare", description: "金丝编织的护腕，轻便灵活。", effect: "防御力+10，闪避率+8%，格挡率+5%" },
+            { id: 114, name: "龙鳞手镯", type: "bracelet", rarity: "epic", description: "用龙鳞制成的手镯，拥有极强的防御力。", effect: "防御力+20，闪避率+12%，受到物理伤害-10%" },
+            { id: 115, name: "混天绫护腕", type: "bracelet", rarity: "legendary", description: "哪吒的混天绫制成的护腕，攻防一体。", effect: "防御力+40，闪避率+20%，受到攻击时有15%概率反弹50%伤害" },
+            
+            // 腰带
+            { id: 116, name: "布腰带", type: "belt", rarity: "common", description: "普通的布腰带，可以挂一些小物件。", effect: "背包容量+5，生命恢复+1/秒" },
+            { id: 117, name: "皮腰带", type: "belt", rarity: "uncommon", description: "皮革腰带，更加结实耐用。", effect: "背包容量+10，生命恢复+2/秒" },
+            { id: 118, name: "储物腰带", type: "belt", rarity: "rare", description: "刻有空间法阵的腰带，内含额外储物空间。", effect: "背包容量+20，负重+50，生命恢复+3/秒" },
+            { id: 119, name: "龙筋腰带", type: "belt", rarity: "epic", description: "用龙筋制成的腰带，弹性极佳。", effect: "背包容量+30，负重+100，全抗性+5%，生命恢复+5/秒" },
+            { id: 120, name: "捆仙绳腰带", type: "belt", rarity: "legendary", description: "太上老君的捆仙绳改制而成，拥有束缚之力。", effect: "背包容量+50，负重+200，生命恢复+10/秒，攻击时有10%概率束缚敌人2秒" },
+            
+            // 玉佩
+            { id: 121, name: "木护身符", type: "pendant", rarity: "common", description: "普通的木制护身符，略有辟邪效果。", effect: "毒抗性+10%" },
+            { id: 122, name: "铜护身符", type: "pendant", rarity: "uncommon", description: "铜制护身符，可以抵挡一些负面状态。", effect: "毒抗性+15%，眩晕抗性+10%" },
+            { id: 123, name: "八卦玉佩", type: "pendant", rarity: "rare", description: "刻有八卦图案的玉佩，具有驱邪避凶之效。", effect: "全抗性+8%，受到负面状态持续时间-20%" },
+            { id: 124, name: "太极玉佩", type: "pendant", rarity: "epic", description: "蕴含太极之力的玉佩，平衡阴阳。", effect: "全抗性+15%，免疫中毒和燃烧，生命低于30%时自动恢复20%生命（冷却300秒）" },
+            { id: 125, name: "如来佛印", type: "pendant", rarity: "legendary", description: "如来佛祖赐予的佛印，万邪不侵。", effect: "全抗性+25%，免疫所有负面状态，受到致命伤害时保留1点生命（冷却600秒）" },
+            
+            // 耳环
+            { id: 126, name: "银耳环", type: "earring", rarity: "common", description: "普通的银耳环，略有灵气。", effect: "法术攻击+5，法力值+20" },
+            { id: 127, name: "金耳环", type: "earring", rarity: "uncommon", description: "金制的耳环，蕴含更多灵力。", effect: "法术攻击+12，法力值+50" },
+            { id: 128, name: "顺风耳耳环", type: "earring", rarity: "rare", description: "据说能让人耳聪目明的神奇耳环。", effect: "法术攻击+25，法力值+100，法术暴击率+5%" },
+            { id: 129, name: "天听耳环", type: "earring", rarity: "epic", description: "能听到天界声音的神奇耳环，大幅提升法术能力。", effect: "法术攻击+50，法力值+200，法术暴击率+10%，法力恢复+5/秒" },
+            { id: 130, name: "千里传音耳环", type: "earring", rarity: "legendary", description: "传说中的耳环，佩戴者可与千里之外的人传音。", effect: "法术攻击+100，法力值+400，法术暴击率+20%，法术暴击伤害+30%，可与队友远程交流" },
+            
+            // 面具
+            { id: 131, name: "布面具", type: "mask", rarity: "common", description: "普通的布制面具，用于简单的伪装。", effect: "威慑+5，降低敌人攻击欲望" },
+            { id: 132, name: "木头面具", type: "mask", rarity: "uncommon", description: "木头雕刻的面具，带有神秘气息。", effect: "威慑+10，闪避率+3%" },
+            { id: 133, name: "孙悟空面具", type: "mask", rarity: "rare", description: "模仿孙悟空面容制作的面具，威风凛凛。", effect: "威慑+20，攻击力+10，对妖兽伤害+15%" },
+            { id: 134, name: "七十二变面具", type: "mask", rarity: "epic", description: "蕴含变化之力的面具，可改变佩戴者外貌。", effect: "威慑+30，全属性+15，可改变外貌和名字（持续30分钟，冷却300秒）" },
+            { id: 135, name: "千面妖狐面具", type: "mask", rarity: "legendary", description: "千面妖狐留下的面具，拥有千变万化的能力。", effect: "威慑+50，全属性+30，可变成任意NPC或怪物外形，获得对应伪装效果（持续60分钟，冷却600秒）" },
+            
+            // 勋章
+            { id: 136, name: "铜勋章", type: "medal", rarity: "common", description: "铜制的勋章，代表初级荣誉。", effect: "全属性+2" },
+            { id: 137, name: "银勋章", type: "medal", rarity: "uncommon", description: "银制的勋章，代表中级荣誉。", effect: "全属性+5" },
+            { id: 138, name: "金勋章", type: "medal", rarity: "rare", description: "金制的勋章，代表高级荣誉。", effect: "全属性+10，获得称号'荣誉市民'" },
+            { id: 139, name: "斗战胜佛勋章", type: "medal", rarity: "epic", description: "纪念斗战胜佛的勋章，蕴含战斗之力。", effect: "全属性+20，攻击力+10%，获得称号'斗战者'" },
+            { id: 140, name: "齐天大圣勋章", type: "medal", rarity: "legendary", description: "齐天大圣孙悟空的专属勋章，拥有无上荣耀。", effect: "全属性+40，攻击力+20%，生命值+20%，获得称号'齐天大圣'，威慑所有低级妖怪" }
+        ];
+
+        function getRarityLabel(r) { 
+            const l = {common:'普通',uncommon:'优秀',rare:'稀有',epic:'史诗',legendary:'传说'}; 
+            return l[r] || r; 
+        }
+        
+        function getTypeLabel(t) { 
+            const l = {necklace:'项链',ring:'戒指',bracelet:'手镯',belt:'腰带',pendant:'玉佩',earring:'耳环',mask:'面具',medal:'勋章'}; 
+            return l[t] || t; 
+        }
+
+        function renderAccessories(filter = 'all') {
+            const grid = document.getElementById('accessoryGrid');
+            let filtered = accessories;
+            if (filter !== 'all') filtered = accessories.filter(a => a.type === filter);
+            
+            if (filtered.length === 0) { 
+                grid.innerHTML = '<p style="color:var(--wiki-text-secondary);padding:20px;">暂无该类型的饰品</p>'; 
+                return; 
+            }
+            
+            grid.innerHTML = filtered.map(accessory => `
+                <div class="item-card" data-type="${accessory.type}">
+                    <h4>${accessory.name}</h4>
+                    <div class="meta">
+                        <span class="type-badge accessory">${getTypeLabel(accessory.type)}</span>
+                        <span class="rarity-badge ${accessory.rarity}">${getRarityLabel(accessory.rarity)}</span>
+                    </div>
+                    <p class="description">${accessory.description}</p>
+                    <div class="effect-box"><strong>效果：</strong>${accessory.effect}</div>
+                </div>
+            `).join('');
+        }
+
+        function filterAccessories(type) {
+            document.querySelectorAll('.filter-tabs .tab-btn').forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+            renderAccessories(type);
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            renderAccessories();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1526 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>价格机制详解与模拟器 - 蛙噻！好摊</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        /* 标签页样式 */
+        .tab-container {
+            margin-bottom: 24px;
+        }
+        .tab-nav {
+            display: flex;
+            border-bottom: 2px solid #3366cc;
+            margin-bottom: 20px;
+        }
+        .tab-btn {
+            padding: 12px 24px;
+            background: #f8f9fa;
+            border: none;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 500;
+            color: #666;
+            transition: all 0.3s;
+            border-radius: 4px 4px 0 0;
+            margin-right: 4px;
+        }
+        .tab-btn:hover {
+            background: #e3f2fd;
+            color: #3366cc;
+        }
+        .tab-btn.active {
+            background: #3366cc;
+            color: white;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+
+        /* 模拟器样式 */
+        .simulator-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+        @media (max-width: 900px) {
+            .simulator-container {
+                grid-template-columns: 1fr;
+            }
+        }
+        .simulator-panel {
+            background: #f8f9fa;
+            border: 1px solid #a2a9b1;
+            border-radius: 8px;
+            padding: 20px;
+        }
+        .simulator-panel h3 {
+            margin-top: 0;
+            color: #3366cc;
+            border-bottom: 2px solid #3366cc;
+            padding-bottom: 10px;
+        }
+        .form-group {
+            margin-bottom: 16px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 500;
+            color: #333;
+        }
+        .form-group select,
+        .form-group input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #a2a9b1;
+            border-radius: 4px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        .form-group select:focus,
+        .form-group input:focus {
+            outline: none;
+            border-color: #3366cc;
+            box-shadow: 0 0 0 2px rgba(51, 102, 204, 0.2);
+        }
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+        }
+        .btn-primary {
+            flex: 1;
+            padding: 12px 24px;
+            background: #3366cc;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 500;
+            transition: background 0.3s;
+        }
+        .btn-primary:hover {
+            background: #254a9e;
+        }
+        .btn-secondary {
+            flex: 1;
+            padding: 12px 24px;
+            background: #f8f9fa;
+            color: #333;
+            border: 1px solid #a2a9b1;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 15px;
+            transition: all 0.3s;
+        }
+        .btn-secondary:hover {
+            background: #e3f2fd;
+            border-color: #3366cc;
+        }
+
+        /* 结果展示样式 */
+        .result-box {
+            background: white;
+            border: 2px solid #4caf50;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px dashed #ddd;
+        }
+        .result-item:last-child {
+            border-bottom: none;
+        }
+        .result-label {
+            font-weight: 500;
+            color: #666;
+        }
+        .result-value {
+            font-weight: bold;
+            color: #333;
+        }
+        .result-value.highlight {
+            color: #3366cc;
+            font-size: 1.2em;
+        }
+        .result-value.warning {
+            color: #ff9800;
+        }
+        .result-value.danger {
+            color: #f44336;
+        }
+        .result-value.success {
+            color: #4caf50;
+        }
+
+        /* 价格区间可视化 */
+        .price-range-bar {
+            margin: 20px 0;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+        }
+        .price-range-track {
+            position: relative;
+            height: 40px;
+            background: linear-gradient(to right, #e3f2fd, #bbdefb, #90caf9, #64b5f6, #42a5f5);
+            border-radius: 20px;
+            margin: 20px 0;
+        }
+        .price-marker {
+            position: absolute;
+            top: -10px;
+            width: 4px;
+            height: 60px;
+            background: #333;
+            border-radius: 2px;
+        }
+        .price-marker::after {
+            content: attr(data-label);
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 12px;
+            white-space: nowrap;
+            font-weight: bold;
+        }
+        .price-marker.player {
+            background: #f44336;
+            width: 6px;
+        }
+        .price-marker.market {
+            background: #4caf50;
+            width: 6px;
+        }
+
+        /* NPC议价预测 */
+        .bargain-prediction {
+            background: #fff3e0;
+            border-left: 4px solid #ff9800;
+            padding: 16px;
+            margin: 16px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .bargain-item {
+            padding: 8px 0;
+            border-bottom: 1px dashed #ffcc80;
+        }
+        .bargain-item:last-child {
+            border-bottom: none;
+        }
+
+        /* 建议提示 */
+        .suggestion-box {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 16px;
+            margin: 16px 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        /* 批量模拟 */
+        .batch-sim-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 16px 0;
+        }
+        .batch-btn {
+            padding: 8px 16px;
+            background: #f8f9fa;
+            border: 1px solid #a2a9b1;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.3s;
+        }
+        .batch-btn:hover {
+            background: #e3f2fd;
+            border-color: #3366cc;
+        }
+        .batch-btn.active {
+            background: #3366cc;
+            color: white;
+            border-color: #3366cc;
+        }
+
+        /* 开发者文档代码折叠 */
+        .code-section {
+            margin: 16px 0;
+        }
+        .code-header {
+            background: #f8f9fa;
+            padding: 12px 16px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #a2a9b1;
+            border-radius: 4px 4px 0 0;
+        }
+        .code-header:hover {
+            background: #e3f2fd;
+        }
+        .code-content {
+            display: none;
+            border: 1px solid #a2a9b1;
+            border-top: none;
+            border-radius: 0 0 4px 4px;
+            overflow: hidden;
+        }
+        .code-content.active {
+            display: block;
+        }
+        .code-block {
+            background: #f5f5f5;
+            padding: 16px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 13px;
+            overflow-x: auto;
+            margin: 0;
+        }
+        .toggle-icon {
+            transition: transform 0.3s;
+        }
+        .toggle-icon.rotated {
+            transform: rotate(180deg);
+        }
+
+        /* 快速入门卡片 */
+        .quick-start-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 24px 0;
+        }
+        .quick-card {
+            background: #f8f9fa;
+            border: 1px solid #a2a9b1;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+        }
+        .quick-card-icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+        }
+        .quick-card h4 {
+            margin: 0 0 12px 0;
+            color: #3366cc;
+        }
+        .quick-card p {
+            margin: 0;
+            color: #666;
+            font-size: 14px;
+        }
+
+        /* FAQ样式 */
+        .faq-item {
+            margin: 16px 0;
+            border: 1px solid #a2a9b1;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .faq-question {
+            background: #f8f9fa;
+            padding: 16px;
+            cursor: pointer;
+            font-weight: 500;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .faq-question:hover {
+            background: #e3f2fd;
+        }
+        .faq-answer {
+            padding: 16px;
+            display: none;
+            background: white;
+        }
+        .faq-answer.active {
+            display: block;
+        }
+
+        /* 数据表格样式 */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 16px 0;
+            font-size: 13px;
+        }
+        .data-table th, .data-table td {
+            border: 1px solid #a2a9b1;
+            padding: 10px 12px;
+            text-align: left;
+        }
+        .data-table th {
+            background: #f8f9fa;
+            font-weight: bold;
+        }
+        .data-table tr:nth-child(even) {
+            background: #fafafa;
+        }
+
+        /* 图表容器 */
+        .chart-container {
+            background: white;
+            border: 1px solid #a2a9b1;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 16px 0;
+            height: 300px;
+            position: relative;
+        }
+        .chart-placeholder {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: #999;
+            font-size: 14px;
+        }
+
+        /* 信息框 */
+        .info-box {
+            background: #e8f5e9;
+            border-left: 4px solid #4caf50;
+            padding: 16px;
+            margin: 16px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .warning-box {
+            background: #fff3e0;
+            border-left: 4px solid #ff9800;
+            padding: 16px;
+            margin: 16px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .tip-box {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 16px;
+            margin: 16px 0;
+            border-radius: 0 8px 8px 0;
+        }
+    </style>
+</head>
+<body class="wiki-layout">
+    <header class="wiki-topbar">
+        <div class="wiki-logo">
+            <a href="../index.html">蛙噻！好摊</a>
+        </div>
+        <div class="wiki-search">
+            <input type="text" placeholder="搜索百科..." id="searchInput">
+            <button onclick="search()">搜索</button>
+        </div>
+        <div class="wiki-user">
+            <span>欢迎访问</span>
+        </div>
+    </header>
+
+    <div class="wiki-container">
+        <aside class="wiki-sidebar">
+            <nav class="wiki-nav">
+                <div class="nav-section">
+                    <h3>百科分类</h3>
+                    <ul>
+                        <li><a href="../index.html">首页</a></li>
+                        <li><a href="game-intro.html">游戏介绍</a></li>
+                        <li><a href="world.html">世界观</a></li>
+                        <li><a href="factions.html">势力分布</a></li>
+                        <li><a href="history.html">历史年表</a></li>
+                        <li><a href="price-mechanism.html" class="active">价格机制</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>游戏特色</h3>
+                    <ul>
+                        <li><a href="bazaar.html">集市</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>游戏玩法</h3>
+                    <ul>
+                        <li><a href="market.html">摆摊系统</a></li>
+                        <li><a href="achievements.html">成就系统</a></li>
+                        <li><a href="combat.html">战斗系统</a></li>
+                        <li><a href="progression.html">成长系统</a></li>
+                        <li><a href="currency.html">货币系统</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>角色</h3>
+                    <ul>
+                        <li><a href="characters.html">角色总览</a></li>
+                        <li><a href="characters.html?type=playable">主要角色</a></li>
+                        <li><a href="characters.html?type=npc">NPC</a></li>
+                        <li><a href="enemies.html">敌人</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>物品装备</h3>
+                    <ul>
+                        <li><a href="items.html">物品总览</a></li>
+                        <li><a href="items.html?type=weapon">武器</a></li>
+                        <li><a href="items.html?type=armor">防具</a></li>
+                        <li><a href="items.html?type=consumable">消耗品</a></li>
+                        <li><a href="items.html?type=material">材料</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>世界探索</h3>
+                    <ul>
+                        <li><a href="locations.html">地点总览</a></li>
+                        <li><a href="map.html">游戏地图</a></li>
+                        <li><a href="quests.html">任务剧情</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>关于</h3>
+                    <ul>
+                        <li><a href="dev-thoughts.html">开发者随想</a></li>
+                    </ul>
+                </div>
+            </nav>
+        </aside>
+
+        <main class="wiki-content">
+            <nav class="breadcrumb">
+                <a href="../index.html">首页</a> &gt; <span class="current">价格机制详解与模拟器</span>
+            </nav>
+
+            <article class="wiki-article">
+                <h1 class="article-title">《蛙噻！好摊》价格机制详解与模拟器</h1>
+                <p style="color: #666; font-size: 14px;">游戏经济系统完全指南 | 开发者数值参考 | 价格模拟器 | 文档版本：v1.0</p>
+
+                <!-- 标签导航 -->
+                <div class="tab-container">
+                    <div class="tab-nav">
+                        <button class="tab-btn active" onclick="switchTab('player')">📖 玩家指南</button>
+                        <button class="tab-btn" onclick="switchTab('developer')">💻 开发者文档</button>
+                        <button class="tab-btn" onclick="switchTab('simulator')">🧮 价格模拟器</button>
+                    </div>
+
+                    <!-- 标签1：玩家指南 -->
+                    <div id="tab-player" class="tab-content active">
+                        <h2>🎮 玩家快速入门</h2>
+                        <div class="info-box">
+                            <strong>一句话理解价格机制：</strong>游戏中的商品价格由系统根据多种因素自动计算，但<strong>真实价格对你隐藏</strong>。你需要通过观察市场公告、分析NPC议价来判断合理定价。
+                        </div>
+
+                        <div class="quick-start-cards">
+                            <div class="quick-card">
+                                <div class="quick-card-icon">📊</div>
+                                <h4>观察市场</h4>
+                                <p>关注公告板的供需信息，了解哪些商品热门</p>
+                            </div>
+                            <div class="quick-card">
+                                <div class="quick-card-icon">💬</div>
+                                <h4>理解议价</h4>
+                                <p>NPC留言议价意味着定价偏高，可参考议价调整</p>
+                            </div>
+                            <div class="quick-card">
+                                <div class="quick-card-icon">⚡</div>
+                                <h4>快速成交</h4>
+                                <p>商品快速卖出说明定价合理或偏低，可适当提价</p>
+                            </div>
+                            <div class="quick-card">
+                                <div class="quick-card-icon">🧮</div>
+                                <h4>使用模拟器</h4>
+                                <p>切换到"价格模拟器"标签，测试不同定价的效果</p>
+                            </div>
+                        </div>
+
+                        <h2>📈 如何正确定价</h2>
+                        
+                        <h3>第一步：上架商品</h3>
+                        <p>选择要出售的商品，设置一个你认为合理的价格。如果是第一次出售该商品，可以参考以下策略：</p>
+                        <ul>
+                            <li><strong>试探法</strong>：先定一个中等偏高的价格，观察NPC反应</li>
+                            <li><strong>保守法</strong>：先定一个较低的价格确保成交，了解市场后再调整</li>
+                        </ul>
+
+                        <h3>第二步：观察反馈</h3>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>反馈类型</th>
+                                    <th>含义</th>
+                                    <th>建议操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>快速成交（15分钟内）</td>
+                                    <td>定价偏低或市场短缺</td>
+                                    <td>下次可适当提价10-20%</td>
+                                </tr>
+                                <tr>
+                                    <td>正常成交（1-2小时）</td>
+                                    <td>定价合理</td>
+                                    <td>保持当前定价策略</td>
+                                </tr>
+                                <tr>
+                                    <td>收到NPC议价</td>
+                                    <td>定价偏高</td>
+                                    <td>参考议价价格调整，或接受议价</td>
+                                </tr>
+                                <tr>
+                                    <td>长时间无人问津</td>
+                                    <td>定价严重过高</td>
+                                    <td>降价或收摊重摆</td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <h3>第三步：调整策略</h3>
+                        <p>根据反馈调整定价，逐步找到最优价格区间。</p>
+
+                        <h2>🔍 价格影响因素速查</h2>
+
+                        <h3>品质影响</h3>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>品质</th>
+                                    <th>价格系数</th>
+                                    <th>说明</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>普通</td><td>1.0x</td><td>基础价格</td></tr>
+                                <tr><td>优秀</td><td>1.2x</td><td>+20%</td></tr>
+                                <tr><td>精良</td><td>1.5x</td><td>+50%</td></tr>
+                                <tr><td>史诗</td><td>2.0x</td><td>+100%</td></tr>
+                                <tr><td>传说</td><td>3.0x</td><td>+200%</td></tr>
+                            </tbody>
+                        </table>
+
+                        <h3>地区差异</h3>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>地区类型</th>
+                                    <th>价格系数</th>
+                                    <th>策略建议</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>产地</td><td>0.8x</td><td>低价收购，运输到其他地区出售</td></tr>
+                                <tr><td>普通地区</td><td>1.0x</td><td>正常交易</td></tr>
+                                <tr><td>热门地区</td><td>1.2x</td><td>需求旺盛，可稍高价出售</td></tr>
+                                <tr><td>稀缺地区</td><td>1.5x</td><td>价格暴涨，利润丰厚</td></tr>
+                            </tbody>
+                        </table>
+
+                        <h3>时段规律</h3>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>时段</th>
+                                    <th>系数</th>
+                                    <th>适合商品</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>早晨 (6-9点)</td><td>1.0x</td><td>日常用品</td></tr>
+                                <tr><td>中午 (12-14点)</td><td>1.2x</td><td>食物、药品</td></tr>
+                                <tr><td>傍晚 (18-22点)</td><td>1.3x</td><td>奢侈品、装备</td></tr>
+                                <tr><td>深夜 (22-6点)</td><td>0.8x</td><td>特殊材料</td></tr>
+                            </tbody>
+                        </table>
+
+                        <h2>💡 实用技巧</h2>
+
+                        <h3>薄利多销 vs 高价待沽</h3>
+                        <div class="tip-box">
+                            <strong>薄利多销策略：</strong>适用于普通商品、急需资金、清理库存的场景。定价低于市场价10-20%，确保快速成交。<br><br>
+                            <strong>高价待沽策略：</strong>适用于稀有商品、热门时段、特殊事件期间。定价高于市场价10-30%，等待有缘人。
+                        </div>
+
+                        <h3>区域套利方法</h3>
+                        <ol>
+                            <li>在产地低价收购商品（价格系数0.8）</li>
+                            <li>运输到稀缺地区（价格系数1.5）</li>
+                            <li>以较高价格出售，赚取差价</li>
+                            <li>关注商队信息，把握运输时机</li>
+                        </ol>
+
+                        <h3>时机把握</h3>
+                        <ul>
+                            <li><strong>事件前</strong>：提前囤积相关商品</li>
+                            <li><strong>事件中</strong>：高价出售，利润最大化</li>
+                            <li><strong>黄金时段</strong>：在商品对应的时段出售（如食物在中午）</li>
+                        </ul>
+
+                        <h2>❓ 常见问题 FAQ</h2>
+
+                        <div class="faq-item">
+                            <div class="faq-question" onclick="toggleFaq(this)">
+                                <span>为什么我的商品卖不出去？</span>
+                                <span>▼</span>
+                            </div>
+                            <div class="faq-answer">
+                                <p>可能的原因：</p>
+                                <ul>
+                                    <li><strong>定价过高</strong>：检查是否有NPC留言议价，如果有说明定价偏高</li>
+                                    <li><strong>市场饱和</strong>：查看公告板是否显示该商品供应过剩</li>
+                                    <li><strong>时段不对</strong>：某些商品在特定时段需求更高</li>
+                                    <li><strong>位置不佳</strong>：边缘位置人流量少，考虑换到中心位置</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="faq-item">
+                            <div class="faq-question" onclick="toggleFaq(this)">
+                                <span>NPC议价是什么意思？</span>
+                                <span>▼</span>
+                            </div>
+                            <div class="faq-answer">
+                                <p>NPC议价是系统提示你<strong>定价过高</strong>的方式。当NPC在留言板提出议价时：</p>
+                                <ul>
+                                    <li>说明你的定价高于市场价15%以上</li>
+                                    <li>NPC给出的议价价格接近真实市场价格</li>
+                                    <li>你可以选择接受议价立即成交，或拒绝继续等待</li>
+                                    <li>议价有效期为30分钟</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="faq-item">
+                            <div class="faq-question" onclick="toggleFaq(this)">
+                                <span>如何判断定价是否合理？</span>
+                                <span>▼</span>
+                            </div>
+                            <div class="faq-answer">
+                                <p>判断方法：</p>
+                                <ul>
+                                    <li><strong>无议价且成交快</strong>：定价偏低，可提价</li>
+                                    <li><strong>无议价且成交正常</strong>：定价合理，保持</li>
+                                    <li><strong>收到议价</strong>：定价偏高，参考议价调整</li>
+                                    <li><strong>使用模拟器</strong>：切换到"价格模拟器"标签进行计算</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="faq-item">
+                            <div class="faq-question" onclick="toggleFaq(this)">
+                                <span>为什么市场价格对我隐藏？</span>
+                                <span>▼</span>
+                            </div>
+                            <div class="faq-answer">
+                                <p>隐藏市场价格是游戏设计的一部分，目的是：</p>
+                                <ul>
+                                    <li>增加游戏的策略性和探索乐趣</li>
+                                    <li>让玩家通过观察和学习获得优势</li>
+                                    <li>模拟真实市场的不确定性</li>
+                                    <li>鼓励玩家之间的信息交流</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 标签2：开发者文档 -->
+                    <div id="tab-developer" class="tab-content">
+                        <h2>🏗️ 系统架构</h2>
+                        <p>本文档为游戏开发人员提供完整的价格机制实现指导。</p>
+
+                        <h3>三层架构模型</h3>
+                        <div class="info-box">
+                            <strong>第一层：隐藏层（系统内部）</strong>
+                            <ul>
+                                <li>真实市场价格计算</li>
+                                <li>供需指数统计</li>
+                                <li>时段系数计算</li>
+                                <li>事件影响计算</li>
+                            </ul>
+                            <strong>第二层：玩家层（玩家决策）</strong>
+                            <ul>
+                                <li>商品上架定价</li>
+                                <li>摊位位置选择</li>
+                                <li>装饰组合配置</li>
+                                <li>议价接受/拒绝</li>
+                            </ul>
+                            <strong>第三层：反馈层（系统提供线索）</strong>
+                            <ul>
+                                <li>成交速度反馈</li>
+                                <li>NPC留言板议价</li>
+                                <li>市场公告板信息</li>
+                                <li>地区价格差异</li>
+                            </ul>
+                        </div>
+
+                        <h3>系统模块划分</h3>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>模块</th>
+                                    <th>功能</th>
+                                    <th>说明</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>PriceCalculator</td><td>价格计算</td><td>计算真实市场价格、成交概率</td></tr>
+                                <tr><td>SupplyDemandManager</td><td>供需管理</td><td>统计和维护供需数据</td></tr>
+                                <tr><td>BargainSystem</td><td>议价系统</td><td>管理NPC留言板议价</td></tr>
+                                <tr><td>NoticeBoard</td><td>公告板</td><td>生成和发布市场公告</td></tr>
+                                <tr><td>TransactionManager</td><td>交易管理</td><td>处理成交逻辑和记录</td></tr>
+                                <tr><td>EventManager</td><td>事件管理</td><td>处理游戏内事件对价格的影响</td></tr>
+                            </tbody>
+                        </table>
+
+                        <h2>📊 数据结构设计</h2>
+
+                        <h3>商品基础数据表</h3>
+                        <table class="data-table">
+                            <thead>
+                                <tr><th>字段名</th><th>类型</th><th>说明</th><th>示例</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>item_id</td><td>int</td><td>商品唯一ID</td><td>1001</td></tr>
+                                <tr><td>item_name</td><td>string</td><td>商品名称</td><td>"普通草药"</td></tr>
+                                <tr><td>base_value</td><td>int</td><td>基础价值（文）</td><td>100</td></tr>
+                                <tr><td>item_type</td><td>enum</td><td>商品类型</td><td>普通/稀有/特产/节日</td></tr>
+                                <tr><td>rarity</td><td>enum</td><td>稀有度</td><td>普通/优秀/精良/史诗/传说</td></tr>
+                                <tr><td>base_trade_volume</td><td>int</td><td>基准交易量（件/天）</td><td>100</td></tr>
+                                <tr><td>price_sensitivity</td><td>float</td><td>价格敏感度系数k</td><td>0.5</td></tr>
+                                <tr><td>time_phase</td><td>enum</td><td>时段特性</td><td>早晨/中午/傍晚/深夜</td></tr>
+                                <tr><td>origin_region</td><td>int</td><td>产地地区ID</td><td>1</td></tr>
+                                <tr><td>max_buy_prob</td><td>float</td><td>最大成交概率</td><td>0.7</td></tr>
+                            </tbody>
+                        </table>
+
+                        <h3>地区数据表</h3>
+                        <table class="data-table">
+                            <thead>
+                                <tr><th>字段名</th><th>类型</th><th>说明</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>region_id</td><td>int</td><td>地区唯一ID</td></tr>
+                                <tr><td>region_name</td><td>string</td><td>地区名称</td></tr>
+                                <tr><td>region_type</td><td>enum</td><td>地区类型：产地/普通/热门/稀缺</td></tr>
+                                <tr><td>base_coefficient</td><td>float</td><td>地区基础系数</td></tr>
+                                <tr><td>specialty_items</td><td>int[]</td><td>特产商品ID列表</td></tr>
+                                <tr><td>hot_item_types</td><td>enum[]</td><td>热门商品类型列表</td></tr>
+                            </tbody>
+                        </table>
+
+                        <h2>🔧 算法实现</h2>
+
+                        <h3>真实市场价格计算</h3>
+                        <div class="code-section">
+                            <div class="code-header" onclick="toggleCode(this)">
+                                <span>CalculateRealMarketPrice 实现代码</span>
+                                <span class="toggle-icon">▼</span>
+                            </div>
+                            <div class="code-content">
+                                <pre class="code-block">public float CalculateRealMarketPrice(int itemId, int regionId, int quality)
+{
+    // 1. 获取基础数据
+    ItemBaseData item = GetItemData(itemId);
+    RegionData region = GetRegionData(regionId);
+    
+    // 2. 获取各系数
+    float Q = GetQualityCoefficient(quality);           // 品质系数
+    float R = GetRegionCoefficient(itemId, regionId);   // 地区系数
+    float S = GetSupplyDemandIndex(itemId, regionId);   // 供需指数
+    float T = GetTimeCoefficient(item.time_phase);      // 时段系数
+    float E = GetEventCoefficient(itemId, regionId);    // 事件系数
+    float xi = Random.Range(0.95f, 1.05f);             // 随机波动
+    
+    // 3. 计算真实市场价格
+    float realPrice = item.base_value * Q * R * S * T * E * xi;
+    
+    return realPrice;
+}</pre>
+                            </div>
+                        </div>
+
+                        <h3>供需指数计算</h3>
+                        <div class="code-section">
+                            <div class="code-header" onclick="toggleCode(this)">
+                                <span>CalculateSupplyDemandIndex 实现代码</span>
+                                <span class="toggle-icon">▼</span>
+                            </div>
+                            <div class="code-content">
+                                <pre class="code-block">public float CalculateSupplyDemandIndex(int itemId, int regionId)
+{
+    ItemBaseData item = GetItemData(itemId);
+    MarketData market = GetMarketData(itemId, regionId);
+    
+    // 获取当前供需数据
+    int demand = market.current_demand;
+    int supply = market.current_supply;
+    int baseVolume = item.base_trade_volume;
+    float k = item.price_sensitivity;
+    
+    // 计算供需差值比例
+    float diffRatio = (float)(demand - supply) / baseVolume * k;
+    
+    // 使用双曲正切函数限制范围
+    float tanhValue = (float)Math.Tanh(diffRatio);
+    
+    // 计算最终供需指数
+    float S = 1.0f + tanhValue;
+    
+    // 限制范围 [0.5, 2.0]
+    return Mathf.Clamp(S, 0.5f, 2.0f);
+}</pre>
+                            </div>
+                        </div>
+
+                        <h3>成交概率计算</h3>
+                        <div class="code-section">
+                            <div class="code-header" onclick="toggleCode(this)">
+                                <span>CalculateBuyProbability 实现代码</span>
+                                <span class="toggle-icon">▼</span>
+                            </div>
+                            <div class="code-content">
+                                <pre class="code-block">public float CalculateBuyProbability(int itemId, float playerPrice, 
+    int stallId, int npcId)
+{
+    ItemBaseData item = GetItemData(itemId);
+    StallData stall = GetStallData(stallId);
+    NPCData npc = GetNPCData(npcId);
+    
+    // 1. 计算真实市场价格
+    float realPrice = CalculateRealMarketPrice(itemId, stall.region_id, item.quality);
+    
+    // 2. 计算定价偏离度
+    float priceDeviation = (playerPrice - realPrice) / realPrice;
+    
+    // 3. 基础概率（Sigmoid函数）
+    float lambda = GetPriceSensitivity(item.item_type);
+    float sigmoid = 1.0f / (1.0f + Mathf.Exp(-(-priceDeviation * lambda)));
+    
+    // 4. 应用各因子
+    float L = GetPositionCoefficient(stall.position);
+    float D = stall.decoration_bonus;
+    float T_slot = GetTimeSlotMatch(item.time_phase);
+    float R = Random.Range(0.9f, 1.1f);
+    
+    // 5. 计算最终概率
+    float probability = item.max_buy_prob * sigmoid * L * D * T_slot * R;
+    
+    // 6. 考虑NPC偏好
+    if (npc.preferred_types.Contains(item.item_type))
+        probability *= 1.2f;
+    
+    return Mathf.Clamp01(probability);
+}</pre>
+                            </div>
+                        </div>
+
+                        <h3>NPC议价生成</h3>
+                        <div class="code-section">
+                            <div class="code-header" onclick="toggleCode(this)">
+                                <span>GenerateBargainOffer 实现代码</span>
+                                <span class="toggle-icon">▼</span>
+                            </div>
+                            <div class="code-content">
+                                <pre class="code-block">public BargainOffer GenerateBargainOffer(int npcId, int saleItemId, float playerPrice)
+{
+    SaleItem saleItem = GetSaleItem(saleItemId);
+    NPCData npc = GetNPCData(npcId);
+    ItemBaseData item = GetItemData(saleItem.item_id);
+    StallData stall = GetStallData(saleItem.stall_id);
+    
+    // 1. 计算真实市场价格
+    float realPrice = CalculateRealMarketPrice(item.item_id, stall.region_id, saleItem.quality);
+    
+    // 2. 检查是否触发议价（定价高于市场价15%以上）
+    float priceDeviation = (playerPrice - realPrice) / realPrice;
+    if (priceDeviation <= 0.15f)
+        return null;
+    
+    // 3. 计算议价价格
+    float bargainSpace = Random.Range(0.05f, 0.15f);
+    
+    // 根据NPC议价风格调整
+    switch (npc.bargain_style)
+    {
+        case BargainStyle.温和: bargainSpace *= 0.8f; break;
+        case BargainStyle.激进: bargainSpace *= 1.3f; break;
+        case BargainStyle.随机: bargainSpace *= Random.Range(0.7f, 1.3f); break;
+    }
+    
+    float offerPrice = realPrice * (1.0f + bargainSpace);
+    offerPrice = Mathf.Min(offerPrice, playerPrice * 0.95f);
+    
+    // 4. 创建议价对象
+    BargainOffer offer = new BargainOffer
+    {
+        offer_id = GenerateUniqueId(),
+        npc_id = npcId,
+        sale_item_id = saleItemId,
+        offer_price = (int)offerPrice,
+        create_time = DateTime.Now,
+        expire_time = DateTime.Now.AddMinutes(30),
+        status = OfferStatus.Valid
+    };
+    
+    saleItem.bargain_offers.Add(offer);
+    EventManager.TriggerBargainReceived(offer);
+    
+    return offer;
+}</pre>
+                            </div>
+                        </div>
+
+                        <h2>📋 配置表规范</h2>
+                        <p>配置表使用Excel格式，包含以下工作表：</p>
+                        <ul>
+                            <li><strong>ItemConfig</strong>：商品基础配置</li>
+                            <li><strong>RegionConfig</strong>：地区配置</li>
+                            <li><strong>NPCConfig</strong>：NPC配置</li>
+                            <li><strong>EventConfig</strong>：事件配置</li>
+                        </ul>
+
+                        <h2>🔌 程序接口</h2>
+                        <h3>核心接口</h3>
+                        <table class="data-table">
+                            <thead>
+                                <tr><th>接口</th><th>功能</th><th>参数</th><th>返回值</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>CalculateRealMarketPrice</td>
+                                    <td>计算真实市场价格</td>
+                                    <td>itemId, regionId, quality</td>
+                                    <td>float</td>
+                                </tr>
+                                <tr>
+                                    <td>CalculateBuyProbability</td>
+                                    <td>计算成交概率</td>
+                                    <td>itemId, playerPrice, stallId, npcId</td>
+                                    <td>float</td>
+                                </tr>
+                                <tr>
+                                    <td>GenerateBargainOffer</td>
+                                    <td>生成NPC议价</td>
+                                    <td>npcId, saleItemId, playerPrice</td>
+                                    <td>BargainOffer</td>
+                                </tr>
+                                <tr>
+                                    <td>ExecuteTransaction</td>
+                                    <td>执行交易</td>
+                                    <td>saleItemId, price, buyerId</td>
+                                    <td>TransactionResult</td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <h2>🧪 测试方案</h2>
+                        <h3>单元测试</h3>
+                        <ul>
+                            <li>价格计算准确性测试</li>
+                            <li>供需指数边界测试</li>
+                            <li>议价触发条件测试</li>
+                        </ul>
+                        <h3>集成测试</h3>
+                        <ul>
+                            <li>完整交易流程测试</li>
+                            <li>多玩家并发测试</li>
+                            <li>长时间稳定性测试</li>
+                        </ul>
+                        <h3>平衡性测试</h3>
+                        <ul>
+                            <li>价格合理性验证（80%成交价在市场价±20%范围内）</li>
+                            <li>利润空间测试（普通商品10-30%，稀有商品30-100%）</li>
+                            <li>市场稳定测试（价格波动不超过基准价±50%）</li>
+                        </ul>
+                    </div>
+
+                    <!-- 标签3：价格模拟器 -->
+                    <div id="tab-simulator" class="tab-content">
+                        <h2>🧮 价格模拟器</h2>
+                        <p>输入参数，模拟计算商品的市场价格和成交情况。</p>
+
+                        <div class="simulator-container">
+                            <!-- 左侧：参数输入 -->
+                            <div class="simulator-panel">
+                                <h3>📋 参数设置</h3>
+                                
+                                <div class="form-group">
+                                    <label for="sim-item">商品选择</label>
+                                    <select id="sim-item" onchange="updateSimulator()">
+                                        <option value="1001" data-base="100" data-type="normal">普通草药 (基础价: 100文)</option>
+                                        <option value="1002" data-base="500" data-type="rare">火焰草 (基础价: 500文)</option>
+                                        <option value="1003" data-base="2000" data-type="special">天山雪莲 (基础价: 2000文)</option>
+                                        <option value="1004" data-base="5000" data-type="rare">火焰山火晶 (基础价: 5000文)</option>
+                                        <option value="1005" data-base="10000" data-type="special">龙鳞 (基础价: 10000文)</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="sim-quality">品质等级</label>
+                                    <select id="sim-quality" onchange="updateSimulator()">
+                                        <option value="1">普通 (1.0x)</option>
+                                        <option value="1.2">优秀 (1.2x)</option>
+                                        <option value="1.5">精良 (1.5x)</option>
+                                        <option value="2">史诗 (2.0x)</option>
+                                        <option value="3">传说 (3.0x)</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="sim-region">所在地区</label>
+                                    <select id="sim-region" onchange="updateSimulator()">
+                                        <option value="1.0" data-type="normal">长安城 (系数: 1.0)</option>
+                                        <option value="0.8" data-type="origin">火焰山产地 (系数: 0.8)</option>
+                                        <option value="1.2" data-type="hot">西域热门区 (系数: 1.2)</option>
+                                        <option value="1.5" data-type="scarce">北境稀缺区 (系数: 1.5)</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="sim-position">摊位位置</label>
+                                    <select id="sim-position" onchange="updateSimulator()">
+                                        <option value="0.8">街道边缘 (人流: 低)</option>
+                                        <option value="1.0" selected>街道中段 (人流: 中)</option>
+                                        <option value="1.2">中心区域 (人流: 高)</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="sim-decoration">装饰等级</label>
+                                    <select id="sim-decoration" onchange="updateSimulator()">
+                                        <option value="1.0">无装饰 (1.0x)</option>
+                                        <option value="1.1">简单招牌 (1.1x)</option>
+                                        <option value="1.2">精美装饰 (1.2x)</option>
+                                        <option value="1.3">豪华摊位 (1.3x)</option>
+                                        <option value="1.5">财神像 (1.5x)</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="sim-time">当前时段</label>
+                                    <select id="sim-time" onchange="updateSimulator()">
+                                        <option value="0.8">凌晨 (0-6点)</option>
+                                        <option value="1.0">早晨 (6-9点)</option>
+                                        <option value="1.1">上午 (9-12点)</option>
+                                        <option value="1.2" selected>中午 (12-14点)</option>
+                                        <option value="1.1">下午 (14-18点)</option>
+                                        <option value="1.3">傍晚 (18-22点)</option>
+                                        <option value="0.9">深夜 (22-24点)</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="sim-supply">供需状况</label>
+                                    <select id="sim-supply" onchange="updateSimulator()">
+                                        <option value="0.6">严重过剩 (0.6x)</option>
+                                        <option value="0.8">供应充足 (0.8x)</option>
+                                        <option value="1.0" selected>供需平衡 (1.0x)</option>
+                                        <option value="1.3">需求旺盛 (1.3x)</option>
+                                        <option value="1.6">严重短缺 (1.6x)</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="sim-event">特殊事件</label>
+                                    <select id="sim-event" onchange="updateSimulator()">
+                                        <option value="1.0" selected>无事件 (1.0x)</option>
+                                        <option value="1.5">炼丹大会 (1.5x)</option>
+                                        <option value="1.8">怪物攻城 (1.8x)</option>
+                                        <option value="2.0">节日庆典 (2.0x)</option>
+                                        <option value="0.7">丰收季节 (0.7x)</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="sim-player-price">你的定价 (文)</label>
+                                    <input type="number" id="sim-player-price" value="150" min="1" oninput="updateSimulator()">
+                                </div>
+
+                                <div class="btn-group">
+                                    <button class="btn-primary" onclick="calculatePrice()">🧮 开始计算</button>
+                                    <button class="btn-secondary" onclick="resetSimulator()">🔄 重置参数</button>
+                                </div>
+                            </div>
+
+                            <!-- 右侧：计算结果 -->
+                            <div class="simulator-panel">
+                                <h3>📊 计算结果</h3>
+                                
+                                <div class="result-box">
+                                    <div class="result-item">
+                                        <span class="result-label">真实市场价格</span>
+                                        <span class="result-value highlight" id="result-market-price">--</span>
+                                    </div>
+                                    <div class="result-item">
+                                        <span class="result-label">你的定价</span>
+                                        <span class="result-value" id="result-player-price">--</span>
+                                    </div>
+                                    <div class="result-item">
+                                        <span class="result-label">定价偏离度</span>
+                                        <span class="result-value" id="result-deviation">--</span>
+                                    </div>
+                                </div>
+
+                                <div class="result-box" style="border-color: #2196f3;">
+                                    <div class="result-item">
+                                        <span class="result-label">成交概率</span>
+                                        <span class="result-value" id="result-probability">--</span>
+                                    </div>
+                                    <div class="result-item">
+                                        <span class="result-label">预计成交时间</span>
+                                        <span class="result-value" id="result-time">--</span>
+                                    </div>
+                                </div>
+
+                                <div class="price-range-bar">
+                                    <h4 style="margin-top: 0;">价格区间可视化</h4>
+                                    <div class="price-range-track" id="price-track">
+                                        <div class="price-marker" id="marker-min" style="left: 10%;" data-label="最低价"></div>
+                                        <div class="price-marker market" id="marker-market" style="left: 50%;" data-label="市场价"></div>
+                                        <div class="price-marker player" id="marker-player" style="left: 80%;" data-label="你的价"></div>
+                                        <div class="price-marker" id="marker-max" style="left: 90%;" data-label="最高价"></div>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; font-size: 12px; color: #666;">
+                                        <span id="label-min">--</span>
+                                        <span id="label-market" style="color: #4caf50; font-weight: bold;">--</span>
+                                        <span id="label-player" style="color: #f44336; font-weight: bold;">--</span>
+                                        <span id="label-max">--</span>
+                                    </div>
+                                </div>
+
+                                <div class="bargain-prediction" id="bargain-section" style="display: none;">
+                                    <h4 style="margin-top: 0;">💬 NPC议价预测</h4>
+                                    <div id="bargain-list"></div>
+                                </div>
+
+                                <div class="suggestion-box" id="suggestion-box">
+                                    <h4 style="margin-top: 0;">💡 系统建议</h4>
+                                    <p id="suggestion-text">点击"开始计算"获取建议</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 批量模拟 -->
+                        <div class="simulator-panel" style="margin-top: 24px;">
+                            <h3>📈 批量模拟 - 不同定价对比</h3>
+                            <p>快速测试不同定价的成交情况：</p>
+                            <div class="batch-sim-buttons" id="batch-buttons">
+                                <button class="batch-btn" onclick="batchSimulate(0.7)">70%价格</button>
+                                <button class="batch-btn" onclick="batchSimulate(0.8)">80%价格</button>
+                                <button class="batch-btn" onclick="batchSimulate(0.9)">90%价格</button>
+                                <button class="batch-btn" onclick="batchSimulate(1.0)">100%价格</button>
+                                <button class="batch-btn" onclick="batchSimulate(1.1)">110%价格</button>
+                                <button class="batch-btn" onclick="batchSimulate(1.2)">120%价格</button>
+                                <button class="batch-btn" onclick="batchSimulate(1.3)">130%价格</button>
+                                <button class="batch-btn" onclick="batchSimulate(1.5)">150%价格</button>
+                            </div>
+                            <div id="batch-result" style="margin-top: 16px;">
+                                <p style="color: #999;">点击上方按钮查看不同定价的对比结果</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="article-footer">
+                    <p>文档版本：v1.0 | 最后更新于：2026-03-21 | 编辑次数：2</p>
+                </div>
+            </article>
+        </main>
+    </div>
+
+    <footer class="wiki-footer">
+        <p>&copy; 2026 《蛙噻！好摊》游戏百科 | 本百科由玩家共同维护</p>
+    </footer>
+
+    <script src="../js/main.js"></script>
+    <script>
+        // 标签切换
+        function switchTab(tabName) {
+            // 隐藏所有标签内容
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            // 移除所有按钮激活状态
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            // 显示选中标签
+            document.getElementById('tab-' + tabName).classList.add('active');
+            // 激活对应按钮
+            event.target.classList.add('active');
+        }
+
+        // FAQ切换
+        function toggleFaq(element) {
+            const answer = element.nextElementSibling;
+            const icon = element.querySelector('span:last-child');
+            answer.classList.toggle('active');
+            icon.textContent = answer.classList.contains('active') ? '▲' : '▼';
+        }
+
+        // 代码折叠
+        function toggleCode(header) {
+            const content = header.nextElementSibling;
+            const icon = header.querySelector('.toggle-icon');
+            content.classList.toggle('active');
+            icon.classList.toggle('rotated');
+        }
+
+        // 价格模拟器核心算法
+        function calculateRealMarketPrice() {
+            const itemSelect = document.getElementById('sim-item');
+            const baseValue = parseInt(itemSelect.options[itemSelect.selectedIndex].dataset.base);
+            const Q = parseFloat(document.getElementById('sim-quality').value);
+            const R = parseFloat(document.getElementById('sim-region').value);
+            const S = parseFloat(document.getElementById('sim-supply').value);
+            const T = parseFloat(document.getElementById('sim-time').value);
+            const E = parseFloat(document.getElementById('sim-event').value);
+            const xi = 0.95 + Math.random() * 0.1; // 随机波动 0.95-1.05
+            
+            return Math.round(baseValue * Q * R * S * T * E * xi);
+        }
+
+        function calculateBuyProbability(marketPrice, playerPrice) {
+            const deviation = (playerPrice - marketPrice) / marketPrice;
+            const lambda = 2.0; // 价格敏感度
+            const sigmoid = 1 / (1 + Math.exp(-(-deviation * lambda)));
+            
+            const L = parseFloat(document.getElementById('sim-position').value);
+            const D = parseFloat(document.getElementById('sim-decoration').value);
+            const T_slot = 1.0; // 时段匹配简化
+            const R = 0.9 + Math.random() * 0.2; // 随机因子
+            
+            const maxProb = 0.7;
+            let probability = maxProb * sigmoid * L * D * T_slot * R;
+            
+            return Math.min(Math.max(probability, 0), 1);
+        }
+
+        function getEstimatedTime(probability) {
+            if (probability >= 0.8) return "15分钟内";
+            if (probability >= 0.5) return "1-2小时";
+            if (probability >= 0.3) return "3-5小时";
+            if (probability >= 0.1) return "5-8小时";
+            return "8小时以上（可能滞销）";
+        }
+
+        function generateBargainPredictions(marketPrice, playerPrice) {
+            const deviation = (playerPrice - marketPrice) / marketPrice;
+            if (deviation <= 0.15) return [];
+            
+            const npcs = [
+                { name: "老张", style: "温和", factor: 0.9 },
+                { name: "李四", style: "激进", factor: 0.75 },
+                { name: "王五", style: "随机", factor: 0.8 }
+            ];
+            
+            return npcs.map(npc => {
+                const offerPrice = Math.round(marketPrice * npc.factor);
+                return {
+                    name: npc.name,
+                    price: offerPrice,
+                    text: `${npc.name}: "这商品${offerPrice}文能不能卖？"`
+                };
+            });
+        }
+
+        function getSuggestion(deviation, probability) {
+            if (deviation < -0.2) {
+                return "⚠️ 定价偏低，建议提价20-30%以获得更高利润";
+            } else if (deviation < -0.05) {
+                return "✅ 定价略低，适合快速回笼资金";
+            } else if (deviation <= 0.15) {
+                return "✅ 定价合理，保持当前价格即可";
+            } else if (deviation <= 0.35) {
+                return "⚠️ 定价偏高，建议参考NPC议价调整至市场价附近";
+            } else {
+                return "❌ 定价严重过高，建议立即降价或收摊重摆";
+            }
+        }
+
+        function calculatePrice() {
+            const marketPrice = calculateRealMarketPrice();
+            const playerPrice = parseInt(document.getElementById('sim-player-price').value) || 0;
+            const probability = calculateBuyProbability(marketPrice, playerPrice);
+            const deviation = (playerPrice - marketPrice) / marketPrice;
+            
+            // 更新结果展示
+            document.getElementById('result-market-price').textContent = marketPrice + " 文";
+            document.getElementById('result-player-price').textContent = playerPrice + " 文";
+            
+            const deviationElem = document.getElementById('result-deviation');
+            const deviationPercent = (deviation * 100).toFixed(1);
+            if (deviation < -0.1) {
+                deviationElem.textContent = deviationPercent + "% (偏低)";
+                deviationElem.className = "result-value success";
+            } else if (deviation <= 0.15) {
+                deviationElem.textContent = deviationPercent + "% (合理)";
+                deviationElem.className = "result-value success";
+            } else if (deviation <= 0.35) {
+                deviationElem.textContent = deviationPercent + "% (偏高)";
+                deviationElem.className = "result-value warning";
+            } else {
+                deviationElem.textContent = deviationPercent + "% (严重过高)";
+                deviationElem.className = "result-value danger";
+            }
+            
+            const probElem = document.getElementById('result-probability');
+            probElem.textContent = (probability * 100).toFixed(1) + "%";
+            if (probability >= 0.5) {
+                probElem.className = "result-value success";
+            } else if (probability >= 0.2) {
+                probElem.className = "result-value warning";
+            } else {
+                probElem.className = "result-value danger";
+            }
+            
+            document.getElementById('result-time').textContent = getEstimatedTime(probability);
+            
+            // 更新价格区间可视化
+            const minPrice = Math.round(marketPrice * 0.7);
+            const maxPrice = Math.round(marketPrice * 1.3);
+            const range = maxPrice - minPrice;
+            
+            document.getElementById('label-min').textContent = minPrice + "文";
+            document.getElementById('label-market').textContent = "市场价:" + marketPrice + "文";
+            document.getElementById('label-player').textContent = "你的价:" + playerPrice + "文";
+            document.getElementById('label-max').textContent = maxPrice + "文";
+            
+            // 计算位置百分比
+            const marketPos = ((marketPrice - minPrice) / range) * 80 + 10;
+            const playerPos = ((playerPrice - minPrice) / range) * 80 + 10;
+            
+            document.getElementById('marker-market').style.left = Math.min(Math.max(marketPos, 10), 90) + "%";
+            document.getElementById('marker-player').style.left = Math.min(Math.max(playerPos, 10), 90) + "%";
+            
+            // 更新议价预测
+            const bargains = generateBargainPredictions(marketPrice, playerPrice);
+            const bargainSection = document.getElementById('bargain-section');
+            const bargainList = document.getElementById('bargain-list');
+            
+            if (bargains.length > 0) {
+                bargainSection.style.display = "block";
+                bargainList.innerHTML = bargains.map(b => 
+                    `<div class="bargain-item">${b.text}</div>`
+                ).join('');
+            } else {
+                bargainSection.style.display = "none";
+            }
+            
+            // 更新建议
+            document.getElementById('suggestion-text').textContent = getSuggestion(deviation, probability);
+        }
+
+        function updateSimulator() {
+            // 实时更新（可选）
+            // calculatePrice();
+        }
+
+        function resetSimulator() {
+            document.getElementById('sim-item').selectedIndex = 0;
+            document.getElementById('sim-quality').selectedIndex = 0;
+            document.getElementById('sim-region').selectedIndex = 0;
+            document.getElementById('sim-position').selectedIndex = 1;
+            document.getElementById('sim-decoration').selectedIndex = 0;
+            document.getElementById('sim-time').selectedIndex = 3;
+            document.getElementById('sim-supply').selectedIndex = 2;
+            document.getElementById('sim-event').selectedIndex = 0;
+            document.getElementById('sim-player-price').value = 150;
+            
+            // 清空结果
+            document.getElementById('result-market-price').textContent = "--";
+            document.getElementById('result-player-price').textContent = "--";
+            document.getElementById('result-deviation').textContent = "--";
+            document.getElementById('result-probability').textContent = "--";
+            document.getElementById('result-time').textContent = "--";
+            document.getElementById('bargain-section').style.display = "none";
+            document.getElementById('suggestion-text').textContent = "点击\"开始计算\"获取建议";
+            document.getElementById('batch-result').innerHTML = '<p style="color: #999;">点击上方按钮查看不同定价的对比结果</p>';
+        }
+
+        function batchSimulate(priceRatio) {
+            const marketPrice = calculateRealMarketPrice();
+            const testPrice = Math.round(marketPrice * priceRatio);
+            const probability = calculateBuyProbability(marketPrice, testPrice);
+            const time = getEstimatedTime(probability);
+            
+            const resultDiv = document.getElementById('batch-result');
+            
+            // 创建或更新表格
+            let table = resultDiv.querySelector('table');
+            if (!table) {
+                resultDiv.innerHTML = `
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>定价比例</th>
+                                <th>定价金额</th>
+                                <th>成交概率</th>
+                                <th>预计时间</th>
+                                <th>评价</th>
+                            </tr>
+                        </thead>
+                        <tbody id="batch-tbody"></tbody>
+                    </table>
+                `;
+            }
+            
+            const tbody = document.getElementById('batch-tbody');
+            const deviation = priceRatio - 1;
+            let evaluation = "";
+            if (deviation < -0.15) evaluation = "偏低";
+            else if (deviation < 0.05) evaluation = "合理";
+            else if (deviation < 0.25) evaluation = "偏高";
+            else evaluation = "过高";
+            
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${(priceRatio * 100).toFixed(0)}%</td>
+                <td>${testPrice}文</td>
+                <td>${(probability * 100).toFixed(1)}%</td>
+                <td>${time}</td>
+                <td>${evaluation}</td>
+            `;
+            
+            // 检查是否已存在相同比例的行
+            const existingRows = tbody.querySelectorAll('tr');
+            let replaced = false;
+            existingRows.forEach(r => {
+                if (r.cells[0].textContent === (priceRatio * 100).toFixed(0) + "%") {
+                    r.innerHTML = row.innerHTML;
+                    replaced = true;
+                }
+            });
+            
+            if (!replaced) {
+                tbody.appendChild(row);
+            }
+            
+            // 按定价比例排序
+            const rows = Array.from(tbody.querySelectorAll('tr'));
+            rows.sort((a, b) => {
+                const aVal = parseInt(a.cells[0].textContent);
+                const bVal = parseInt(b.cells[0].textContent);
+                return aVal - bVal;
+            });
+            rows.forEach(r => tbody.appendChild(r));
+        }
+
+        // 页面加载时初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 默认显示玩家指南
+            // 可以在这里添加更多初始化逻辑
+        });
+    </script>
+</body>
+</html>

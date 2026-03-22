@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>法宝 - 蛙噻！好摊</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        /* 物品卡片样式 */
+        .item-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+            margin: 16px 0;
+        }
+        .item-card {
+            background: var(--wiki-box-bg);
+            border: 1px solid var(--wiki-border);
+            padding: 12px;
+        }
+        .item-card h4 {
+            margin: 0 0 8px 0;
+            color: var(--wiki-text);
+            font-size: 15px;
+        }
+        .item-card .meta {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+        .item-card .description {
+            font-size: 13px;
+            color: var(--wiki-text-secondary);
+            margin: 0 0 8px 0;
+        }
+        .item-card .effect-box {
+            background: var(--wiki-content-bg);
+            padding: 8px;
+            font-size: 12px;
+            border-left: 3px solid var(--wiki-link);
+        }
+        .item-card .cooldown-box {
+            background: #fff3e0;
+            padding: 6px 8px;
+            font-size: 11px;
+            margin-top: 8px;
+            color: #e65100;
+        }
+
+        /* 类型标签 */
+        .type-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            font-size: 11px;
+            border-radius: 2px;
+        }
+        .type-badge.treasure {
+            background: #fff8e1;
+            color: #f57f17;
+        }
+
+        /* 稀有度标签 */
+        .rarity-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            font-size: 11px;
+            border-radius: 2px;
+        }
+        .rarity-badge.common {
+            background: #f5f5f5;
+            color: #616161;
+        }
+        .rarity-badge.uncommon {
+            background: #e8f5e9;
+            color: #388e3c;
+        }
+        .rarity-badge.rare {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+        .rarity-badge.epic {
+            background: #f3e5f5;
+            color: #7b1fa2;
+        }
+        .rarity-badge.legendary {
+            background: #fff8e1;
+            color: #f57f17;
+        }
+
+        /* 信息框 - Wiki风格 */
+        .info-box {
+            background: var(--wiki-box-bg);
+            border: 1px solid var(--wiki-border);
+            border-left: 4px solid var(--wiki-link);
+            padding: 12px;
+            margin: 12px 0;
+        }
+        .tip-box {
+            background: #e3f2fd;
+            border: 1px solid #90caf9;
+            border-left: 4px solid #2196f3;
+            padding: 12px;
+            margin: 12px 0;
+        }
+        .warning-box {
+            background: #fff3e0;
+            border: 1px solid #ffcc80;
+            border-left: 4px solid #ff9800;
+            padding: 12px;
+            margin: 12px 0;
+        }
+
+        /* 筛选标签 */
+        .filter-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 16px 0;
+        }
+        .filter-tabs .tab-btn {
+            padding: 6px 12px;
+            background: var(--wiki-box-bg);
+            border: 1px solid var(--wiki-border);
+            cursor: pointer;
+            font-size: 13px;
+            margin-right: 0;
+        }
+        .filter-tabs .tab-btn:hover {
+            background: var(--wiki-header-bg);
+        }
+        .filter-tabs .tab-btn.active {
+            background: var(--wiki-content-bg);
+            font-weight: bold;
+            color: var(--wiki-text);
+        }
+    </style>
+</head>
+<body class="wiki-layout">
+    <header class="wiki-topbar">
+        <div class="wiki-logo">
+            <a href="../index.html">蛙噻！好摊</a>
+        </div>
+        <div class="wiki-search">
+            <input type="text" placeholder="搜索百科..." id="searchInput">
+            <button onclick="search()">搜索</button>
+        </div>
+        <div class="wiki-user">
+            <span>欢迎访问</span>
+        </div>
+    </header>
+
+    <div class="wiki-container">
+        <aside class="wiki-sidebar">
+            <nav class="wiki-nav">
+                <div class="nav-section">
+                    <h3>百科分类</h3>
+                    <ul>
+                        <li><a href="../index.html">首页</a></li>
+                        <li><a href="game-intro.html">游戏介绍</a></li>
+                        <li><a href="world.html">世界观</a></li>
+                        <li><a href="factions.html">势力分布</a></li>
+                        <li><a href="history.html">历史年表</a></li>
+                        <li><a href="price-mechanism.html">价格机制</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>游戏特色</h3>
+                    <ul>
+                        <li><a href="bazaar.html">集市</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>游戏玩法</h3>
+                    <ul>
+                        <li><a href="market.html">摆摊系统</a></li>
+                        <li><a href="achievements.html">成就系统</a></li>
+                        <li><a href="combat.html">战斗系统</a></li>
+                        <li><a href="progression.html">成长系统</a></li>
+                        <li><a href="currency.html">货币系统</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>角色</h3>
+                    <ul>
+                        <li><a href="characters.html">角色总览</a></li>
+                        <li><a href="characters.html?type=playable">主要角色</a></li>
+                        <li><a href="characters.html?type=npc">NPC</a></li>
+                        <li><a href="enemies.html">敌人</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>物品装备</h3>
+                    <ul>
+                        <li><a href="items.html">物品总览</a></li>
+                        <li><a href="weapon.html">武器</a></li>
+                        <li><a href="armor.html">防具</a></li>
+                        <li><a href="accessory.html">饰品</a></li>
+                        <li><a href="treasure.html" class="active">法宝</a></li>
+                        <li><a href="consumable.html">消耗品</a></li>
+                        <li><a href="material.html">材料</a></li>
+                        <li><a href="collection.html">收藏品</a></li>
+                        <li><a href="crafting.html">生活技能</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>世界探索</h3>
+                    <ul>
+                        <li><a href="locations.html">地点总览</a></li>
+                        <li><a href="map.html">游戏地图</a></li>
+                        <li><a href="quests.html">任务剧情</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>关于</h3>
+                    <ul>
+                        <li><a href="dev-thoughts.html">开发者随想</a></li>
+                    </ul>
+                </div>
+            </nav>
+        </aside>
+
+        <main class="wiki-content">
+            <nav class="breadcrumb">
+                <a href="../index.html">首页</a> &gt; <a href="items.html">物品装备</a> &gt; <span class="current">法宝</span>
+            </nav>
+
+            <article class="wiki-article">
+                <h1 class="article-title">法宝</h1>
+                
+                <div class="info-box">
+                    <strong>法宝系统简介：</strong>法宝是西游世界中的特殊道具，拥有强大的神通力量。与普通装备不同，法宝通常带有主动技能或特殊被动效果，可以在战斗中扭转乾坤。法宝稀有度极高，是修行者追求的至宝。
+                </div>
+
+                <div class="warning-box">
+                    <strong>使用限制：</strong>法宝通常有使用次数限制或冷却时间，且同时只能装备有限数量的法宝。合理搭配和使用法宝是制胜关键。
+                </div>
+
+                <h2>法宝类型</h2>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>法宝类型</th>
+                            <th>主要作用</th>
+                            <th>使用方式</th>
+                            <th>典型代表</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>攻击法宝</td>
+                            <td>造成大量伤害或控制敌人</td>
+                            <td>主动释放，消耗法力</td>
+                            <td>芭蕉扇、紫金铃</td>
+                        </tr>
+                        <tr>
+                            <td>防御法宝</td>
+                            <td>提供护盾、减伤或免疫</td>
+                            <td>主动释放或被动触发</td>
+                            <td>八卦炉、定风丹</td>
+                        </tr>
+                        <tr>
+                            <td>辅助法宝</td>
+                            <td>侦查、控制、治疗等</td>
+                            <td>主动释放</td>
+                            <td>照妖镜、捆仙绳</td>
+                        </tr>
+                        <tr>
+                            <td>飞行法宝</td>
+                            <td>提升移动速度或飞行</td>
+                            <td>持续生效或主动使用</td>
+                            <td>筋斗云、风火轮</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h2>法宝列表</h2>
+                <div class="filter-tabs">
+                    <button class="tab-btn active" onclick="filterTreasures('all')">全部</button>
+                    <button class="tab-btn" onclick="filterTreasures('attack')">攻击法宝</button>
+                    <button class="tab-btn" onclick="filterTreasures('defense')">防御法宝</button>
+                    <button class="tab-btn" onclick="filterTreasures('support')">辅助法宝</button>
+                    <button class="tab-btn" onclick="filterTreasures('movement')">飞行法宝</button>
+                </div>
+                <div class="item-grid" id="treasureGrid"></div>
+
+                <h2>法宝获取途径</h2>
+                <div class="tip-box">
+                    <ul>
+                        <li><strong>击败大妖</strong>：强大的妖怪有概率掉落法宝</li>
+                        <li><strong>探索秘境</strong>：隐藏秘境和洞窟中藏有上古法宝</li>
+                        <li><strong>完成任务</strong>：特定主线或支线任务奖励法宝</li>
+                        <li><strong>炼制合成</strong>：收集稀有材料后炼制法宝</li>
+                        <li><strong>仙缘奇遇</strong>：特殊事件或奇遇获得</li>
+                    </ul>
+                </div>
+
+                <h2>法宝使用技巧</h2>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>场景</th>
+                            <th>推荐法宝</th>
+                            <th>使用时机</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>BOSS战开场</td>
+                            <td>攻击法宝</td>
+                            <td>BOSS虚弱时全力输出</td>
+                        </tr>
+                        <tr>
+                            <td>危急时刻</td>
+                            <td>防御法宝</td>
+                            <td>生命值低于30%时使用</td>
+                        </tr>
+                        <tr>
+                            <td>探索未知区域</td>
+                            <td>辅助法宝</td>
+                            <td>提前侦查敌人和陷阱</td>
+                        </tr>
+                        <tr>
+                            <td>长途跋涉</td>
+                            <td>飞行法宝</td>
+                            <td>快速穿越大地图</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="article-footer">
+                    <p>最后更新于：2026-03-21 | 编辑次数：1</p>
+                </div>
+            </article>
+        </main>
+    </div>
+
+    <footer class="wiki-footer">
+        <p>&copy; 2026 《蛙噻！好摊》游戏百科 | 本百科由玩家共同维护</p>
+    </footer>
+
+    <script src="../js/main.js"></script>
+    <script>
+        let treasures = [
+            // 攻击法宝
+            { id: 201, name: "芭蕉扇", type: "attack", rarity: "epic", description: "铁扇公主的芭蕉扇，一扇能灭火，二扇生风，三扇下雨。", effect: "对范围内敌人造成200%攻击力的火焰伤害，并附加燃烧效果", cooldown: "冷却60秒，可使用10次" },
+            { id: 202, name: "紫金铃", type: "attack", rarity: "epic", description: "观音菩萨的紫金铃，摇动起来能喷火生烟。", effect: "对单个敌人造成300%攻击力的伤害，并使其眩晕3秒", cooldown: "冷却90秒，可使用8次" },
+            { id: 203, name: "金刚琢", type: "attack", rarity: "legendary", description: "太上老君的金刚琢，能套取万物，坚不可摧。", effect: "投掷金刚琢，对路径上所有敌人造成400%攻击力的伤害，并吸取其10%法力", cooldown: "冷却120秒，可使用5次" },
+            { id: 204, name: "金箍棒", type: "attack", rarity: "legendary", description: "孙悟空的如意金箍棒，可大可小，重一万三千五百斤。", effect: "临时获得金箍棒的力量，攻击力+100%，攻击范围+50%，持续30秒", cooldown: "冷却180秒，可使用3次" },
+            { id: 205, name: "火尖枪", type: "attack", rarity: "rare", description: "哪吒的火尖枪，枪头能喷火，锋利无比。", effect: "对前方直线敌人造成150%攻击力的火焰伤害", cooldown: "冷却45秒，可使用15次" },
+            
+            // 防御法宝
+            { id: 206, name: "八卦炉", type: "defense", rarity: "epic", description: "太上老君的炼丹炉，也是强大的防御法宝。", effect: "召唤八卦炉护体，获得最大生命值50%的护盾，持续20秒", cooldown: "冷却120秒，可使用5次" },
+            { id: 207, name: "定风丹", type: "defense", rarity: "rare", description: "灵吉菩萨的定风丹，能抵御一切风系攻击。", effect: "免疫风系伤害和控制效果，移动速度+30%，持续60秒", cooldown: "冷却90秒，可使用8次" },
+            { id: 208, name: "避火罩", type: "defense", rarity: "rare", description: "广目天王的避火罩，能隔绝火焰。", effect: "免疫火系伤害和燃烧效果，持续60秒", cooldown: "冷却90秒，可使用8次" },
+            { id: 209, name: "金刚不坏身", type: "defense", rarity: "legendary", description: "孙悟空的金刚不坏之身，刀枪不入。", effect: "受到的所有伤害减少80%，免疫控制效果，持续15秒", cooldown: "冷却300秒，可使用2次" },
+            { id: 210, name: "袈裟", type: "defense", rarity: "epic", description: "唐僧的锦襕袈裟，具有强大的防御力。", effect: "获得袈裟护体，防御力+100%，受到的治疗效果+50%，持续30秒", cooldown: "冷却150秒，可使用4次" },
+            
+            // 辅助法宝
+            { id: 211, name: "照妖镜", type: "support", rarity: "rare", description: "能照出妖怪原形的宝镜。", effect: "显示周围所有隐形单位和陷阱，对妖怪造成额外20%伤害，持续30秒", cooldown: "冷却60秒，可使用12次" },
+            { id: 212, name: "捆仙绳", type: "support", rarity: "epic", description: "太上老君的捆仙绳，能捆住神仙妖怪。", effect: "束缚目标5秒，使其无法移动和攻击，受到的伤害+30%", cooldown: "冷却90秒，可使用6次" },
+            { id: 213, name: "紫金葫芦", type: "support", rarity: "epic", description: "太上老君的紫金葫芦，能收人入内。", effect: "将生命值低于20%的敌人吸入葫芦，直接击杀，对BOSS无效", cooldown: "冷却180秒，可使用3次" },
+            { id: 214, name: "羊脂玉净瓶", type: "support", rarity: "legendary", description: "观音菩萨的玉净瓶，装有甘露水。", effect: "恢复全部生命值和法力值，解除所有负面状态", cooldown: "冷却300秒，可使用2次" },
+            { id: 215, name: "金铙", type: "support", rarity: "rare", description: "黄眉老佛的金铙，能困住敌人。", effect: "将目标困在金铙中3秒，期间目标无法行动且受到持续伤害", cooldown: "冷却75秒，可使用8次" },
+            
+            // 飞行法宝
+            { id: 216, name: "筋斗云", type: "movement", rarity: "legendary", description: "孙悟空的筋斗云，一个筋斗十万八千里。", effect: "移动速度+200%，可以跨越地形障碍，持续30秒", cooldown: "冷却60秒，可使用无限次" },
+            { id: 217, name: "风火轮", type: "movement", rarity: "epic", description: "哪吒的风火轮，踏之可飞行。", effect: "移动速度+150%，经过的地面留下火焰路径，对敌人造成伤害，持续20秒", cooldown: "冷却45秒，可使用10次" },
+            { id: 218, name: "祥云", type: "movement", rarity: "rare", description: "仙人常用的祥云，平稳舒适。", effect: "移动速度+100%，可以在空中飞行，不受地形限制，持续60秒", cooldown: "冷却30秒，可使用20次" },
+            { id: 219, name: "白鹿", type: "movement", rarity: "uncommon", description: "寿星的坐骑白鹿，脚力极佳。", effect: "移动速度+50%，持续300秒", cooldown: "冷却10秒，可使用无限次" },
+            { id: 220, name: "仙鹤", type: "movement", rarity: "rare", description: "仙人的坐骑仙鹤，可载人飞行。", effect: "移动速度+80%，可以在空中飞行，持续120秒", cooldown: "冷却20秒，可使用15次" }
+        ];
+
+        function getRarityLabel(r) { 
+            const l = {common:'普通',uncommon:'优秀',rare:'稀有',epic:'史诗',legendary:'传说'}; 
+            return l[r] || r; 
+        }
+        
+        function getTypeLabel(t) { 
+            const l = {attack:'攻击法宝',defense:'防御法宝',support:'辅助法宝',movement:'飞行法宝'}; 
+            return l[t] || t; 
+        }
+
+        function renderTreasures(filter = 'all') {
+            const grid = document.getElementById('treasureGrid');
+            let filtered = treasures;
+            if (filter !== 'all') filtered = treasures.filter(t => t.type === filter);
+            
+            if (filtered.length === 0) { 
+                grid.innerHTML = '<p style="color:var(--wiki-text-secondary);padding:20px;">暂无该类型的法宝</p>'; 
+                return; 
+            }
+            
+            grid.innerHTML = filtered.map(treasure => `
+                <div class="item-card" data-type="${treasure.type}">
+                    <h4>${treasure.name}</h4>
+                    <div class="meta">
+                        <span class="type-badge treasure">${getTypeLabel(treasure.type)}</span>
+                        <span class="rarity-badge ${treasure.rarity}">${getRarityLabel(treasure.rarity)}</span>
+                    </div>
+                    <p class="description">${treasure.description}</p>
+                    <div class="effect-box"><strong>效果：</strong>${treasure.effect}</div>
+                    <div class="cooldown-box">${treasure.cooldown}</div>
+                </div>
+            `).join('');
+        }
+
+        function filterTreasures(type) {
+            document.querySelectorAll('.filter-tabs .tab-btn').forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+            renderTreasures(type);
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            renderTreasures();
+        });
+    </script>
+</body>
+</html>

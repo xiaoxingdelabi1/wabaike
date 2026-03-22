@@ -1,0 +1,1415 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>摆摊系统 - 蛙噻！好摊</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        .page-tabs { margin-bottom: 20px; }
+        .page-tab-nav { display: flex; border-bottom: 1px solid var(--wiki-border); margin-bottom: 20px; flex-wrap: wrap; }
+        .page-tab-btn { padding: 8px 16px; background: var(--wiki-header-bg); border: 1px solid var(--wiki-border); border-bottom: none; cursor: pointer; font-size: 14px; color: var(--wiki-link); margin-right: 4px; margin-bottom: 4px; }
+        .page-tab-btn:hover { background: var(--wiki-content-bg); }
+        .page-tab-btn.active { background: var(--wiki-content-bg); border-bottom: 1px solid var(--wiki-content-bg); margin-bottom: -1px; font-weight: bold; color: var(--wiki-text); }
+        .page-tab-panel { display: none; }
+        .page-tab-panel.active { display: block; }
+        .dev-phase { background: var(--wiki-box-bg); border: 1px solid var(--wiki-border); padding: 16px; margin-bottom: 16px; }
+        .dev-phase h3 { margin-top: 0; color: var(--wiki-link); border-bottom: 1px solid var(--wiki-border); padding-bottom: 8px; }
+        .dev-phase .phase-meta { display: flex; gap: 16px; margin-bottom: 12px; font-size: 13px; color: var(--wiki-text-secondary); }
+        .task-list { list-style: none; padding: 0; margin: 0; }
+        .task-list li { padding: 10px 0; border-bottom: 1px dashed var(--wiki-border); display: flex; align-items: flex-start; gap: 10px; }
+        .task-list li:last-child { border-bottom: none; }
+        .task-checkbox { width: 18px; height: 18px; border: 2px solid var(--wiki-border); flex-shrink: 0; margin-top: 2px; display: flex; align-items: center; justify-content: center; font-size: 12px; }
+        .task-checkbox.done { background: #4caf50; border-color: #4caf50; color: white; }
+        .task-content { flex: 1; }
+        .task-content h4 { margin: 0 0 4px 0; font-size: 14px; }
+        .task-content p { margin: 0; font-size: 13px; color: var(--wiki-text-secondary); }
+        .code-block { background: #f6f8fa; padding: 12px; overflow-x: auto; font-family: 'Consolas', 'Monaco', monospace; font-size: 12px; line-height: 1.5; white-space: pre; margin: 12px 0; border: 1px solid var(--wiki-border); }
+        .progress-bar { background: #e0e0e0; height: 20px; border-radius: 10px; overflow: hidden; margin: 16px 0; }
+        .progress-fill { background: linear-gradient(90deg, #4caf50, #8bc34a); height: 100%; display: flex; align-items: center; justify-content: center; color: white; font-size: 12px; font-weight: bold; }
+        .verify-box { background: #e8f5e9; border: 1px solid #a5d6a7; padding: 12px; margin: 12px 0; }
+        .verify-box h4 { margin: 0 0 8px 0; color: #2e7d32; }
+        .simulator-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        @media (max-width: 900px) { .simulator-grid { grid-template-columns: 1fr; } }
+        .sim-panel { background: var(--wiki-box-bg); border: 1px solid var(--wiki-border); padding: 16px; }
+        .sim-panel h3 { margin-top: 0; color: var(--wiki-text); border-bottom: 1px solid var(--wiki-border); padding-bottom: 8px; font-size: 16px; }
+        .form-row { margin-bottom: 12px; }
+        .form-row label { display: block; margin-bottom: 4px; font-weight: normal; color: var(--wiki-text); }
+        .form-row select, .form-row input { width: 100%; padding: 6px 8px; border: 1px solid var(--wiki-border); font-size: 13px; box-sizing: border-box; }
+        .btn-row { display: flex; gap: 8px; margin-top: 16px; flex-wrap: wrap; }
+        .sim-btn { padding: 8px 16px; background: var(--wiki-header-bg); border: 1px solid var(--wiki-border); cursor: pointer; font-size: 14px; }
+        .sim-btn:hover { background: var(--wiki-box-bg); }
+        .result-box { background: var(--wiki-content-bg); border: 1px solid var(--wiki-border); padding: 12px; margin-bottom: 12px; }
+        .result-row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px dashed var(--wiki-border); }
+        .result-row:last-child { border-bottom: none; }
+        .result-label { color: var(--wiki-text-secondary); }
+        .result-value { font-weight: bold; color: var(--wiki-text); }
+        .result-value.highlight { color: var(--wiki-link); }
+        .result-value.warning { color: #ff6b35; }
+        .result-value.danger { color: #d32f2f; }
+        .result-value.success { color: #388e3c; }
+        .tip-box { background: #e3f2fd; border: 1px solid #90caf9; padding: 12px; margin-top: 12px; }
+        .flow-step { display: flex; align-items: flex-start; gap: 16px; margin: 16px 0; padding: 16px; background: var(--wiki-box-bg); border: 1px solid var(--wiki-border); }
+        .flow-num { width: 32px; height: 32px; background: var(--wiki-link); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; flex-shrink: 0; }
+        .flow-content h4 { margin: 0 0 8px 0; }
+        .flow-content p { margin: 0; font-size: 13px; }
+    </style>
+</head>
+<body class="wiki-layout">
+    <header class="wiki-topbar">
+        <div class="wiki-logo"><a href="../index.html">蛙噻！好摊</a></div>
+        <div class="wiki-search">
+            <input type="text" placeholder="搜索百科..." id="searchInput">
+            <button onclick="search()">搜索</button>
+        </div>
+        <div class="wiki-user"><span>欢迎访问</span></div>
+    </header>
+
+    <div class="wiki-container">
+        <aside class="wiki-sidebar">
+            <nav class="wiki-nav">
+                <div class="nav-section">
+                    <h3>百科分类</h3>
+                    <ul>
+                        <li><a href="../index.html">首页</a></li>
+                        <li><a href="game-intro.html">游戏介绍</a></li>
+                        <li><a href="world.html">世界观</a></li>
+                        <li><a href="factions.html">势力分布</a></li>
+                        <li><a href="history.html">历史年表</a></li>
+                        <li><a href="price-mechanism.html">价格机制</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>游戏特色</h3>
+                    <ul><li><a href="bazaar.html">集市</a></li></ul>
+                </div>
+                <div class="nav-section">
+                    <h3>游戏机制</h3>
+                    <ul>
+                        <li><a href="game-time.html">游戏时间</a></li>
+                        <li><a href="market.html" class="active">摆摊系统</a></li>
+                        <li><a href="achievements.html">成就系统</a></li>
+                        <li><a href="combat.html">战斗系统</a></li>
+                        <li><a href="progression.html">成长系统</a></li>
+                        <li><a href="currency.html">货币系统</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>开发文档</h3>
+                    <ul><li><a href="dev-guide.html">开发流程指南</a></li></ul>
+                </div>
+                <div class="nav-section">
+                    <h3>角色</h3>
+                    <ul>
+                        <li><a href="characters.html">角色总览</a></li>
+                        <li><a href="characters.html?type=playable">主要角色</a></li>
+                        <li><a href="characters.html?type=npc">NPC</a></li>
+                        <li><a href="enemies.html">敌人</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>物品装备</h3>
+                    <ul>
+                        <li><a href="items.html">物品总览</a></li>
+                        <li><a href="weapon.html">武器</a></li>
+                        <li><a href="armor.html">防具</a></li>
+                        <li><a href="accessory.html">饰品</a></li>
+                        <li><a href="treasure.html">法宝</a></li>
+                        <li><a href="consumable.html">消耗品</a></li>
+                        <li><a href="material.html">材料</a></li>
+                        <li><a href="collection.html">收藏品</a></li>
+                        <li><a href="crafting.html">生活技能</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>世界探索</h3>
+                    <ul>
+                        <li><a href="locations.html">地点总览</a></li>
+                        <li><a href="map.html">游戏地图</a></li>
+                        <li><a href="quests.html">任务剧情</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>关于</h3>
+                    <ul><li><a href="dev-thoughts.html">开发者随想</a></li></ul>
+                </div>
+            </nav>
+        </aside>
+
+        <main class="wiki-content">
+            <nav class="breadcrumb">
+                <a href="../index.html">首页</a> &gt; <span class="current">摆摊系统</span>
+            </nav>
+
+            <article class="wiki-article">
+                <h1 class="article-title">摆摊系统</h1>
+                <p style="color: #666; font-size: 13px;">摆摊系统完全指南 | 开发进度追踪</p>
+
+                <div class="page-tabs">
+                    <div class="page-tab-nav" id="pageTabNav">
+                        <button class="page-tab-btn active" data-tab="guide">玩家指南</button>
+                        <button class="page-tab-btn" data-tab="dev">开发流程指南</button>
+                        <button class="page-tab-btn" data-tab="simulator">搭建模拟器</button>
+                    </div>
+
+                    <!-- 玩家指南 -->
+                    <div id="panel-guide" class="page-tab-panel active">
+                        <div class="article-intro">
+                            <p>摆摊系统是《蛙噻！好摊》的核心玩法之一。作为一名取经路上的行者，你需要通过<strong>低买高卖</strong>来积攒盘缠。掌握市场规律、把握交易时机、与各路商人周旋，是成为一代商业传奇的必经之路。</p>
+                        </div>
+
+                        <h2>摆摊流程</h2>
+                        <p>完整的摆摊经营流程包含以下六个步骤：</p>
+
+                        <div class="flow-step">
+                            <div class="flow-num">1</div>
+                            <div class="flow-content">
+                                <h4>进货采购</h4>
+                                <p>在各地商人处或副本中购买商品。不同地区商品价格存在差异，是套利的基础。</p>
+                            </div>
+                        </div>
+                        <div class="flow-step">
+                            <div class="flow-num">2</div>
+                            <div class="flow-content">
+                                <h4>定价策略</h4>
+                                <p>根据市场行情设定售价。定价过高滞销，过低利润微薄。</p>
+                            </div>
+                        </div>
+                        <div class="flow-step">
+                            <div class="flow-num">3</div>
+                            <div class="flow-content">
+                                <h4>选择摊位</h4>
+                                <p>选择摆摊的位置。城镇中心人流量大但竞争激烈。</p>
+                            </div>
+                        </div>
+                        <div class="flow-step">
+                            <div class="flow-num">4</div>
+                            <div class="flow-content">
+                                <h4>摆摊销售</h4>
+                                <p>开始摆摊，NPC顾客陆续前来询价。可随时调整价格或下架商品。</p>
+                            </div>
+                        </div>
+                        <div class="flow-step">
+                            <div class="flow-num">5</div>
+                            <div class="flow-content">
+                                <h4>议价成交</h4>
+                                <p>与顾客进行价格谈判。成功议价可获得额外利润。</p>
+                            </div>
+                        </div>
+                        <div class="flow-step">
+                            <div class="flow-num">6</div>
+                            <div class="flow-content">
+                                <h4>收摊结算</h4>
+                                <p>收摊后结算已售出商品的收益。未售出商品返还背包。</p>
+                            </div>
+                        </div>
+
+                        <h2>商品类型</h2>
+                        <table class="wiki-table">
+                            <thead><tr><th>类型</th><th>特点</th><th>例子</th><th>风险</th></tr></thead>
+                            <tbody>
+                                <tr><td>普通商品</td><td>供应充足，价格波动小</td><td>粮食、布匹、日常用品</td><td>低</td></tr>
+                                <tr><td>稀有商品</td><td>供应有限，利润空间高</td><td>珍贵药材、精良装备</td><td>中等</td></tr>
+                                <tr><td>特产商品</td><td>特定地区独有，跨区域贸易利润极高</td><td>花果山仙桃、火焰山火晶</td><td>高</td></tr>
+                            </tbody>
+                        </table>
+
+                        <h2>摊位管理</h2>
+                        <h3>四条街道</h3>
+                        <table class="wiki-table">
+                            <thead><tr><th>街道</th><th>主营商品</th><th>特点</th><th>人流量</th></tr></thead>
+                            <tbody>
+                                <tr><td>东街</td><td>工具</td><td>工匠和冒险者的聚集地</td><td>中等</td></tr>
+                                <tr><td>南街</td><td>综合商品</td><td>最大的综合市场</td><td>最高</td></tr>
+                                <tr><td>西街</td><td>道具</td><td>炼金师和工匠的必去之地</td><td>中等</td></tr>
+                                <tr><td>北街</td><td>装备</td><td>战士和冒险者的天堂</td><td>较高</td></tr>
+                            </tbody>
+                        </table>
+
+                        <h3>摊位位置价值</h3>
+                        <table class="wiki-table">
+                            <thead><tr><th>位置类型</th><th>人流量</th><th>出售效率</th><th>适合阶段</th></tr></thead>
+                            <tbody>
+                                <tr><td>中心区域</td><td>5星</td><td>+50%</td><td>中后期</td></tr>
+                                <tr><td>街道中段</td><td>4星</td><td>+25%</td><td>中期</td></tr>
+                                <tr><td>街道边缘</td><td>3星</td><td>标准</td><td>新手期</td></tr>
+                            </tbody>
+                        </table>
+
+                        <h3>摊位自动前移机制</h3>
+                        <p>当某个摊位收摊后，该摊位后方的所有摊位会自动向前移动填补空位。只要你持续经营的时间够久，你的摊位会慢慢移动到更靠前的位置。</p>
+
+                        <h2>出摊费用</h2>
+                        <table class="wiki-table">
+                            <thead><tr><th>项目</th><th>说明</th><th>费率</th></tr></thead>
+                            <tbody>
+                                <tr><td>出摊手续费</td><td>上架商品时需支付的手续费</td><td>商品市场价格的 1%</td></tr>
+                                <tr><td>交易税费</td><td>商品成功卖出时收取的税费</td><td>成交金额的 5%</td></tr>
+                            </tbody>
+                        </table>
+
+                        <h2>装饰系统</h2>
+                        <table class="wiki-table">
+                            <thead><tr><th>称号</th><th>解锁装饰</th><th>成交率加成</th><th>离线收益加成</th></tr></thead>
+                            <tbody>
+                                <tr><td>小商贩</td><td>草创期6个</td><td>+1%</td><td>-</td></tr>
+                                <tr><td>行商</td><td>立业期6个</td><td>+2%</td><td>+1%</td></tr>
+                                <tr><td>富商</td><td>兴业期6个</td><td>+3%</td><td>+2%</td></tr>
+                                <tr><td>巨贾</td><td>旺业期6个</td><td>+4%</td><td>+3%</td></tr>
+                                <tr><td>商业大亨</td><td>鸿业期6个</td><td>+5%</td><td>+4%</td></tr>
+                                <tr><td>大富翁</td><td>传世期6个</td><td>+6%</td><td>+5%</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- 开发流程指南 -->
+                    <div id="panel-dev" class="page-tab-panel">
+                        <h2>摆摊系统开发流程</h2>
+                        <p>按照以下计划逐步完成开发，完成所有计划即开发成功。</p>
+
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 0%;">0%</div>
+                        </div>
+
+                        <!-- 第一阶段 -->
+                        <div class="dev-phase">
+                            <h3>第一阶段：摊位管理模块</h3>
+                            <div class="phase-meta">
+                                <span>预计耗时：3-4小时</span>
+                                <span>难度：中等</span>
+                            </div>
+                            <ul class="task-list">
+                                <li>
+                                    <div class="task-checkbox"></div>
+                                    <div class="task-content">
+                                        <h4>任务1.1：创建摊位数据结构</h4>
+                                        <p>定义摊位类和街道数据</p>
+                                        <div class="code-block">class Stall {
+    constructor(id, street, index) {
+        this.id = id;                    // 摊位ID
+        this.street = street;            // 所属街道：east/south/west/north
+        this.index = index;              // 在街道中的位置序号
+        this.owner = null;               // 拥有者ID
+        this.status = 'vacant';          // vacant/occupied/locked
+        this.listedItems = [];           // 上架商品列表
+        this.decorations = [];           // 装饰列表
+    }
+}
+
+// 街道配置
+const STREETS = {
+    east: { name: '东街', specialty: 'tool', stallCount: 200 },
+    south: { name: '南街', specialty: 'misc', stallCount: 200 },
+    west: { name: '西街', specialty: 'potion', stallCount: 200 },
+    north: { name: '北街', specialty: 'equipment', stallCount: 200 }
+};</div>
+                                    </div>
+                                </li>
+                                <li>
+                                    <div class="task-checkbox"></div>
+                                    <div class="task-content">
+                                        <h4>任务1.2：实现摊位管理类 StallManager</h4>
+                                        <p>管理摊位的选择、占用、撤离</p>
+                                        <div class="code-block">class StallManager {
+    constructor() {
+        this.stalls = [];
+        this.initStalls();
+    }
+
+    initStalls() {
+        let id = 1;
+        for (let street of Object.keys(STREETS)) {
+            for (let i = 0; i < STREETS[street].stallCount; i++) {
+                this.stalls.push(new Stall(`stall_${id++}`, street, i));
+            }
+        }
+    }
+
+    // 获取空闲摊位
+    getVacantStalls(street) {
+        return this.stalls.filter(s => s.street === street && s.status === 'vacant');
+    }
+
+    // 占用摊位
+    occupyStall(stallId, playerId) {
+        const stall = this.stalls.find(s => s.id === stallId);
+        if (stall && stall.status === 'vacant') {
+            stall.status = 'occupied';
+            stall.owner = playerId;
+            return true;
+        }
+        return false;
+    }
+
+    // 撤离摊位
+    vacateStall(stallId) {
+        const stall = this.stalls.find(s => s.id === stallId);
+        if (stall) {
+            stall.status = 'vacant';
+            stall.owner = null;
+            stall.listedItems = [];
+            return true;
+        }
+        return false;
+    }
+}</div>
+                                    </div>
+                                </li>
+                                <li>
+                                    <div class="task-checkbox"></div>
+                                    <div class="task-content">
+                                        <h4>任务1.3：实现摊位自动对齐</h4>
+                                        <p>收摊后后方摊位自动前移</p>
+                                        <div class="code-block">class StallManager {
+    // ... 其他方法
+
+    // 摊位自动前移对齐
+    autoAlignStalls(street) {
+        const streetStalls = this.stalls
+            .filter(s => s.street === street)
+            .sort((a, b) => a.index - b.index);
+
+        let currentIndex = 0;
+        streetStalls.forEach(stall => {
+            if (stall.status === 'occupied') {
+                stall.index = currentIndex++;
+            }
+        });
+    }
+
+    // 收摊时调用
+    vacateAndAlign(stallId) {
+        const stall = this.stalls.find(s => s.id === stallId);
+        if (!stall) return false;
+        
+        const street = stall.street;
+        const result = this.vacateStall(stallId);
+        if (result) {
+            this.autoAlignStalls(street);
+        }
+        return result;
+    }
+}</div>
+                                    </div>
+                                </li>
+                            </ul>
+                            <div class="verify-box">
+                                <h4>验证方法</h4>
+                                <p>创建摊位管理器，测试占用和撤离功能，验证自动对齐是否正确执行。</p>
+                            </div>
+                        </div>
+
+                        <!-- 第二阶段 -->
+                        <div class="dev-phase">
+                            <h3>第二阶段：商品交易模块</h3>
+                            <div class="phase-meta">
+                                <span>预计耗时：4-5小时</span>
+                                <span>难度：中等</span>
+                            </div>
+                            <ul class="task-list">
+                                <li>
+                                    <div class="task-checkbox"></div>
+                                    <div class="task-content">
+                                        <h4>任务2.1：定义商品数据结构</h4>
+                                        <p>商品类和商品类型配置</p>
+                                        <div class="code-block">class Item {
+    constructor(id, name, type, rarity, basePrice) {
+        this.id = id;
+        this.name = name;
+        this.type = type;          // tool/armor/consumable/material
+        this.rarity = rarity;      // common/rare/epic/legendary
+        this.basePrice = basePrice;
+        this.currentPrice = basePrice;
+    }
+}
+
+// 商品类型配置
+const ITEM_TYPES = {
+    tool: { name: '工具', streetBonus: { east: 1.2 } },
+    armor: { name: '防具', streetBonus: { north: 1.2 } },
+    consumable: { name: '消耗品', streetBonus: { west: 1.2 } },
+    material: { name: '材料', streetBonus: {} }
+};
+
+// 上架商品记录
+class ListedItem {
+    constructor(item, price, quantity) {
+        this.itemId = item.id;
+        this.item = item;
+        this.price = price;           // 玩家设定的售价
+        this.quantity = quantity;
+        this.listedAt = Date.now();
+        this.soldAt = null;
+    }
+}</div>
+                                    </div>
+                                </li>
+                                <li>
+                                    <div class="task-checkbox"></div>
+                                    <div class="task-content">
+                                        <h4>任务2.2：实现交易系统类 TradingSystem</h4>
+                                        <p>商品上架、下架、成交</p>
+                                        <div class="code-block">class TradingSystem {
+    constructor() {
+        this.listings = new Map();  // stallId -> ListedItem[]
+    }
+
+    // 上架商品
+    listItem(stallId, item, price, quantity, player) {
+        // 检查玩家库存
+        if (!player.hasItem(item.id, quantity)) {
+            return { success: false, message: '商品数量不足' };
+        }
+
+        // 计算手续费
+        const fee = Math.floor(item.basePrice * 0.01 * quantity);
+        if (player.money < fee) {
+            return { success: false, message: '余额不足支付手续费' };
+        }
+
+        // 扣除商品和手续费
+        player.removeItem(item.id, quantity);
+        player.money -= fee;
+
+        // 添加上架记录
+        const listing = new ListedItem(item, price, quantity);
+        if (!this.listings.has(stallId)) {
+            this.listings.set(stallId, []);
+        }
+        this.listings.get(stallId).push(listing);
+
+        return { success: true, fee: fee, listing: listing };
+    }
+
+    // 下架商品
+    delistItem(stallId, listingIndex, player) {
+        const listings = this.listings.get(stallId);
+        if (!listings || !listings[listingIndex]) {
+            return { success: false, message: '商品不存在' };
+        }
+
+        const listing = listings.splice(listingIndex, 1)[0];
+        player.addItem(listing.item, listing.quantity);
+
+        return { success: true, item: listing };
+    }
+}</div>
+                                    </div>
+                                </li>
+                                <li>
+                                    <div class="task-checkbox"></div>
+                                    <div class="task-content">
+                                        <h4>任务2.3：实现交易成交逻辑</h4>
+                                        <p>NPC购买商品和收益结算</p>
+                                        <div class="code-block">class TradingSystem {
+    // ... 其他方法
+
+    // NPC购买商品
+    sellItem(stallId, listingIndex, quantity) {
+        const listings = this.listings.get(stallId);
+        if (!listings || !listings[listingIndex]) {
+            return { success: false, message: '商品不存在' };
+        }
+
+        const listing = listings[listingIndex];
+        const sellQty = Math.min(quantity, listing.quantity);
+
+        // 计算收益（扣除5%税费）
+        const grossEarnings = listing.price * sellQty;
+        const tax = Math.floor(grossEarnings * 0.05);
+        const netEarnings = grossEarnings - tax;
+
+        // 更新上架数量
+        listing.quantity -= sellQty;
+        if (listing.quantity <= 0) {
+            listings.splice(listingIndex, 1);
+        }
+
+        return {
+            success: true,
+            quantity: sellQty,
+            grossEarnings: grossEarnings,
+            tax: tax,
+            netEarnings: netEarnings
+        };
+    }
+
+    // 获取摊位总收益
+    getTotalEarnings(stallId) {
+        const listings = this.listings.get(stallId) || [];
+        let total = 0;
+        listings.forEach(l => {
+            if (l.soldAt) {
+                total += l.netEarnings || 0;
+            }
+        });
+        return total;
+    }
+}</div>
+                                    </div>
+                                </li>
+                            </ul>
+                            <div class="verify-box">
+                                <h4>验证方法</h4>
+                                <p>测试商品上架、下架、NPC购买流程，验证手续费和税费计算正确。</p>
+                            </div>
+                        </div>
+
+                        <!-- 第三阶段 -->
+                        <div class="dev-phase">
+                            <h3>第三阶段：价格机制模块</h3>
+                            <div class="phase-meta">
+                                <span>预计耗时：3-4小时</span>
+                                <span>难度：中等</span>
+                            </div>
+                            <ul class="task-list">
+                                <li>
+                                    <div class="task-checkbox"></div>
+                                    <div class="task-content">
+                                        <h4>任务3.1：实现市场价格计算</h4>
+                                        <p>根据多种因素计算商品市场价</p>
+                                        <div class="code-block">class PriceSystem {
+    constructor() {
+        this.basePrices = new Map();  // itemId -> basePrice
+        this.priceModifiers = new Map();  // itemId -> modifier
+    }
+
+    // 计算市场价格
+    calculateMarketPrice(itemId, location, gameTime) {
+        const basePrice = this.basePrices.get(itemId) || 100;
+        let price = basePrice;
+
+        // 位置加成
+        const locationBonus = this.getLocationBonus(location);
+        price *= locationBonus;
+
+        // 时段加成
+        const timeBonus = this.getTimeBonus(gameTime);
+        price *= timeBonus;
+
+        // 季节加成
+        const seasonBonus = this.getSeasonBonus(gameTime, itemId);
+        price *= seasonBonus;
+
+        // 供需波动
+        const demandModifier = this.priceModifiers.get(itemId) || 1.0;
+        price *= demandModifier;
+
+        return Math.floor(price);
+    }
+
+    getLocationBonus(location) {
+        const bonuses = { center: 1.2, middle: 1.0, edge: 0.9 };
+        return bonuses[location] || 1.0;
+    }
+
+    getTimeBonus(gameTime) {
+        const hour = gameTime.hour;
+        if (hour >= 8 && hour < 12) return 1.1;   // 上午高峰
+        if (hour >= 17 && hour < 20) return 1.15; // 傍晚高峰
+        if (hour >= 23 || hour < 5) return 0.8;   // 深夜
+        return 1.0;
+    }
+
+    getSeasonBonus(gameTime, itemId) {
+        // 根据季节和商品类型返回加成
+        return 1.0;
+    }
+}</div>
+                                    </div>
+                                </li>
+                                <li>
+                                    <div class="task-checkbox"></div>
+                                    <div class="task-content">
+                                        <h4>任务3.2：实现定价反馈系统</h4>
+                                        <p>根据定价与市场价对比给出反馈</p>
+                                        <div class="code-block">class PriceSystem {
+    // ... 其他方法
+
+    // 获取定价反馈
+    getPriceFeedback(listedPrice, marketPrice) {
+        const ratio = listedPrice / marketPrice;
+        
+        if (ratio < 0.8) {
+            return {
+                type: 'very_low',
+                message: '定价过低，商品快速售出',
+                sellProbability: 0.95,
+                avgSellTime: 15 * 60 * 1000  // 15分钟
+            };
+        } else if (ratio < 0.95) {
+            return {
+                type: 'low',
+                message: '定价略低，成交较快',
+                sellProbability: 0.8,
+                avgSellTime: 30 * 60 * 1000  // 30分钟
+            };
+        } else if (ratio <= 1.1) {
+            return {
+                type: 'fair',
+                message: '定价合理，正常成交',
+                sellProbability: 0.6,
+                avgSellTime: 2 * 60 * 60 * 1000  // 2小时
+            };
+        } else if (ratio <= 1.3) {
+            return {
+                type: 'high',
+                message: '定价偏高，NPC议价中',
+                sellProbability: 0.3,
+                avgSellTime: 5 * 60 * 60 * 1000,  // 5小时
+                bargainChance: 0.7
+            };
+        } else {
+            return {
+                type: 'very_high',
+                message: '定价过高，无人问津',
+                sellProbability: 0.05,
+                avgSellTime: 10 * 60 * 60 * 1000,  // 10小时
+                bargainChance: 0.3
+            };
+        }
+    }
+}</div>
+                                    </div>
+                                </li>
+                                <li>
+                                    <div class="task-checkbox"></div>
+                                    <div class="task-content">
+                                        <h4>任务3.3：实现议价系统</h4>
+                                        <p>NPC议价和玩家回应</p>
+                                        <div class="code-block">class BargainingSystem {
+    // NPC发起议价
+    initiateBargain(listing, marketPrice) {
+        const ratio = listing.price / marketPrice;
+        
+        // 议价幅度（定价越高，议价幅度越大）
+        const bargainRate = Math.min(0.3, (ratio - 1) * 0.5);
+        const bargainPrice = Math.floor(listing.price * (1 - bargainRate));
+        
+        return {
+            npcId: this.generateNpcId(),
+            originalPrice: listing.price,
+            bargainPrice: bargainPrice,
+            deadline: Date.now() + 5 * 60 * 1000,  // 5分钟内回应
+            message: this.generateBargainMessage(bargainRate)
+        };
+    }
+
+    // 玩家接受议价
+    acceptBargain(bargain, listing) {
+        listing.price = bargain.bargainPrice;
+        return { success: true, finalPrice: bargain.bargainPrice };
+    }
+
+    // 玩家拒绝议价
+    rejectBargain(bargain, listing) {
+        // 降低成交概率
+        return { 
+            success: true, 
+            sellProbabilityModifier: 0.5,
+            message: 'NPC离开，成交概率降低'
+        };
+    }
+
+    generateBargainMessage(rate) {
+        if (rate < 0.1) return '老板，能便宜一点点吗？';
+        if (rate < 0.2) return '这价格有点贵啊，少点呗？';
+        return '老板，这也太贵了，便宜点我就买了！';
+    }
+}</div>
+                                    </div>
+                                </li>
+                            </ul>
+                            <div class="verify-box">
+                                <h4>验证方法</h4>
+                                <p>测试不同定价策略的反馈，验证议价系统是否正常工作。</p>
+                            </div>
+                        </div>
+
+                        <!-- 第四阶段 -->
+                        <div class="dev-phase">
+                            <h3>第四阶段：装饰系统模块</h3>
+                            <div class="phase-meta">
+                                <span>预计耗时：2-3小时</span>
+                                <span>难度：简单</span>
+                            </div>
+                            <ul class="task-list">
+                                <li>
+                                    <div class="task-checkbox"></div>
+                                    <div class="task-content">
+                                        <h4>任务4.1：定义装饰数据结构</h4>
+                                        <p>装饰类型和效果配置</p>
+                                        <div class="code-block">const DECORATION_TIERS = {
+    startup: { name: '草创期', count: 6 },
+    growth: { name: '立业期', count: 6 },
+    develop: { name: '兴业期', count: 6 },
+    prosper: { name: '旺业期', count: 6 },
+    flourish: { name: '鸿业期', count: 6 },
+    legacy: { name: '传世期', count: 6 }
+};
+
+const DECORATION_TYPES = {
+    signboard: { name: '招牌类', effect: 'dealRate' },
+    display: { name: '陈列类', effect: 'dealRate' },
+    atmosphere: { name: '氛围类', effect: 'offlineRate' },
+    fengshui: { name: '风水类', effect: 'taxReduction' },
+    statue: { name: '神像类', effect: 'all' }
+};
+
+class Decoration {
+    constructor(id, name, tier, type, effects) {
+        this.id = id;
+        this.name = name;
+        this.tier = tier;          // startup/growth/develop/prosper/flourish/legacy
+        this.type = type;          // signboard/display/atmosphere/fengshui/statue
+        this.effects = effects;    // { dealRate: 0.01, offlineRate: 0.01, taxReduction: 0.005 }
+        this.unlocked = false;
+    }
+}</div>
+                                    </div>
+                                </li>
+                                <li>
+                                    <div class="task-checkbox"></div>
+                                    <div class="task-content">
+                                        <h4>任务4.2：实现装饰管理类</h4>
+                                        <p>装饰解锁和效果计算</p>
+                                        <div class="code-block">class DecorationSystem {
+    constructor() {
+        this.decorations = [];
+        this.playerTitle = '小商贩';  // 玩家当前称号
+        this.activeDecorations = [];  // 当前激活的装饰
+    }
+
+    // 称号加成
+    getTitleBonus() {
+        const titleBonuses = {
+            '小商贩': { dealRate: 0.01, offlineRate: 0, taxReduction: 0 },
+            '行商': { dealRate: 0.02, offlineRate: 0.01, taxReduction: 0 },
+            '富商': { dealRate: 0.03, offlineRate: 0.02, taxReduction: 0.01 },
+            '巨贾': { dealRate: 0.04, offlineRate: 0.03, taxReduction: 0.02 },
+            '商业大亨': { dealRate: 0.05, offlineRate: 0.04, taxReduction: 0.03 },
+            '大富翁': { dealRate: 0.06, offlineRate: 0.05, taxReduction: 0.03 }
+        };
+        return titleBonuses[this.playerTitle] || titleBonuses['小商贩'];
+    }
+
+    // 装饰加成
+    getDecorationBonus() {
+        let total = { dealRate: 0, offlineRate: 0, taxReduction: 0 };
+        this.activeDecorations.forEach(decId => {
+            const dec = this.decorations.find(d => d.id === decId);
+            if (dec) {
+                total.dealRate += dec.effects.dealRate || 0;
+                total.offlineRate += dec.effects.offlineRate || 0;
+                total.taxReduction += dec.effects.taxReduction || 0;
+            }
+        });
+        return total;
+    }
+
+    // 获取总加成
+    getTotalBonus() {
+        const titleBonus = this.getTitleBonus();
+        const decBonus = this.getDecorationBonus();
+        return {
+            dealRate: titleBonus.dealRate + decBonus.dealRate,
+            offlineRate: titleBonus.offlineRate + decBonus.offlineRate,
+            taxReduction: titleBonus.taxReduction + decBonus.taxReduction
+        };
+    }
+}</div>
+                                    </div>
+                                </li>
+                                <li>
+                                    <div class="task-checkbox"></div>
+                                    <div class="task-content">
+                                        <h4>任务4.3：实现称号解锁</h4>
+                                        <p>消耗凭证解锁称号</p>
+                                        <div class="code-block">class DecorationSystem {
+    // ... 其他方法
+
+    // 解锁称号
+    unlockTitle(title, player) {
+        const requirements = {
+            '小商贩': { startup: 1000 },
+            '行商': { growth: 1500 },
+            '富商': { develop: 2000 },
+            '巨贾': { prosper: 2500 },
+            '商业大亨': { flourish: 3000 },
+            '大富翁': { legacy: 5000 }
+        };
+
+        const req = requirements[title];
+        if (!req) return { success: false, message: '称号不存在' };
+
+        // 检查凭证是否足够
+        for (let [tier, amount] of Object.entries(req)) {
+            if ((player.vouchers[tier] || 0) < amount) {
+                return { success: false, message: `${DECORATION_TIERS[tier].name}凭证不足` };
+            }
+        }
+
+        // 扣除凭证
+        for (let [tier, amount] of Object.entries(req)) {
+            player.vouchers[tier] -= amount;
+        }
+
+        // 更新称号
+        this.playerTitle = title;
+        
+        // 解锁对应装饰
+        this.unlockDecorationsByTier(Object.keys(req)[0]);
+
+        return { success: true, title: title };
+    }
+
+    unlockDecorationsByTier(tier) {
+        this.decorations.forEach(dec => {
+            if (dec.tier === tier) {
+                dec.unlocked = true;
+            }
+        });
+    }
+}</div>
+                                    </div>
+                                </li>
+                            </ul>
+                            <div class="verify-box">
+                                <h4>验证方法</h4>
+                                <p>测试称号解锁流程，验证装饰效果正确叠加。</p>
+                            </div>
+                        </div>
+
+                        <!-- 第五阶段 -->
+                        <div class="dev-phase">
+                            <h3>第五阶段：离线收益模块</h3>
+                            <div class="phase-meta">
+                                <span>预计耗时：2-3小时</span>
+                                <span>难度：中等</span>
+                            </div>
+                            <ul class="task-list">
+                                <li>
+                                    <div class="task-checkbox"></div>
+                                    <div class="task-content">
+                                        <h4>任务5.1：保存离线状态</h4>
+                                        <p>记录玩家离线时的摊位状态</p>
+                                        <div class="code-block">function saveOfflineState(player, stallManager) {
+    const state = {
+        offlineTime: Date.now(),
+        activeStalls: []
+    };
+
+    // 保存所有活跃摊位
+    stallManager.stalls.forEach(stall => {
+        if (stall.owner === player.id && stall.status === 'occupied') {
+            state.activeStalls.push({
+                stallId: stall.id,
+                street: stall.street,
+                index: stall.index,
+                listedItems: stall.listedItems.map(item => ({
+                    itemId: item.itemId,
+                    price: item.price,
+                    quantity: item.quantity
+                }))
+            });
+        }
+    });
+
+    localStorage.setItem('offlineState', JSON.stringify(state));
+    return state;
+}
+
+function loadOfflineState() {
+    const saved = localStorage.getItem('offlineState');
+    return saved ? JSON.parse(saved) : null;
+}</div>
+                                    </div>
+                                </li>
+                                <li>
+                                    <div class="task-checkbox"></div>
+                                    <div class="task-content">
+                                        <h4>任务5.2：计算离线收益</h4>
+                                        <p>根据离线时长和摊位状态计算收益</p>
+                                        <div class="code-block">function calculateOfflineEarnings(offlineState, decorationSystem) {
+    const offlineMs = Math.min(
+        Date.now() - offlineState.offlineTime,
+        24 * 60 * 60 * 1000  // 最长24小时
+    );
+    const offlineHours = offlineMs / (60 * 60 * 1000);
+
+    // 离线效率
+    const efficiencyTiers = [
+        { maxHours: 4, efficiency: 1.0 },
+        { maxHours: 8, efficiency: 0.8 },
+        { maxHours: 12, efficiency: 0.6 },
+        { maxHours: 24, efficiency: 0.4 }
+    ];
+
+    let efficiency = 0.4;
+    for (let tier of efficiencyTiers) {
+        if (offlineHours <= tier.maxHours) {
+            efficiency = tier.efficiency;
+            break;
+        }
+    }
+
+    // 装饰加成
+    const bonus = decorationSystem.getTotalBonus();
+
+    // 计算每个摊位收益
+    let totalEarnings = 0;
+    const stallEarnings = [];
+
+    offlineState.activeStalls.forEach(stall => {
+        let stallEarning = 0;
+
+        stall.listedItems.forEach(item => {
+            // 预估销售数量
+            const avgSellTime = 2 * 60 * 60 * 1000;  // 平均2小时卖出
+            const expectedSales = Math.min(
+                item.quantity,
+                Math.floor(offlineMs / avgSellTime)
+            );
+
+            // 位置加成
+            const posBonus = stall.index < 50 ? 1.5 : stall.index < 100 ? 1.25 : 1.0;
+
+            // 计算收益
+            const itemEarnings = expectedSales * item.price * 0.95 * posBonus;
+            stallEarning += itemEarnings;
+        });
+
+        stallEarning *= efficiency * (1 + bonus.offlineRate);
+        stallEarnings.push({ stallId: stall.stallId, earnings: Math.floor(stallEarning) });
+        totalEarnings += stallEarning;
+    });
+
+    return {
+        totalEarnings: Math.floor(totalEarnings),
+        stallEarnings: stallEarnings,
+        offlineHours: offlineHours,
+        efficiency: efficiency
+    };
+}</div>
+                                    </div>
+                                </li>
+                                <li>
+                                    <div class="task-checkbox"></div>
+                                    <div class="task-content">
+                                        <h4>任务5.3：显示离线结算界面</h4>
+                                        <p>玩家上线时展示离线收益</p>
+                                        <div class="code-block">function showOfflineSummary(earnings, player) {
+    if (earnings.offlineHours < 0.1) return;  // 少于6分钟不显示
+
+    const modal = document.createElement('div');
+    modal.className = 'offline-summary-modal';
+    modal.innerHTML = `
+        <div class="modal-content">
+            <h2>欢迎回来！</h2>
+            <p>您离线了 ${earnings.offlineHours.toFixed(1)} 小时</p>
+            <p>离线效率：${Math.round(earnings.efficiency * 100)}%</p>
+            <hr>
+            <h3>离线收益明细</h3>
+            <ul>
+                ${earnings.stallEarnings.map(s => `
+                    <li>摊位 ${s.stallId}：${s.earnings} 文</li>
+                `).join('')}
+            </ul>
+            <hr>
+            <p class="total">总收益：<strong>${earnings.totalEarnings} 文</strong></p>
+            <button onclick="claimOfflineEarnings()">领取</button>
+        </div>
+    `;
+    document.body.appendChild(modal);
+
+    // 领取收益
+    window.claimOfflineEarnings = function() {
+        player.money += earnings.totalEarnings;
+        modal.remove();
+        savePlayerData(player);
+    };
+}</div>
+                                    </div>
+                                </li>
+                            </ul>
+                            <div class="verify-box">
+                                <h4>验证方法</h4>
+                                <p>模拟离线场景，验证收益计算正确，结算界面正常显示。</p>
+                            </div>
+                        </div>
+
+                        <!-- 第六阶段 -->
+                        <div class="dev-phase">
+                            <h3>第六阶段：UI界面模块</h3>
+                            <div class="phase-meta">
+                                <span>预计耗时：3-4小时</span>
+                                <span>难度：中等</span>
+                            </div>
+                            <ul class="task-list">
+                                <li>
+                                    <div class="task-checkbox"></div>
+                                    <div class="task-content">
+                                        <h4>任务6.1：实现摊位选择界面</h4>
+                                        <p>可视化展示街道和摊位</p>
+                                        <div class="code-block">// HTML结构
+&lt;div class="stall-selector"&gt;
+    &lt;div class="street-tabs"&gt;
+        &lt;button class="street-tab" data-street="east"&gt;东街&lt;/button&gt;
+        &lt;button class="street-tab" data-street="south"&gt;南街&lt;/button&gt;
+        &lt;button class="street-tab" data-street="west"&gt;西街&lt;/button&gt;
+        &lt;button class="street-tab" data-street="north"&gt;北街&lt;/button&gt;
+    &lt;/div&gt;
+    &lt;div class="stall-grid" id="stallGrid"&gt;&lt;/div&gt;
+&lt;/div&gt;
+
+// 渲染摊位网格
+function renderStallGrid(street, stallManager) {
+    const grid = document.getElementById('stallGrid');
+    const stalls = stallManager.stalls.filter(s => s.street === street);
+    
+    grid.innerHTML = stalls.map(stall => `
+        &lt;div class="stall-cell ${stall.status}" 
+             data-id="${stall.id}"
+             onclick="selectStall('${stall.id}')"&gt;
+            &lt;span class="stall-index"&gt;${stall.index + 1}&lt;/span&gt;
+            ${stall.status === 'occupied' ? '&lt;span class="occupied-mark"&gt;占&lt;/span&gt;' : ''}
+        &lt;/div&gt;
+    `).join('');
+}
+
+// CSS样式
+.stall-grid {
+    display: grid;
+    grid-template-columns: repeat(20, 1fr);
+    gap: 2px;
+}
+.stall-cell {
+    aspect-ratio: 1;
+    background: #e8f5e9;
+    border: 1px solid #c8e6c9;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+}
+.stall-cell.occupied {
+    background: #ffcdd2;
+    border-color: #ef9a9a;
+    cursor: not-allowed;
+}
+.stall-cell.selected {
+    border: 2px solid #2196f3;
+}</div>
+                                    </div>
+                                </li>
+                                <li>
+                                    <div class="task-checkbox"></div>
+                                    <div class="task-content">
+                                        <h4>任务6.2：实现商品上架界面</h4>
+                                        <p>从背包选择商品上架</p>
+                                        <div class="code-block">function showListingModal(player, selectedStall) {
+    const modal = document.createElement('div');
+    modal.className = 'listing-modal';
+    
+    modal.innerHTML = `
+        &lt;div class="modal-content"&gt;
+            &lt;h2&gt;上架商品&lt;/h2&gt;
+            &lt;div class="inventory-list"&gt;
+                ${player.inventory.map(item => `
+                    &lt;div class="inventory-item" data-id="${item.id}"&gt;
+                        &lt;span class="item-name"&gt;${item.name}&lt;/span&gt;
+                        &lt;span class="item-qty"&gt;x${item.quantity}&lt;/span&gt;
+                        &lt;input type="number" class="list-price" placeholder="售价"&gt;
+                        &lt;input type="number" class="list-qty" placeholder="数量" max="${item.quantity}"&gt;
+                    &lt;/div&gt;
+                `).join('')}
+            &lt;/div&gt;
+            &lt;div class="modal-actions"&gt;
+                &lt;button onclick="confirmListing()"&gt;确认上架&lt;/button&gt;
+                &lt;button onclick="closeModal()"&gt;取消&lt;/button&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+    `;
+    
+    document.body.appendChild(modal);
+}</div>
+                                    </div>
+                                </li>
+                                <li>
+                                    <div class="task-checkbox"></div>
+                                    <div class="task-content">
+                                        <h4>任务6.3：实现摊位信息面板</h4>
+                                        <p>显示当前摊位状态和收益</p>
+                                        <div class="code-block">// HTML结构
+&lt;div class="stall-info-panel"&gt;
+    &lt;h3&gt;摊位信息&lt;/h3&gt;
+    &lt;div class="info-row"&gt;
+        &lt;span&gt;位置：&lt;/span&gt;
+        &lt;span id="stallLocation"&gt;南街 第15号&lt;/span&gt;
+    &lt;/div&gt;
+    &lt;div class="info-row"&gt;
+        &lt;span&gt;状态：&lt;/span&gt;
+        &lt;span id="stallStatus"&gt;营业中&lt;/span&gt;
+    &lt;/div&gt;
+    
+    &lt;h4&gt;上架商品&lt;/h4&gt;
+    &lt;div class="listed-items" id="listedItems"&gt;&lt;/div&gt;
+    
+    &lt;h4&gt;今日收益&lt;/h4&gt;
+    &lt;div class="earnings-summary"&gt;
+        &lt;span&gt;已售：&lt;span id="soldCount"&gt;5&lt;/span&gt;件&lt;/span&gt;
+        &lt;span&gt;收益：&lt;span id="todayEarnings"&gt;1500&lt;/span&gt;文&lt;/span&gt;
+    &lt;/div&gt;
+    
+    &lt;div class="panel-actions"&gt;
+        &lt;button onclick="endStall()"&gt;收摊&lt;/button&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</div>
+                                    </div>
+                                </li>
+                            </ul>
+                            <div class="verify-box">
+                                <h4>验证方法</h4>
+                                <p>测试摊位选择、商品上架、信息面板显示是否正常。</p>
+                            </div>
+                        </div>
+
+                        <h2>完成清单</h2>
+                        <p>完成以下所有任务即表示摆摊系统开发成功：</p>
+                        <table class="wiki-table">
+                            <thead><tr><th>阶段</th><th>任务数</th><th>状态</th></tr></thead>
+                            <tbody>
+                                <tr><td>第一阶段：摊位管理模块</td><td>3</td><td>待完成</td></tr>
+                                <tr><td>第二阶段：商品交易模块</td><td>3</td><td>待完成</td></tr>
+                                <tr><td>第三阶段：价格机制模块</td><td>3</td><td>待完成</td></tr>
+                                <tr><td>第四阶段：装饰系统模块</td><td>3</td><td>待完成</td></tr>
+                                <tr><td>第五阶段：离线收益模块</td><td>3</td><td>待完成</td></tr>
+                                <tr><td>第六阶段：UI界面模块</td><td>3</td><td>待完成</td></tr>
+                            </tbody>
+                            <tfoot>
+                                <tr><td><strong>总计</strong></td><td><strong>18</strong></td><td><strong>0/18 完成</strong></td></tr>
+                            </tfoot>
+                        </table>
+
+                        <div class="info-box">
+                            <h4>开发提示</h4>
+                            <ul>
+                                <li>建议按顺序完成各阶段，后续阶段依赖前面的基础</li>
+                                <li>每完成一个任务，在代码中标记为已完成</li>
+                                <li>摊位自动对齐是核心机制，需要仔细测试</li>
+                                <li>价格机制需要与游戏时间系统配合</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- 搭建模拟器 -->
+                    <div id="panel-simulator" class="page-tab-panel">
+                        <h2>摆摊系统模拟器</h2>
+                        <p>输入参数，模拟计算摆摊的各项费用和收益。</p>
+
+                        <div class="simulator-grid">
+                            <div class="sim-panel">
+                                <h3>参数设置</h3>
+                                <div class="form-row">
+                                    <label>商品类型</label>
+                                    <select id="sim-item">
+                                        <option value="100">普通商品 (基础价: 100文)</option>
+                                        <option value="500">稀有商品 (基础价: 500文)</option>
+                                        <option value="2000">精良装备 (基础价: 2000文)</option>
+                                        <option value="5000">史诗物品 (基础价: 5000文)</option>
+                                        <option value="10000">传说神器 (基础价: 10000文)</option>
+                                    </select>
+                                </div>
+                                <div class="form-row">
+                                    <label>上架数量</label>
+                                    <input type="number" id="sim-quantity" value="1" min="1" max="99">
+                                </div>
+                                <div class="form-row">
+                                    <label>设定售价 (文)</label>
+                                    <input type="number" id="sim-price" value="150" min="1">
+                                </div>
+                                <div class="form-row">
+                                    <label>摊位位置</label>
+                                    <select id="sim-position">
+                                        <option value="1.0">街道边缘</option>
+                                        <option value="1.25" selected>街道中段</option>
+                                        <option value="1.5">中心区域</option>
+                                    </select>
+                                </div>
+                                <div class="form-row">
+                                    <label>装饰加成</label>
+                                    <select id="sim-decoration">
+                                        <option value="1.0">无装饰</option>
+                                        <option value="1.1">初级+10%</option>
+                                        <option value="1.2">中级+20%</option>
+                                        <option value="1.35">高级+35%</option>
+                                        <option value="1.5">顶级+50%</option>
+                                        <option value="1.65">毕业+65%</option>
+                                    </select>
+                                </div>
+                                <div class="form-row">
+                                    <label>离线时间</label>
+                                    <select id="sim-offline">
+                                        <option value="0">不离线</option>
+                                        <option value="4">4小时</option>
+                                        <option value="8">8小时</option>
+                                        <option value="12">12小时</option>
+                                        <option value="24" selected>24小时</option>
+                                    </select>
+                                </div>
+                                <div class="form-row">
+                                    <label>玩家余额 (文)</label>
+                                    <input type="number" id="sim-money" value="1000" min="0">
+                                </div>
+                                <div class="btn-row">
+                                    <button class="sim-btn" onclick="runCalc()">计算</button>
+                                    <button class="sim-btn" onclick="resetCalc()">重置</button>
+                                </div>
+                            </div>
+
+                            <div class="sim-panel">
+                                <h3>计算结果</h3>
+                                <div class="result-box">
+                                    <div class="result-row"><span class="result-label">上架数量</span><span class="result-value" id="r-qty">--</span></div>
+                                    <div class="result-row"><span class="result-label">设定售价</span><span class="result-value" id="r-price">--</span></div>
+                                    <div class="result-row"><span class="result-label">市场参考价</span><span class="result-value highlight" id="r-market">--</span></div>
+                                    <div class="result-row"><span class="result-label">定价偏离度</span><span class="result-value" id="r-dev">--</span></div>
+                                </div>
+                                <div class="result-box" style="border-color:#ff9800">
+                                    <div class="result-row"><span class="result-label">出摊手续费(1%)</span><span class="result-value" id="r-fee">--</span></div>
+                                    <div class="result-row"><span class="result-label">交易税费(5%)</span><span class="result-value" id="r-tax">--</span></div>
+                                    <div class="result-row"><span class="result-label">总支出</span><span class="result-value warning" id="r-cost">--</span></div>
+                                </div>
+                                <div class="result-box" style="border-color:#4caf50">
+                                    <div class="result-row"><span class="result-label">预估成交数</span><span class="result-value" id="r-sales">--</span></div>
+                                    <div class="result-row"><span class="result-label">预估时间</span><span class="result-value" id="r-time">--</span></div>
+                                    <div class="result-row"><span class="result-label">总预估收益</span><span class="result-value success" id="r-earn">--</span></div>
+                                </div>
+                                <div class="tip-box">
+                                    <strong>建议：</strong><span id="r-tip">点击"计算"获取建议</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="sim-panel" style="margin-top:20px">
+                            <h3>快速场景</h3>
+                            <div class="btn-row">
+                                <button class="sim-btn" onclick="loadScene('newbie')">新手开局</button>
+                                <button class="sim-btn" onclick="loadScene('normal')">普通摆摊</button>
+                                <button class="sim-btn" onclick="loadScene('high')">高端装备</button>
+                                <button class="sim-btn" onclick="loadScene('overnight')">挂机</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="article-footer">
+                    <p>最后更新于：2026-03-22 | 编辑次数：6</p>
+                </div>
+            </article>
+        </main>
+    </div>
+
+    <footer class="wiki-footer">
+        <p>&copy; 2026 《蛙噻！好摊》游戏百科 | 本百科由玩家共同维护</p>
+    </footer>
+
+    <script src="../js/main.js"></script>
+    <script>
+        (function() {
+            var nav = document.getElementById('pageTabNav');
+            if (nav) {
+                nav.addEventListener('click', function(e) {
+                    var btn = e.target;
+                    if (!btn.classList.contains('page-tab-btn')) return;
+                    var tab = btn.getAttribute('data-tab');
+                    document.querySelectorAll('.page-tab-btn').forEach(function(b) { b.classList.remove('active'); });
+                    document.querySelectorAll('.page-tab-panel').forEach(function(p) { p.classList.remove('active'); });
+                    btn.classList.add('active');
+                    document.getElementById('panel-' + tab).classList.add('active');
+                });
+            }
+        })();
+
+        function runCalc() {
+            var base = parseInt(document.getElementById('sim-item').value);
+            var qty = parseInt(document.getElementById('sim-quantity').value) || 1;
+            var price = parseInt(document.getElementById('sim-price').value) || base;
+            var pos = parseFloat(document.getElementById('sim-position').value);
+            var dec = parseFloat(document.getElementById('sim-decoration').value);
+            var off = parseInt(document.getElementById('sim-offline').value);
+            var money = parseInt(document.getElementById('sim-money').value) || 1000;
+
+            var market = Math.round(base * (0.95 + Math.random() * 0.1));
+            var dev = (price - market) / market;
+            var fee = Math.round(market * 0.01 * qty);
+            var tax = Math.round(price * 0.05);
+            var prob = Math.min(Math.max(0.7 / (1 + Math.exp(-(-dev * 2))) * pos * dec, 0), 1);
+            var sales = Math.round(qty * prob);
+            var earn = sales * (price - tax);
+            var offBonus = off > 0 ? (1 + off * 0.02 * dec) : 1;
+            var total = Math.round(earn * offBonus);
+
+            document.getElementById('r-qty').textContent = qty + ' 件';
+            document.getElementById('r-price').textContent = price + ' 文';
+            document.getElementById('r-market').textContent = market + ' 文';
+
+            var devEl = document.getElementById('r-dev');
+            var devPct = (dev * 100).toFixed(1) + '%';
+            if (dev < -0.1) { devEl.textContent = devPct + ' (偏低)'; devEl.className = 'result-value success'; }
+            else if (dev <= 0.15) { devEl.textContent = devPct + ' (合理)'; devEl.className = 'result-value success'; }
+            else if (dev <= 0.35) { devEl.textContent = devPct + ' (偏高)'; devEl.className = 'result-value warning'; }
+            else { devEl.textContent = devPct + ' (过高)'; devEl.className = 'result-value danger'; }
+
+            document.getElementById('r-fee').textContent = fee + ' 文';
+            document.getElementById('r-tax').textContent = tax + ' 文/件';
+            document.getElementById('r-cost').textContent = fee + ' 文';
+            document.getElementById('r-sales').textContent = sales + ' / ' + qty + ' 件';
+            var time = prob >= 0.8 ? '15分钟内' : prob >= 0.5 ? '1-2小时' : prob >= 0.3 ? '3-5小时' : '5小时以上';
+            document.getElementById('r-time').textContent = time;
+            document.getElementById('r-earn').textContent = total + ' 文';
+
+            var tip = '';
+            if (money < fee) tip = '余额不足，需要 ' + fee + ' 文';
+            else if (dev < -0.2) tip = '定价偏低，建议提价20-30%';
+            else if (dev <= 0.15) tip = '定价合理，保持当前策略';
+            else if (dev <= 0.35) tip = '定价偏高，建议参考市场价调整';
+            else tip = '定价过高，建议收摊重新定价';
+            document.getElementById('r-tip').textContent = tip;
+        }
+
+        function resetCalc() {
+            document.getElementById('sim-item').selectedIndex = 0;
+            document.getElementById('sim-quantity').value = 1;
+            document.getElementById('sim-price').value = 150;
+            document.getElementById('sim-position').selectedIndex = 1;
+            document.getElementById('sim-decoration').selectedIndex = 0;
+            document.getElementById('sim-offline').selectedIndex = 4;
+            document.getElementById('sim-money').value = 1000;
+            ['r-qty','r-price','r-market','r-dev','r-fee','r-tax','r-cost','r-sales','r-time','r-earn'].forEach(function(id) {
+                document.getElementById(id).textContent = '--';
+            });
+            document.getElementById('r-tip').textContent = '点击"计算"获取建议';
+        }
+
+        function loadScene(name) {
+            var cfg = {
+                newbie: [0, 5, 100, 0, 0, 0, 500],
+                normal: [1, 3, 500, 1, 2, 4, 2000],
+                high: [3, 1, 5500, 2, 5, 4, 10000],
+                overnight: [1, 10, 480, 1, 3, 4, 3000]
+            };
+            var c = cfg[name];
+            document.getElementById('sim-item').selectedIndex = c[0];
+            document.getElementById('sim-quantity').value = c[1];
+            document.getElementById('sim-price').value = c[2];
+            document.getElementById('sim-position').selectedIndex = c[3];
+            document.getElementById('sim-decoration').selectedIndex = c[4];
+            document.getElementById('sim-offline').selectedIndex = c[5];
+            document.getElementById('sim-money').value = c[6];
+            runCalc();
+        }
+    </script>
+</body>
+</html>

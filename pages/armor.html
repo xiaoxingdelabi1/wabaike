@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>防具 - 蛙噻！好摊</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        /* 物品卡片样式 */
+        .item-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+            margin: 16px 0;
+        }
+        .item-card {
+            background: var(--wiki-box-bg);
+            border: 1px solid var(--wiki-border);
+            padding: 12px;
+        }
+        .item-card h4 {
+            margin: 0 0 8px 0;
+            color: var(--wiki-text);
+            font-size: 15px;
+        }
+        .item-card .meta {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+        .item-card .description {
+            font-size: 13px;
+            color: var(--wiki-text-secondary);
+            margin: 0 0 8px 0;
+        }
+        .item-card .effect-box {
+            background: var(--wiki-content-bg);
+            padding: 8px;
+            font-size: 12px;
+            border-left: 3px solid var(--wiki-link);
+        }
+
+        /* 类型标签 */
+        .type-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            font-size: 11px;
+            border-radius: 2px;
+        }
+        .type-badge.armor {
+            background: #e3f2fd;
+            color: #1565c0;
+        }
+
+        /* 稀有度标签 */
+        .rarity-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            font-size: 11px;
+            border-radius: 2px;
+        }
+        .rarity-badge.common {
+            background: #f5f5f5;
+            color: #616161;
+        }
+        .rarity-badge.uncommon {
+            background: #e8f5e9;
+            color: #388e3c;
+        }
+        .rarity-badge.rare {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+        .rarity-badge.epic {
+            background: #f3e5f5;
+            color: #7b1fa2;
+        }
+        .rarity-badge.legendary {
+            background: #fff8e1;
+            color: #f57f17;
+        }
+
+        /* 信息框 - Wiki风格 */
+        .info-box {
+            background: var(--wiki-box-bg);
+            border: 1px solid var(--wiki-border);
+            border-left: 4px solid var(--wiki-link);
+            padding: 12px;
+            margin: 12px 0;
+        }
+        .tip-box {
+            background: #e3f2fd;
+            border: 1px solid #90caf9;
+            border-left: 4px solid #2196f3;
+            padding: 12px;
+            margin: 12px 0;
+        }
+
+        /* 筛选标签 */
+        .filter-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 16px 0;
+        }
+        .filter-tabs .tab-btn {
+            padding: 6px 12px;
+            background: var(--wiki-box-bg);
+            border: 1px solid var(--wiki-border);
+            cursor: pointer;
+            font-size: 13px;
+            margin-right: 0;
+        }
+        .filter-tabs .tab-btn:hover {
+            background: var(--wiki-header-bg);
+        }
+        .filter-tabs .tab-btn.active {
+            background: var(--wiki-content-bg);
+            font-weight: bold;
+            color: var(--wiki-text);
+        }
+    </style>
+</head>
+<body class="wiki-layout">
+    <header class="wiki-topbar">
+        <div class="wiki-logo">
+            <a href="../index.html">蛙噻！好摊</a>
+        </div>
+        <div class="wiki-search">
+            <input type="text" placeholder="搜索百科..." id="searchInput">
+            <button onclick="search()">搜索</button>
+        </div>
+        <div class="wiki-user">
+            <span>欢迎访问</span>
+        </div>
+    </header>
+
+    <div class="wiki-container">
+        <aside class="wiki-sidebar">
+            <nav class="wiki-nav">
+                <div class="nav-section">
+                    <h3>百科分类</h3>
+                    <ul>
+                        <li><a href="../index.html">首页</a></li>
+                        <li><a href="game-intro.html">游戏介绍</a></li>
+                        <li><a href="world.html">世界观</a></li>
+                        <li><a href="factions.html">势力分布</a></li>
+                        <li><a href="history.html">历史年表</a></li>
+                        <li><a href="price-mechanism.html">价格机制</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>游戏特色</h3>
+                    <ul>
+                        <li><a href="bazaar.html">集市</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>游戏玩法</h3>
+                    <ul>
+                        <li><a href="market.html">摆摊系统</a></li>
+                        <li><a href="achievements.html">成就系统</a></li>
+                        <li><a href="combat.html">战斗系统</a></li>
+                        <li><a href="progression.html">成长系统</a></li>
+                        <li><a href="currency.html">货币系统</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>角色</h3>
+                    <ul>
+                        <li><a href="characters.html">角色总览</a></li>
+                        <li><a href="characters.html?type=playable">主要角色</a></li>
+                        <li><a href="characters.html?type=npc">NPC</a></li>
+                        <li><a href="enemies.html">敌人</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>物品装备</h3>
+                    <ul>
+                        <li><a href="items.html">物品总览</a></li>
+                        <li><a href="weapon.html">武器</a></li>
+                        <li><a href="armor.html" class="active">防具</a></li>
+                        <li><a href="accessory.html">饰品</a></li>
+                        <li><a href="treasure.html">法宝</a></li>
+                        <li><a href="consumable.html">消耗品</a></li>
+                        <li><a href="material.html">材料</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>世界探索</h3>
+                    <ul>
+                        <li><a href="locations.html">地点总览</a></li>
+                        <li><a href="map.html">游戏地图</a></li>
+                        <li><a href="quests.html">任务剧情</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>关于</h3>
+                    <ul>
+                        <li><a href="dev-thoughts.html">开发者随想</a></li>
+                    </ul>
+                </div>
+            </nav>
+        </aside>
+
+        <main class="wiki-content">
+            <nav class="breadcrumb">
+                <a href="../index.html">首页</a> &gt; <a href="items.html">物品装备</a> &gt; <span class="current">防具</span>
+            </nav>
+
+            <article class="wiki-article">
+                <h1 class="article-title">防具</h1>
+                
+                <div class="info-box">
+                    <strong>防具系统简介：</strong>防具是提升角色防御力和生存能力的主要装备。合理搭配不同部位的防具可以大幅提升角色的战斗续航。
+                </div>
+
+                <h2>防具部位</h2>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>防具部位</th>
+                            <th>主要属性</th>
+                            <th>次要属性</th>
+                            <th>说明</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>头盔</td>
+                            <td>防御力</td>
+                            <td>生命值、抗性</td>
+                            <td>保护头部，提升魔法抗性</td>
+                        </tr>
+                        <tr>
+                            <td>铠甲</td>
+                            <td>防御力、生命值</td>
+                            <td>抗性、减伤</td>
+                            <td>核心防具，提供最高防御</td>
+                        </tr>
+                        <tr>
+                            <td>护腿</td>
+                            <td>防御力</td>
+                            <td>移动速度</td>
+                            <td>保护下肢，影响移动</td>
+                        </tr>
+                        <tr>
+                            <td>鞋子</td>
+                            <td>防御力</td>
+                            <td>移动速度、闪避</td>
+                            <td>提升机动性和闪避率</td>
+                        </tr>
+                        <tr>
+                            <td>披风</td>
+                            <td>闪避率</td>
+                            <td>全抗性、移动速度</td>
+                            <td>增加闪避和元素抗性</td>
+                        </tr>
+                        <tr>
+                            <td>护肩</td>
+                            <td>防御力</td>
+                            <td>格挡率、生命值</td>
+                            <td>提升防御和格挡能力</td>
+                        </tr>
+                        <tr>
+                            <td>手套</td>
+                            <td>攻击力</td>
+                            <td>命中率、攻击速度</td>
+                            <td>提升攻击和命中</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h2>防具列表</h2>
+                <div class="filter-tabs">
+                    <button class="tab-btn active" onclick="filterArmors('all')">全部</button>
+                    <button class="tab-btn" onclick="filterArmors('head')">头盔</button>
+                    <button class="tab-btn" onclick="filterArmors('body')">铠甲</button>
+                    <button class="tab-btn" onclick="filterArmors('legs')">护腿</button>
+                    <button class="tab-btn" onclick="filterArmors('feet')">鞋子</button>
+                    <button class="tab-btn" onclick="filterArmors('cloak')">披风</button>
+                    <button class="tab-btn" onclick="filterArmors('shoulder')">护肩</button>
+                    <button class="tab-btn" onclick="filterArmors('hands')">手套</button>
+                </div>
+                <div class="item-grid" id="armorGrid"></div>
+
+                <h2>防具获取途径</h2>
+                <div class="tip-box">
+                    <ul>
+                        <li><strong>击败敌人</strong>：敌人掉落对应部位的防具</li>
+                        <li><strong>商店购买</strong>：防具店出售基础防具</li>
+                        <li><strong>任务奖励</strong>：完成任务可获得防具套装</li>
+                        <li><strong>锻造制作</strong>：收集材料后锻造高级防具</li>
+                    </ul>
+                </div>
+
+                <h2>防具强化</h2>
+                <p>防具可以通过以下方式提升属性：</p>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>强化方式</th>
+                            <th>所需材料</th>
+                            <th>效果</th>
+                            <th>成功率</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>强化+1~+5</td>
+                            <td>皮革 x5</td>
+                            <td>防御力+10%</td>
+                            <td>100%</td>
+                        </tr>
+                        <tr>
+                            <td>强化+6~+10</td>
+                            <td>精铁片 x5 + 金币</td>
+                            <td>防御力+20%</td>
+                            <td>80%</td>
+                        </tr>
+                        <tr>
+                            <td>强化+11~+15</td>
+                            <td>玄铁片 x5 + 妖丹 x1</td>
+                            <td>防御力+35%</td>
+                            <td>60%</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="article-footer">
+                    <p>最后更新于：2026-03-21 | 编辑次数：1</p>
+                </div>
+            </article>
+        </main>
+    </div>
+
+    <footer class="wiki-footer">
+        <p>&copy; 2026 《蛙噻！好摊》游戏百科 | 本百科由玩家共同维护</p>
+    </footer>
+
+    <script src="../js/main.js"></script>
+    <script>
+        let armors = [
+            // 铠甲
+            { id: 3, name: "布甲", type: "body", rarity: "common", description: "用粗布缝制的简易护甲，提供基础防护。", effect: "防御力+3" },
+            { id: 36, name: "皮甲", type: "body", rarity: "common", description: "皮革制成的护甲，轻便灵活。", effect: "防御力+5" },
+            { id: 37, name: "铁甲", type: "body", rarity: "uncommon", description: "铁片编织的护甲，防御力较好。", effect: "防御力+12" },
+            { id: 38, name: "精钢铠甲", type: "body", rarity: "rare", description: "精钢打造的铠甲，坚不可摧。", effect: "防御力+25，生命值+50" },
+            { id: 39, name: "龙鳞甲", type: "body", rarity: "epic", description: "用龙鳞制成的传说铠甲，拥有极强的防御力。", effect: "防御力+50，生命值+100，火抗性+20%" },
+            { id: 50, name: "锁子黄金甲", type: "body", rarity: "legendary", description: "孙悟空的铠甲，由黄金锁子编织而成，刀枪不入。", effect: "防御力+80，生命值+200，全抗性+15%，受到物理伤害-20%" },
+            { id: 51, name: "锦襕袈裟", type: "body", rarity: "epic", description: "唐僧的袈裟，具有强大的防御和驱邪之力。", effect: "防御力+40，生命值+150，魔法抗性+30%，免疫诅咒" },
+            { id: 52, name: "天兵铠甲", type: "body", rarity: "rare", description: "天兵天将穿戴的铠甲，威严庄重。", effect: "防御力+30，生命值+80，威慑敌人" },
+            
+            // 头盔
+            { id: 40, name: "布帽", type: "head", rarity: "common", description: "普通的布帽，几乎没有防护能力。", effect: "防御力+1" },
+            { id: 41, name: "皮盔", type: "head", rarity: "common", description: "皮革制成的头盔，提供基础防护。", effect: "防御力+2" },
+            { id: 42, name: "铁盔", type: "head", rarity: "uncommon", description: "铁制头盔，能有效保护头部。", effect: "防御力+5" },
+            { id: 43, name: "法师帽", type: "head", rarity: "rare", description: "魔法师使用的帽子，增强法术抗性。", effect: "防御力+8，魔法抗性+15%" },
+            { id: 53, name: "凤翅紫金冠", type: "head", rarity: "legendary", description: "孙悟空的头盔，两侧有凤翅装饰，威风凛凛。", effect: "防御力+35，生命值+100，暴击率+10%，闪避率+10%" },
+            { id: 54, name: "紧箍", type: "head", rarity: "epic", description: "观音菩萨给孙悟空戴的金箍，具有束缚和保护的矛盾力量。", effect: "防御力+20，生命值+80，受到致命伤害时保留1点生命（冷却600秒）" },
+            { id: 55, name: "毗卢帽", type: "head", rarity: "rare", description: "僧人戴的帽子，具有佛法加持。", effect: "防御力+10，魔法抗性+20%，受到治疗效果+15%" },
+            
+            // 鞋子
+            { id: 44, name: "布鞋", type: "feet", rarity: "common", description: "普通的布鞋，轻便但不耐穿。", effect: "防御力+1，移动速度+5%" },
+            { id: 45, name: "皮靴", type: "feet", rarity: "common", description: "皮革制成的靴子，适合长途跋涉。", effect: "防御力+2，移动速度+8%" },
+            { id: 46, name: "铁靴", type: "feet", rarity: "uncommon", description: "铁制战靴，保护双脚的同时不影响移动。", effect: "防御力+5，移动速度+5%" },
+            { id: 56, name: "藕丝步云履", type: "feet", rarity: "legendary", description: "孙悟空的靴子，用藕丝编织而成，轻若无物。", effect: "防御力+25，移动速度+30%，闪避率+15%，可短暂飞行" },
+            { id: 57, name: "云履", type: "feet", rarity: "rare", description: "仙人穿的鞋子，踏之如行云端。", effect: "防御力+8，移动速度+20%，闪避率+10%" },
+            { id: 58, name: "僧鞋", type: "feet", rarity: "uncommon", description: "僧人穿的布鞋，舒适耐穿。", effect: "防御力+4，移动速度+10%，生命恢复+2/秒" },
+            
+            // 护腿
+            { id: 47, name: "布裤", type: "legs", rarity: "common", description: "普通的布裤，提供 minimal 防护。", effect: "防御力+1" },
+            { id: 48, name: "皮裤", type: "legs", rarity: "common", description: "皮革制成的裤子，耐用且灵活。", effect: "防御力+3" },
+            { id: 49, name: "铁护腿", type: "legs", rarity: "uncommon", description: "铁制护腿，有效保护下肢。", effect: "防御力+6" },
+            { id: 59, name: "龙筋护腿", type: "legs", rarity: "epic", description: "用龙筋制成的护腿，弹性极佳，行动自如。", effect: "防御力+18，移动速度+15%，闪避率+8%" },
+            { id: 60, name: "虎皮裙", type: "legs", rarity: "rare", description: "用虎皮制成的短裙，是孙悟空的标志性装扮。", effect: "防御力+12，攻击力+10，威慑弱小敌人" },
+            { id: 61, name: "金丝护腿", type: "legs", rarity: "rare", description: "金丝编织的护腿，轻便而坚固。", effect: "防御力+15，移动速度+10%，格挡率+5%" },
+            
+            // 披风
+            { id: 62, name: "布披风", type: "cloak", rarity: "common", description: "普通的布制披风，略有保暖效果。", effect: "防御力+2，闪避率+2%" },
+            { id: 63, name: "皮披风", type: "cloak", rarity: "uncommon", description: "皮革制成的披风，更加耐用。", effect: "防御力+5，闪避率+5%" },
+            { id: 64, name: "红色披风", type: "cloak", rarity: "rare", description: "红孩儿的标志性披风，鲜艳夺目。", effect: "防御力+10，闪避率+8%，火抗性+15%" },
+            { id: 65, name: "混天绫披风", type: "cloak", rarity: "epic", description: "哪吒的混天绫改制而成的披风，攻防一体。", effect: "防御力+20，闪避率+15%，受到攻击时有10%概率反弹30%伤害" },
+            { id: 66, name: "七彩祥云披风", type: "cloak", rarity: "legendary", description: "用七彩祥云编织而成的披风，穿戴者可腾云驾雾。", effect: "防御力+35，闪避率+25%，移动速度+20%，可短暂飞行" },
+            
+            // 护肩
+            { id: 67, name: "布护肩", type: "shoulder", rarity: "common", description: "普通的布制护肩，提供基础防护。", effect: "防御力+2，格挡率+2%" },
+            { id: 68, name: "皮护肩", type: "shoulder", rarity: "uncommon", description: "皮革制成的护肩，坚固耐用。", effect: "防御力+5，格挡率+5%" },
+            { id: 69, name: "铁护肩", type: "shoulder", rarity: "rare", description: "铁制护肩，能有效抵挡攻击。", effect: "防御力+12，格挡率+8%，生命值+30" },
+            { id: 70, name: "黄金护肩", type: "shoulder", rarity: "epic", description: "天兵天将穿戴的黄金护肩，威严庄重。", effect: "防御力+25，格挡率+15%，生命值+80，威慑敌人" },
+            { id: 71, name: "龙鳞护肩", type: "shoulder", rarity: "legendary", description: "用龙鳞制成的护肩，拥有极强的防御力。", effect: "防御力+40，格挡率+25%，生命值+150，全抗性+10%" },
+            
+            // 手套
+            { id: 72, name: "布手套", type: "hands", rarity: "common", description: "普通的布制手套，保护双手。", effect: "攻击力+2，命中率+2%" },
+            { id: 73, name: "皮手套", type: "hands", rarity: "uncommon", description: "皮革制成的手套，灵活耐用。", effect: "攻击力+5，命中率+5%" },
+            { id: 74, name: "铁手套", type: "hands", rarity: "rare", description: "铁制手套，既能保护又能攻击。", effect: "攻击力+12，命中率+8%，攻击速度+5%" },
+            { id: 75, name: "龙鳞手套", type: "hands", rarity: "epic", description: "用龙鳞制成的手套，坚韧无比。", effect: "攻击力+25，命中率+15%，攻击速度+10%，暴击率+5%" },
+            { id: 76, name: "金刚手套", type: "hands", rarity: "legendary", description: "佛门金刚所戴的手套，拥有无坚不摧之力。", effect: "攻击力+50，命中率+25%，攻击速度+20%，暴击率+15%，破甲+20%" }
+        ];
+
+        function getRarityLabel(r) { 
+            const l = {common:'普通',uncommon:'优秀',rare:'稀有',epic:'史诗',legendary:'传说'}; 
+            return l[r] || r; 
+        }
+        
+        function getTypeLabel(t) { 
+            const l = {head:'头盔',body:'铠甲',legs:'护腿',feet:'鞋子',cloak:'披风',shoulder:'护肩',hands:'手套'}; 
+            return l[t] || t; 
+        }
+
+        function renderArmors(filter = 'all') {
+            const grid = document.getElementById('armorGrid');
+            let filtered = armors;
+            if (filter !== 'all') filtered = armors.filter(a => a.type === filter);
+            
+            if (filtered.length === 0) { 
+                grid.innerHTML = '<p style="color:var(--wiki-text-secondary);padding:20px;">暂无该类型的防具</p>'; 
+                return; 
+            }
+            
+            grid.innerHTML = filtered.map(armor => `
+                <div class="item-card" data-type="${armor.type}">
+                    <h4>${armor.name}</h4>
+                    <div class="meta">
+                        <span class="type-badge armor">${getTypeLabel(armor.type)}</span>
+                        <span class="rarity-badge ${armor.rarity}">${getRarityLabel(armor.rarity)}</span>
+                    </div>
+                    <p class="description">${armor.description}</p>
+                    <div class="effect-box"><strong>效果：</strong>${armor.effect}</div>
+                </div>
+            `).join('');
+        }
+
+        function filterArmors(type) {
+            document.querySelectorAll('.filter-tabs .tab-btn').forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+            renderArmors(type);
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            renderArmors();
+        });
+    </script>
+</body>
+</html>

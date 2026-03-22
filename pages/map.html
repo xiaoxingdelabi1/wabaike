@@ -1,0 +1,1470 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>游戏地图 - 蛙噻！好摊</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        /* 树状地图样式 - Wiki风格 */
+        .world-tree-map {
+            padding: 20px;
+            background: #fff;
+            border: 1px solid #a2a9b1;
+        }
+
+        /* 起点和终点 */
+        .map-endpoint {
+            text-align: center;
+            padding: 16px;
+            font-size: 16px;
+            font-weight: bold;
+            border: 2px solid #a2a9b1;
+            background: #f8f9fa;
+            margin-bottom: 24px;
+        }
+
+        .map-endpoint.end {
+            margin-top: 24px;
+            margin-bottom: 0;
+        }
+
+        /* 大洲区块 */
+        .continent-block {
+            margin-bottom: 24px;
+            border: 1px solid #a2a9b1;
+            background: #fafafa;
+        }
+
+        .continent-title {
+            padding: 12px 20px;
+            font-size: 16px;
+            font-weight: bold;
+            background: #f0f0f0;
+            border-bottom: 1px solid #a2a9b1;
+            color: #000;
+        }
+
+        .continent-content {
+            padding: 20px;
+        }
+
+        /* 树状结构 */
+        .tree-container {
+            position: relative;
+        }
+
+        .tree-node {
+            position: relative;
+            margin-bottom: 4px;
+        }
+
+        /* 竖线 */
+        .tree-line-vertical {
+            position: absolute;
+            left: 12px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: #a2a9b1;
+        }
+
+        .tree-node:first-child .tree-line-vertical {
+            top: 50%;
+        }
+
+        .tree-node:last-child .tree-line-vertical {
+            bottom: 50%;
+        }
+
+        .tree-node:only-child .tree-line-vertical {
+            display: none;
+        }
+
+        /* 横线 */
+        .tree-line-horizontal {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            width: 20px;
+            height: 2px;
+            background: #a2a9b1;
+            transform: translateY(-50%);
+        }
+
+        /* 节点圆点 */
+        .tree-dot {
+            position: absolute;
+            left: 8px;
+            top: 50%;
+            width: 10px;
+            height: 10px;
+            background: #a2a9b1;
+            border-radius: 50%;
+            transform: translateY(-50%);
+            z-index: 1;
+        }
+
+        /* 地点卡片 */
+        .location-card {
+            margin-left: 36px;
+            padding: 12px 16px;
+            background: #fff;
+            border: 1px solid #a2a9b1;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .location-card:hover {
+            border-color: #3366cc;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .location-card .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+
+        .location-card .card-name {
+            font-size: 14px;
+            font-weight: bold;
+            color: #000;
+        }
+
+        .location-card .card-type {
+            font-size: 11px;
+            padding: 2px 8px;
+            background: #f5f5f5;
+            border: 1px solid #ddd;
+            color: #333;
+        }
+
+        .location-card .card-info {
+            display: flex;
+            gap: 16px;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .location-card .card-info span {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* 分支区域 */
+        .branch-container {
+            margin-left: 36px;
+            margin-top: 8px;
+            margin-bottom: 16px;
+            padding: 16px;
+            background: #f5f5f5;
+            border: 1px solid #d0d0d0;
+        }
+
+        .branch-title {
+            font-size: 13px;
+            font-weight: bold;
+            padding: 6px 12px;
+            background: #fff;
+            border: 1px solid #a2a9b1;
+            margin-bottom: 12px;
+            display: inline-block;
+            color: #333;
+        }
+
+        .branch-nodes {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .branch-node {
+            padding: 10px 14px;
+            background: #fff;
+            border: 1px solid #c0c0c0;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .branch-node:hover {
+            border-color: #3366cc;
+        }
+
+        .branch-node .node-name {
+            font-size: 13px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .branch-node .node-info {
+            font-size: 11px;
+            color: #666;
+            margin-top: 4px;
+        }
+
+        /* 图例 */
+        .map-legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            padding: 16px;
+            background: #f8f9fa;
+            border: 1px solid #a2a9b1;
+            margin-bottom: 20px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: #333;
+        }
+
+        .legend-icon {
+            width: 16px;
+            height: 16px;
+            border: 1px solid #a2a9b1;
+            background: #fff;
+        }
+
+        .legend-icon.town {
+            background: #f5f5f5;
+        }
+
+        .legend-icon.dungeon {
+            background: #e8e8e8;
+        }
+
+        .legend-icon.field {
+            background: #fff;
+        }
+
+        .legend-icon.special {
+            background: #f0f0f0;
+            border-style: dashed;
+        }
+
+        /* 路径说明 */
+        .path-legend {
+            display: flex;
+            gap: 24px;
+            padding: 12px 16px;
+            background: #f8f9fa;
+            border: 1px solid #a2a9b1;
+            margin-bottom: 20px;
+            font-size: 13px;
+        }
+
+        .path-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .path-line {
+            width: 30px;
+            height: 2px;
+            background: #a2a9b1;
+        }
+
+        .path-line.main {
+            background: #333;
+            height: 3px;
+        }
+
+        /* 详情弹窗 */
+        .detail-modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90%;
+            max-width: 500px;
+            max-height: 70vh;
+            background: #fff;
+            border: 2px solid #a2a9b1;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            z-index: 1000;
+            overflow-y: auto;
+        }
+
+        .detail-modal.active {
+            display: block;
+        }
+
+        .detail-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 20px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #a2a9b1;
+        }
+
+        .detail-header h3 {
+            margin: 0;
+            font-size: 18px;
+        }
+
+        .detail-close {
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #fff;
+            border: 1px solid #a2a9b1;
+            cursor: pointer;
+            font-size: 20px;
+            line-height: 1;
+        }
+
+        .detail-content {
+            padding: 20px;
+        }
+
+        .detail-row {
+            display: flex;
+            margin-bottom: 12px;
+            font-size: 13px;
+        }
+
+        .detail-label {
+            width: 80px;
+            color: #666;
+            flex-shrink: 0;
+        }
+
+        .detail-value {
+            color: #000;
+            font-weight: 500;
+        }
+
+        .detail-desc {
+            font-size: 13px;
+            line-height: 1.6;
+            color: #333;
+            padding: 12px;
+            background: #f8f9fa;
+            border: 1px solid #e0e0e0;
+            margin-top: 12px;
+        }
+
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+        }
+
+        .overlay.active {
+            display: block;
+        }
+
+        /* 子位置在地图上的样式 */
+        .sub-location-node {
+            margin-left: 40px;
+            margin-top: 8px;
+            padding: 8px 12px;
+            background: #f5f5f5;
+            border: 1px solid #d0d0d0;
+            border-radius: 4px;
+            font-size: 12px;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .sub-location-node:hover {
+            border-color: #3366cc;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .sub-location-node::before {
+            content: '';
+            position: absolute;
+            left: -20px;
+            top: 50%;
+            width: 20px;
+            height: 2px;
+            background: #d0d0d0;
+        }
+
+        .sub-location-dot {
+            position: absolute;
+            left: -6px;
+            top: 50%;
+            width: 8px;
+            height: 8px;
+            background: #999;
+            border-radius: 50%;
+            transform: translateY(-50%);
+        }
+
+        .sub-location-name {
+            font-weight: 500;
+            color: #333;
+        }
+
+        .sub-location-type {
+            font-size: 10px;
+            color: #999;
+            margin-left: 8px;
+        }
+
+        /* 子位置展开按钮 */
+        .sub-toggle-btn {
+            font-size: 11px;
+            color: #3366cc;
+            cursor: pointer;
+            margin-left: 8px;
+            text-decoration: underline;
+        }
+
+        .sub-toggle-btn:hover {
+            color: #2a56b0;
+        }
+
+        .sub-locations-container {
+            display: none;
+        }
+
+        .sub-locations-container.expanded {
+            display: block;
+        }
+
+        /* 势力标识样式 */
+        .faction-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 8px;
+            font-size: 11px;
+            border-radius: 3px;
+            margin-left: 8px;
+            font-weight: 500;
+        }
+
+        .faction-badge.celestial {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+
+        .faction-badge.buddhist {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .faction-badge.demon {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .faction-badge.neutral {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        /* 势力筛选器 */
+        .faction-filter-panel {
+            display: flex;
+            gap: 12px;
+            padding: 12px 16px;
+            background: #f8f9fa;
+            border: 1px solid #a2a9b1;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+
+        .faction-filter-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .faction-filter-group label {
+            font-size: 13px;
+            color: #333;
+        }
+
+        .faction-filter-group select {
+            padding: 6px 10px;
+            border: 1px solid #a2a9b1;
+            font-size: 13px;
+            background: #fff;
+        }
+
+        /* 响应式 */
+        @media (max-width: 768px) {
+            .location-card .card-info {
+                flex-direction: column;
+                gap: 4px;
+            }
+
+            .branch-container {
+                margin-left: 20px;
+                padding: 12px;
+            }
+
+            .map-legend,
+            .path-legend {
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .sub-location-node {
+                margin-left: 20px;
+            }
+
+            .sub-location-node::before {
+                left: -12px;
+                width: 12px;
+            }
+        }
+    </style>
+</head>
+<body class="wiki-layout">
+    <header class="wiki-topbar">
+        <div class="wiki-logo">
+            <a href="../index.html">蛙噻！好摊</a>
+        </div>
+        <div class="wiki-search">
+            <input type="text" placeholder="搜索地点..." id="searchInput">
+            <button onclick="searchMap()">搜索</button>
+        </div>
+        <div class="wiki-user">
+            <span>欢迎访问</span>
+        </div>
+    </header>
+
+    <div class="wiki-container">
+        <aside class="wiki-sidebar">
+            <nav class="wiki-nav">
+                <div class="nav-section">
+                    <h3>百科分类</h3>
+                    <ul>
+                        <li><a href="../index.html">首页</a></li>
+                        <li><a href="game-intro.html">游戏介绍</a></li>
+                        <li><a href="world.html">世界观</a></li>
+                        <li><a href="factions.html">势力分布</a></li>
+                        <li><a href="history.html">历史年表</a></li>
+                        <li><a href="price-mechanism.html">价格机制</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>游戏特色</h3>
+                    <ul>
+                        <li><a href="bazaar.html">集市</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>游戏玩法</h3>
+                    <ul>
+                        <li><a href="market.html">摆摊系统</a></li>
+                        <li><a href="achievements.html">成就系统</a></li>
+                        <li><a href="combat.html">战斗系统</a></li>
+                        <li><a href="progression.html">成长系统</a></li>
+                        <li><a href="currency.html">货币系统</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>角色</h3>
+                    <ul>
+                        <li><a href="characters.html">角色总览</a></li>
+                        <li><a href="characters.html?type=playable">主要角色</a></li>
+                        <li><a href="characters.html?type=npc">NPC</a></li>
+                        <li><a href="enemies.html">敌人</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>物品装备</h3>
+                    <ul>
+                        <li><a href="items.html">物品总览</a></li>
+                        <li><a href="weapon.html">武器</a></li>
+                        <li><a href="armor.html">防具</a></li>
+                        <li><a href="accessory.html">饰品</a></li>
+                        <li><a href="treasure.html">法宝</a></li>
+                        <li><a href="consumable.html">消耗品</a></li>
+                        <li><a href="material.html">材料</a></li>
+                        <li><a href="collection.html">收藏品</a></li>
+                        <li><a href="crafting.html">生活技能</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>世界探索</h3>
+                    <ul>
+                        <li><a href="locations.html">地点总览</a></li>
+                        <li><a href="map.html" class="active">游戏地图</a></li>
+                        <li><a href="quests.html">任务剧情</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>关于</h3>
+                    <ul>
+                        <li><a href="dev-thoughts.html">开发者随想</a></li>
+                    </ul>
+                </div>
+            </nav>
+        </aside>
+
+        <main class="wiki-content">
+            <nav class="breadcrumb">
+                <a href="../index.html">首页</a> &gt; <span class="current">游戏地图</span>
+            </nav>
+
+            <article class="wiki-article">
+                <h1 class="article-title">取经之路 - 游戏地图</h1>
+
+                <div class="article-intro">
+                    <p>这是你的取经之路！从<strong>东胜神洲花果山</strong>出发，穿越<strong>南赡部洲</strong>的重重险阻，最终到达<strong>西牛贺洲雷音寺</strong>。地图以树状结构展示取经路上的主要地点和分支路线。</p>
+                </div>
+
+                <!-- 图例 -->
+                <div class="map-legend">
+                    <div class="legend-item">
+                        <div class="legend-icon town"></div>
+                        <span>城镇 - 安全区域，可交易补给</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-icon dungeon"></div>
+                        <span>洞府 - 副本区域，危险但奖励丰厚</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-icon field"></div>
+                        <span>野外 - 普通区域，有怪物出没</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-icon special"></div>
+                        <span>特殊 - 重要剧情地点</span>
+                    </div>
+                </div>
+
+                <!-- 路径说明 -->
+                <div class="path-legend">
+                    <div class="path-item">
+                        <div class="path-line main"></div>
+                        <span>主线路径</span>
+                    </div>
+                    <div class="path-item">
+                        <div class="path-line"></div>
+                        <span>分支路径</span>
+                    </div>
+                </div>
+
+                <!-- 势力筛选器 -->
+                <div class="faction-filter-panel">
+                    <div class="faction-filter-group">
+                        <label>势力筛选:</label>
+                        <select id="factionFilter" onchange="filterMapByFaction()">
+                            <option value="">全部地点</option>
+                        </select>
+                    </div>
+                    <div class="faction-filter-group">
+                        <label>类型筛选:</label>
+                        <select id="typeFilter" onchange="filterMapByType()">
+                            <option value="">全部类型</option>
+                            <option value="town">城镇</option>
+                            <option value="dungeon">洞府</option>
+                            <option value="field">野外</option>
+                            <option value="special">特殊</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- 地图主体 -->
+                <div class="world-tree-map" id="worldMap">
+                    <div class="map-endpoint">起点：花果山</div>
+
+                    <!-- 东胜神洲 -->
+                    <div class="continent-block">
+                        <div class="continent-title">东胜神洲</div>
+                        <div class="continent-content" id="eastContent">
+                            <!-- 动态生成 -->
+                        </div>
+                    </div>
+
+                    <!-- 南赡部洲 -->
+                    <div class="continent-block">
+                        <div class="continent-title">南赡部洲</div>
+                        <div class="continent-content" id="southContent">
+                            <!-- 动态生成 -->
+                        </div>
+                    </div>
+
+                    <!-- 西牛贺洲 -->
+                    <div class="continent-block">
+                        <div class="continent-title">西牛贺洲</div>
+                        <div class="continent-content" id="westContent">
+                            <!-- 动态生成 -->
+                        </div>
+                    </div>
+
+                    <div class="map-endpoint end">终点：大雷音寺</div>
+                </div>
+
+                <div class="article-footer">
+                    <p>最后更新于：2026-03-20 | 编辑次数：2</p>
+                </div>
+            </article>
+        </main>
+    </div>
+
+    <!-- 遮罩层 -->
+    <div class="overlay" id="overlay" onclick="closeDetail()"></div>
+
+    <!-- 详情弹窗 -->
+    <div class="detail-modal" id="detailModal">
+        <div class="detail-header">
+            <h3 id="detailTitle">地点详情</h3>
+            <button class="detail-close" onclick="closeDetail()">&times;</button>
+        </div>
+        <div class="detail-content" id="detailContent">
+            <!-- 动态生成 -->
+        </div>
+    </div>
+
+    <footer class="wiki-footer">
+        <p>&copy; 2026 《蛙噻！好摊》游戏百科 | 本百科由玩家共同维护</p>
+    </footer>
+
+    <script src="../js/main.js"></script>
+    <script>
+        // ==================== 势力数据 ====================
+        let factionsData = null;
+        let locationFactionMap = {};
+
+        // 势力类型标签
+        const factionTypeLabels = {
+            celestial: '天庭',
+            buddhist: '佛门',
+            demon: '妖族',
+            neutral: '中立'
+        };
+
+        // 势力数据（内联，避免CORS问题）
+        const inlineFactionsData = {
+            factions: [
+                {id: "tianting", name: "天庭", tier: 1, type: "celestial", territory: [77, 79]},
+                {id: "fomen", name: "佛门", tier: 1, type: "buddhist", territory: [73, 74]},
+                {id: "yaozu", name: "妖族联盟", tier: 1, type: "demon", territory: [37, 51]},
+                {id: "tianting_shanghui", name: "天庭商会", tier: 2, type: "celestial", territory: [2, 6, 66]},
+                {id: "leiyinsi", name: "雷音寺", tier: 2, type: "buddhist", territory: [73, 74]},
+                {id: "donghai_longgong", name: "东海龙宫", tier: 2, type: "celestial", territory: [4]},
+                {id: "difu", name: "地府", tier: 2, type: "neutral", territory: []},
+                {id: "wuzhuangguan", name: "五庄观", tier: 2, type: "neutral", territory: [16]},
+                {id: "huaguoshan_zongzu", name: "花果山宗族", tier: 2, type: "demon", territory: [1, 3]},
+                {id: "jileishan", name: "积雷山", tier: 2, type: "demon", territory: [37, 38]},
+                {id: "shituoling", name: "狮驼岭", tier: 2, type: "demon", territory: [51, 52]},
+                {id: "nverguo", name: "女儿国", tier: 2, type: "neutral", territory: [32]},
+                {id: "datangguo", name: "大唐国", tier: 2, type: "celestial", territory: [6]},
+                {id: "chechiguo", name: "车迟国", tier: 2, type: "celestial", territory: [26, 27]},
+                {id: "tianzhuguo", name: "天竺国", tier: 2, type: "buddhist", territory: [70]}
+            ],
+            localFactions: [
+                {id: "heifengshan", name: "黑风山", tier: 3, type: "demon", territory: [12]},
+                {id: "huangfengling", name: "黄风岭", tier: 3, type: "demon", territory: [13]},
+                {id: "baihuling", name: "白虎岭", tier: 3, type: "demon", territory: [17]},
+                {id: "pingdingshan", name: "平顶山", tier: 3, type: "demon", territory: [20, 21]},
+                {id: "haoshan", name: "号山", tier: 3, type: "demon", territory: [23, 24]},
+                {id: "jindoushan", name: "金兜山", tier: 3, type: "demon", territory: [30, 31]},
+                {id: "dudishan", name: "毒敌山", tier: 3, type: "demon", territory: [33, 34]},
+                {id: "pansiling", name: "盘丝岭", tier: 3, type: "demon", territory: [48, 49]},
+                {id: "biqiuguo", name: "比丘国", tier: 3, type: "neutral", territory: [53, 54]},
+                {id: "xiankongshan", name: "陷空山", tier: 3, type: "demon", territory: [55, 56]},
+                {id: "zhujieshan", name: "竹节山", tier: 3, type: "demon", territory: [64, 65]},
+                {id: "qinglongshan", name: "青龙山", tier: 3, type: "demon", territory: [67, 68]},
+                {id: "jingjiling", name: "荆棘岭", tier: 3, type: "demon", territory: [41, 42]},
+                {id: "zhuziguo", name: "朱紫国", tier: 3, type: "neutral", territory: [45, 46, 47]},
+                {id: "jisaiguo", name: "祭赛国", tier: 3, type: "buddhist", territory: [39, 40]},
+                {id: "fangcunshan", name: "方寸山", tier: 3, type: "neutral", territory: [5, 78]},
+                {id: "guanyin", name: "观音禅院", tier: 3, type: "buddhist", territory: [11]},
+                {id: "yaoshi", name: "妖市", tier: 3, type: "demon", territory: []},
+                {id: "penglai", name: "蓬莱仙岛", tier: 3, type: "celestial", territory: [76]},
+                {id: "doushuai", name: "兜率宫", tier: 3, type: "celestial", territory: [79]}
+            ]
+        };
+
+        // 加载势力数据
+        async function loadFactionsData() {
+            try {
+                const response = await fetch('../data/factions.json');
+                if (!response.ok) throw new Error('Network response was not ok');
+                factionsData = await response.json();
+            } catch (error) {
+                console.warn('无法从文件加载势力数据，使用内联数据:', error.message);
+                factionsData = inlineFactionsData;
+            }
+            buildLocationFactionMap();
+            populateFactionFilter();
+        }
+
+        // 构建地点-势力映射
+        function buildLocationFactionMap() {
+            locationFactionMap = {};
+            
+            // 处理主要势力
+            factionsData.factions.forEach(faction => {
+                if (faction.territory) {
+                    faction.territory.forEach(locId => {
+                        if (!locationFactionMap[locId]) {
+                            locationFactionMap[locId] = [];
+                        }
+                        locationFactionMap[locId].push({
+                            id: faction.id,
+                            name: faction.name,
+                            type: faction.type,
+                            tier: faction.tier
+                        });
+                    });
+                }
+            });
+
+            // 处理地方势力
+            factionsData.localFactions.forEach(faction => {
+                if (faction.territory) {
+                    faction.territory.forEach(locId => {
+                        if (!locationFactionMap[locId]) {
+                            locationFactionMap[locId] = [];
+                        }
+                        locationFactionMap[locId].push({
+                            id: faction.id,
+                            name: faction.name,
+                            type: faction.type,
+                            tier: faction.tier
+                        });
+                    });
+                }
+            });
+        }
+
+        // 填充势力筛选器
+        function populateFactionFilter() {
+            const select = document.getElementById('factionFilter');
+            
+            // 添加顶级和主要势力
+            factionsData.factions.forEach(faction => {
+                const option = document.createElement('option');
+                option.value = faction.id;
+                option.textContent = faction.name;
+                select.appendChild(option);
+            });
+        }
+
+        // 获取地点的势力标识
+        function getLocationFactionBadges(locationId) {
+            const factions = locationFactionMap[locationId];
+            if (!factions || factions.length === 0) return '';
+
+            // 只显示第一个势力的标识
+            const faction = factions[0];
+            const label = factionTypeLabels[faction.type] || '其他';
+            return `<span class="faction-badge ${faction.type}">${label}</span>`;
+        }
+
+        // 按势力筛选地图
+        function filterMapByFaction() {
+            const factionId = document.getElementById('factionFilter').value;
+            renderMap(factionId, null);
+        }
+
+        // 按类型筛选地图
+        function filterMapByType() {
+            const type = document.getElementById('typeFilter').value;
+            const factionId = document.getElementById('factionFilter').value;
+            renderMap(factionId, type);
+        }
+
+        // ==================== 地图数据结构 ====================
+
+        // 地点数据（与locations.html保持一致）
+        const locations = [
+            // 东胜神洲
+            { id: 1, name: '花果山', type: 'town', region: 'huaguo', continent: 'east', level: 1, power: 100, description: '主角的诞生地，山顶仙石灵气充沛，是取经之旅的起点。' },
+            { id: 2, name: '傲来国集市', type: 'town', region: 'aolai', continent: 'east', level: 2, power: 200, description: '东胜神洲最繁华的贸易中心，商贾云集。' },
+            { id: 3, name: '水帘洞', type: 'special', region: 'huaguo', continent: 'east', level: 1, power: 150, description: '花果山内的洞天福地，曾是美猴王的居所。' },
+            { id: 4, name: '东海龙宫', type: 'dungeon', region: 'donghai', continent: 'east', level: 5, power: 500, description: '东海龙王的水晶宫殿，藏有无数珍宝。' },
+            { id: 5, name: '方寸山', type: 'town', region: 'fangcun', continent: 'east', level: 8, power: 800, description: '菩提祖师的修道之地。' },
+            { id: 78, name: '灵台方寸山', type: 'special', region: 'fangcun', continent: 'east', level: 10, power: 1000, description: '孙悟空学艺之地，修仙圣地。' },
+
+            // 南赡部洲
+            { id: 6, name: '长安城', type: 'town', region: 'chang_an', continent: 'south', level: 3, power: 300, description: '大唐国都，人间最繁华的都市。' },
+            { id: 7, name: '两界山', type: 'field', region: 'liangjie', continent: 'south', level: 4, power: 400, description: '连接东胜神洲与南赡部洲的必经之路。' },
+            { id: 8, name: '双叉岭', type: 'field', region: 'liangjie', continent: 'south', level: 5, power: 500, description: '取经人初出茅庐时遇到的第一个险地。' },
+            { id: 9, name: '五行山', type: 'special', region: 'wuxing', continent: 'south', level: 8, power: 800, description: '如来佛祖镇压孙悟空之地。' },
+            { id: 10, name: '鹰愁涧', type: 'field', region: 'yingchou', continent: 'south', level: 10, power: 1000, description: '小白龙曾盘踞的深涧。' },
+            { id: 11, name: '观音禅院', type: 'town', region: 'guanyin', continent: 'south', level: 12, power: 1200, description: '观音菩萨的道场之一。' },
+            { id: 12, name: '黑风山', type: 'dungeon', region: 'heifeng', continent: 'south', level: 15, power: 1500, description: '黑熊精曾盘踞的洞府。' },
+            { id: 13, name: '黄风岭', type: 'field', region: 'huangfeng', continent: 'south', level: 18, power: 1800, description: '黄风怪的地盘，常年刮着三昧神风。' },
+            { id: 14, name: '流沙河', type: 'field', region: 'liusha', continent: 'south', level: 20, power: 2000, description: '沙僧曾经的栖身之地。' },
+            { id: 15, name: '万寿山', type: 'field', region: 'liusha', continent: 'south', level: 22, power: 2200, description: '风景秀丽的仙山。' },
+            { id: 16, name: '五庄观', type: 'town', region: 'wuzhuang', continent: 'south', level: 25, power: 2500, description: '镇元大仙的道场，以人参果闻名。' },
+            { id: 17, name: '白虎岭', type: 'field', region: 'baihu', continent: 'south', level: 25, power: 2500, description: '白骨精盘踞之地。' },
+            { id: 18, name: '碗子山', type: 'field', region: 'wanzi', continent: 'south', level: 28, power: 2800, description: '山势险峻，波月洞所在。' },
+            { id: 19, name: '宝象国', type: 'town', region: 'baoxiang', continent: 'south', level: 30, power: 3000, description: '西域小国，以出产宝石闻名。' },
+            { id: 20, name: '平顶山', type: 'field', region: 'pingding', continent: 'south', level: 32, power: 3200, description: '金角大王和银角大王的地盘。' },
+            { id: 21, name: '莲花洞', type: 'dungeon', region: 'pingding', continent: 'south', level: 35, power: 3500, description: '金角银角的老巢。' },
+            { id: 22, name: '乌鸡国', type: 'town', region: 'wuji', continent: 'south', level: 38, power: 3800, description: '被假国王统治多年的国度。' },
+            { id: 23, name: '火云洞', type: 'dungeon', region: 'haoshan', continent: 'south', level: 45, power: 4500, description: '红孩儿的洞府。' },
+            { id: 24, name: '号山', type: 'field', region: 'haoshan', continent: 'south', level: 42, power: 4200, description: '红孩儿的地盘。' },
+            { id: 25, name: '黑水河', type: 'field', region: 'heishui', continent: 'south', level: 45, power: 4500, description: '河水漆黑如墨。' },
+            { id: 26, name: '车迟国', type: 'town', region: 'chechi', continent: 'south', level: 48, power: 4800, description: '信奉道教的国家。' },
+            { id: 27, name: '三清观', type: 'special', region: 'chechi', continent: 'south', level: 50, power: 5000, description: '车迟国的道观。' },
+            { id: 28, name: '通天河', type: 'field', region: 'tongtian', continent: 'south', level: 52, power: 5200, description: '宽阔的大河。' },
+            { id: 29, name: '陈家庄', type: 'town', region: 'tongtian', continent: 'south', level: 50, power: 5000, description: '通天河边的村庄。' },
+            { id: 30, name: '金兜山', type: 'field', region: 'jindou', continent: 'south', level: 55, power: 5500, description: '独角兕大王的地盘。' },
+            { id: 31, name: '金兜洞', type: 'dungeon', region: 'jindou', continent: 'south', level: 58, power: 5800, description: '独角兕大王的洞府。' },
+            { id: 32, name: '西梁女国', type: 'town', region: 'nver', continent: 'south', level: 60, power: 6000, description: '神秘的女子国度。' },
+            { id: 33, name: '毒敌山', type: 'field', region: 'dudi', continent: 'south', level: 62, power: 6200, description: '蝎子精的地盘。' },
+            { id: 34, name: '琵琶洞', type: 'dungeon', region: 'dudi', continent: 'south', level: 65, power: 6500, description: '蝎子精的洞府。' },
+            { id: 35, name: '火焰山', type: 'field', region: 'huoyan', continent: 'south', level: 68, power: 6800, description: '八百里火焰熊熊燃烧。' },
+            { id: 36, name: '翠云山', type: 'field', region: 'cuiyun', continent: 'south', level: 65, power: 6500, description: '铁扇公主的居所。' },
+            { id: 37, name: '积雷山', type: 'field', region: 'jilei', continent: 'south', level: 70, power: 7000, description: '牛魔王的地盘。' },
+            { id: 38, name: '摩云洞', type: 'dungeon', region: 'jilei', continent: 'south', level: 72, power: 7200, description: '玉面狐狸的洞府。' },
+
+            // 西牛贺洲
+            { id: 39, name: '祭赛国', type: 'town', region: 'jisai', continent: 'west', level: 45, power: 4500, description: '西域佛国。' },
+            { id: 40, name: '金光寺', type: 'special', region: 'jisai', continent: 'west', level: 48, power: 4800, description: '祭赛国的皇家寺院。' },
+            { id: 41, name: '荆棘岭', type: 'field', region: 'jingji', continent: 'west', level: 50, power: 5000, description: '长满荆棘的荒岭。' },
+            { id: 42, name: '木仙庵', type: 'special', region: 'jingji', continent: 'west', level: 52, power: 5200, description: '树精们的居所。' },
+            { id: 43, name: '小雷音寺', type: 'dungeon', region: 'jingji', continent: 'west', level: 55, power: 5500, description: '黄眉老佛设下的陷阱。' },
+            { id: 44, name: '七绝山', type: 'field', region: 'jingji', continent: 'west', level: 48, power: 4800, description: '山路险峻。' },
+            { id: 45, name: '朱紫国', type: 'town', region: 'zhuzi', continent: 'west', level: 52, power: 5200, description: '西域国度，以紫金闻名。' },
+            { id: 46, name: '麒麟山', type: 'field', region: 'zhuzi', continent: 'west', level: 55, power: 5500, description: '赛太岁的地盘。' },
+            { id: 47, name: '獬豸洞', type: 'dungeon', region: 'zhuzi', continent: 'west', level: 58, power: 5800, description: '赛太岁的洞府。' },
+            { id: 48, name: '盘丝岭', type: 'field', region: 'pansi', continent: 'west', level: 55, power: 5500, description: '盘丝洞外的山岭。' },
+            { id: 49, name: '盘丝洞', type: 'dungeon', region: 'pansi', continent: 'west', level: 58, power: 5800, description: '蜘蛛精的洞府。' },
+            { id: 50, name: '黄花观', type: 'special', region: 'pansi', continent: 'west', level: 60, power: 6000, description: '百眼魔君的道观。' },
+            { id: 51, name: '狮驼岭', type: 'field', region: 'shituo', continent: 'west', level: 75, power: 7500, description: '三魔盘踞之地。' },
+            { id: 52, name: '狮驼洞', type: 'dungeon', region: 'shituo', continent: 'west', level: 80, power: 8000, description: '青狮、白象、大鹏三魔的老巢。' },
+            { id: 53, name: '比丘国', type: 'town', region: 'biqiu', continent: 'west', level: 58, power: 5800, description: '被白鹿精国师蛊惑的国度。' },
+            { id: 54, name: '清华洞', type: 'dungeon', region: 'biqiu', continent: 'west', level: 62, power: 6200, description: '白鹿精的洞府。' },
+            { id: 55, name: '陷空山', type: 'field', region: 'xiankong', continent: 'west', level: 60, power: 6000, description: '地涌夫人的地盘。' },
+            { id: 56, name: '无底洞', type: 'dungeon', region: 'xiankong', continent: 'west', level: 65, power: 6500, description: '地涌夫人的洞府。' },
+            { id: 57, name: '灭法国', type: 'town', region: 'miefo', continent: 'west', level: 55, power: 5500, description: '国王曾发誓要杀一万个和尚。' },
+            { id: 58, name: '隐雾山', type: 'field', region: 'yinwu', continent: 'west', level: 52, power: 5200, description: '山中常年云雾缭绕。' },
+            { id: 59, name: '折岳连环洞', type: 'dungeon', region: 'yinwu', continent: 'west', level: 55, power: 5500, description: '南山大王的洞府。' },
+            { id: 60, name: '凤仙郡', type: 'town', region: 'fengxian', continent: 'west', level: 50, power: 5000, description: '曾因郡侯不敬天而遭大旱。' },
+            { id: 61, name: '玉华州', type: 'town', region: 'yuhua', continent: 'west', level: 52, power: 5200, description: '三位王子曾拜孙悟空为师。' },
+            { id: 62, name: '豹头山', type: 'field', region: 'baotou', continent: 'west', level: 55, power: 5500, description: '虎口洞所在的山岭。' },
+            { id: 63, name: '虎口洞', type: 'dungeon', region: 'baotou', continent: 'west', level: 58, power: 5800, description: '黄狮精的洞府。' },
+            { id: 64, name: '竹节山', type: 'field', region: 'zhujie', continent: 'west', level: 75, power: 7500, description: '九灵元圣的地盘。' },
+            { id: 65, name: '九曲盘桓洞', type: 'dungeon', region: 'zhujie', continent: 'west', level: 82, power: 8200, description: '九灵元圣的洞府。' },
+            { id: 66, name: '金平府', type: 'town', region: 'jinping', continent: 'west', level: 55, power: 5500, description: '天竺国边陲重镇。' },
+            { id: 67, name: '青龙山', type: 'field', region: 'qinglong', continent: 'west', level: 58, power: 5800, description: '玄英洞所在的山脉。' },
+            { id: 68, name: '玄英洞', type: 'dungeon', region: 'qinglong', continent: 'west', level: 62, power: 6200, description: '三只犀牛精的洞府。' },
+            { id: 69, name: '布金禅寺', type: 'special', region: 'bujin', continent: 'west', level: 60, power: 6000, description: '给孤独长者遗址。' },
+            { id: 70, name: '天竺国', type: 'town', region: 'tianzhu', continent: 'west', level: 62, power: 6200, description: '佛法昌盛之地。' },
+            { id: 71, name: '铜台府', type: 'town', region: 'tongtai', continent: 'west', level: 65, power: 6500, description: '寇员外款待处。' },
+            { id: 72, name: '凌云渡', type: 'field', region: 'lingyun', continent: 'west', level: 85, power: 8500, description: '脱胎换骨试炼之地。' },
+            { id: 73, name: '雷音寺', type: 'special', region: 'leiyin', continent: 'west', level: 90, power: 9000, description: '取经的终点。' },
+            { id: 74, name: '大雷音寺', type: 'special', region: 'leiyin', continent: 'west', level: 100, power: 10000, description: '佛教最高圣地。' }
+        ];
+
+        // 地图连接数据（主线和分支）
+        const mapConnections = {
+            east: [
+                {
+                    location: 2,
+                    branches: [
+                        { title: '花果山支线', nodes: [1, 3] },
+                        { title: '东海支线', nodes: [4] },
+                        { title: '修仙支线', nodes: [5, 78] }
+                    ]
+                }
+            ],
+            south: [
+                {
+                    location: 6,
+                    branches: []
+                },
+                {
+                    location: 7,
+                    branches: []
+                },
+                {
+                    location: 8,
+                    branches: []
+                },
+                {
+                    location: 9,
+                    branches: []
+                },
+                {
+                    location: 10,
+                    branches: []
+                },
+                {
+                    location: 11,
+                    branches: []
+                },
+                {
+                    location: 12,
+                    branches: []
+                },
+                {
+                    location: 13,
+                    branches: [
+                        { title: '白虎岭支线', nodes: [17] }
+                    ]
+                },
+                {
+                    location: 14,
+                    branches: [
+                        { title: '万寿山支线', nodes: [15] }
+                    ]
+                },
+                {
+                    location: 16,
+                    branches: []
+                },
+                {
+                    location: 18,
+                    branches: []
+                },
+                {
+                    location: 19,
+                    branches: []
+                },
+                {
+                    location: 20,
+                    branches: [
+                        { title: '莲花洞副本', nodes: [21] }
+                    ]
+                },
+                {
+                    location: 22,
+                    branches: []
+                },
+                {
+                    location: 24,
+                    branches: [
+                        { title: '火云洞副本', nodes: [23] }
+                    ]
+                },
+                {
+                    location: 25,
+                    branches: []
+                },
+                {
+                    location: 26,
+                    branches: [
+                        { title: '三清观支线', nodes: [27] }
+                    ]
+                },
+                {
+                    location: 28,
+                    branches: [
+                        { title: '陈家庄支线', nodes: [29] }
+                    ]
+                },
+                {
+                    location: 30,
+                    branches: [
+                        { title: '金兜洞副本', nodes: [31] }
+                    ]
+                },
+                {
+                    location: 32,
+                    branches: [
+                        { title: '毒敌山支线', nodes: [33, 34] }
+                    ]
+                },
+                {
+                    location: 35,
+                    branches: [
+                        { title: '翠云山支线', nodes: [36] }
+                    ]
+                },
+                {
+                    location: 37,
+                    branches: [
+                        { title: '摩云洞副本', nodes: [38] }
+                    ]
+                }
+            ],
+            west: [
+                {
+                    location: 39,
+                    branches: [
+                        { title: '金光寺支线', nodes: [40] }
+                    ]
+                },
+                {
+                    location: 41,
+                    branches: [
+                        { title: '木仙庵支线', nodes: [42] },
+                        { title: '七绝山支线', nodes: [44] }
+                    ]
+                },
+                {
+                    location: 43,
+                    branches: []
+                },
+                {
+                    location: 45,
+                    branches: [
+                        { title: '麒麟山支线', nodes: [46, 47] }
+                    ]
+                },
+                {
+                    location: 49,
+                    branches: [
+                        { title: '盘丝岭支线', nodes: [48] },
+                        { title: '黄花观支线', nodes: [50] }
+                    ]
+                },
+                {
+                    location: 51,
+                    branches: [
+                        { title: '狮驼洞副本', nodes: [52] }
+                    ]
+                },
+                {
+                    location: 53,
+                    branches: [
+                        { title: '清华洞副本', nodes: [54] }
+                    ]
+                },
+                {
+                    location: 55,
+                    branches: [
+                        { title: '无底洞副本', nodes: [56] }
+                    ]
+                },
+                {
+                    location: 57,
+                    branches: []
+                },
+                {
+                    location: 60,
+                    branches: []
+                },
+                {
+                    location: 61,
+                    branches: []
+                },
+                {
+                    location: 62,
+                    branches: [
+                        { title: '虎口洞副本', nodes: [63] }
+                    ]
+                },
+                {
+                    location: 64,
+                    branches: [
+                        { title: '九曲盘桓洞副本', nodes: [65] }
+                    ]
+                },
+                {
+                    location: 66,
+                    branches: []
+                },
+                {
+                    location: 67,
+                    branches: [
+                        { title: '玄英洞副本', nodes: [68] }
+                    ]
+                },
+                {
+                    location: 69,
+                    branches: []
+                },
+                {
+                    location: 70,
+                    branches: []
+                },
+                {
+                    location: 71,
+                    branches: []
+                },
+                {
+                    location: 72,
+                    branches: []
+                },
+                {
+                    location: 73,
+                    branches: []
+                }
+            ]
+        };
+
+        // ==================== 辅助函数 ====================
+
+        function getTypeLabel(type) {
+            const labels = { town: '城镇', dungeon: '洞府', field: '野外', special: '特殊' };
+            return labels[type] || type;
+        }
+
+        function getLocationById(id) {
+            return locations.find(l => l.id === id);
+        }
+
+        // ==================== 渲染函数 ====================
+
+        function renderTreeNode(locationId, isLast = false) {
+            const loc = getLocationById(locationId);
+            if (!loc) return '';
+
+            const hasSubLocations = loc.subLocations && loc.subLocations.length > 0;
+            const subToggleHtml = hasSubLocations
+                ? `<span class="sub-toggle-btn" onclick="event.stopPropagation(); toggleSubLocationsOnMap(${loc.id})">展开子位置 (${loc.subLocations.length})</span>`
+                : '';
+
+            const subLocationsHtml = hasSubLocations
+                ? `<div class="sub-locations-container" id="sub-locations-${loc.id}">${renderSubLocations(loc.subLocations, loc.id)}</div>`
+                : '';
+
+            const factionBadges = getLocationFactionBadges(loc.id);
+
+            return `
+                <div class="tree-node" data-location-id="${loc.id}" data-location-type="${loc.type}">
+                    <div class="tree-line-vertical"></div>
+                    <div class="tree-line-horizontal"></div>
+                    <div class="tree-dot"></div>
+                    <div class="location-card" onclick="showDetail(${loc.id})">
+                        <div class="card-header">
+                            <span class="card-name">${loc.name}</span>
+                            <span class="card-type">${getTypeLabel(loc.type)}</span>
+                            ${factionBadges}
+                            ${subToggleHtml}
+                        </div>
+                        <div class="card-info">
+                            <span>等级: ${loc.level}</span>
+                            <span>战力: ${loc.power}</span>
+                            <span>${loc.description.substring(0, 20)}...</span>
+                        </div>
+                    </div>
+                    ${subLocationsHtml}
+                </div>
+            `;
+        }
+
+        function renderBranch(branch) {
+            const nodesHtml = branch.nodes.map(nodeId => {
+                const node = getLocationById(nodeId);
+                if (!node) return '';
+                return `
+                    <div class="branch-node" onclick="showDetail(${node.id})">
+                        <div class="node-name">${node.name}</div>
+                        <div class="node-info">${getTypeLabel(node.type)} | 等级${node.level} | ${node.description.substring(0, 25)}...</div>
+                    </div>
+                `;
+            }).join('');
+
+            return `
+                <div class="branch-container">
+                    <div class="branch-title">${branch.title}</div>
+                    <div class="branch-nodes">
+                        ${nodesHtml}
+                    </div>
+                </div>
+            `;
+        }
+
+        // 渲染子位置
+        function renderSubLocations(subLocations, parentId) {
+            if (!subLocations || subLocations.length === 0) return '';
+
+            return subLocations.map(subLoc => `
+                <div class="sub-location-node" onclick="showDetail(${subLoc.id})">
+                    <div class="sub-location-dot"></div>
+                    <span class="sub-location-name">${subLoc.name}</span>
+                    <span class="sub-location-type">${getTypeLabel(subLoc.type)}</span>
+                </div>
+            `).join('');
+        }
+
+        function renderContinent(continentId) {
+            const connections = mapConnections[continentId];
+            if (!connections || connections.length === 0) return '';
+
+            const container = document.getElementById(`${continentId}Content`);
+            const treeContainer = document.createElement('div');
+            treeContainer.className = 'tree-container';
+
+            connections.forEach((conn, index) => {
+                const loc = getLocationById(conn.location);
+                if (!loc) return;
+
+                const isLast = index === connections.length - 1;
+
+                // 渲染主线节点
+                const nodeHtml = renderTreeNode(conn.location, isLast);
+                treeContainer.insertAdjacentHTML('beforeend', nodeHtml);
+
+                // 渲染分支
+                if (conn.branches && conn.branches.length > 0) {
+                    conn.branches.forEach(branch => {
+                        const branchHtml = renderBranch(branch);
+                        treeContainer.insertAdjacentHTML('beforeend', branchHtml);
+                    });
+                }
+            });
+
+            container.appendChild(treeContainer);
+        }
+
+        function renderMap(factionFilter = null, typeFilter = null) {
+            renderContinentWithFilter('east', factionFilter, typeFilter);
+            renderContinentWithFilter('south', factionFilter, typeFilter);
+            renderContinentWithFilter('west', factionFilter, typeFilter);
+        }
+
+        // 带筛选功能的渲染大洲
+        function renderContinentWithFilter(continentId, factionFilter = null, typeFilter = null) {
+            const container = document.getElementById(`${continentId}Content`);
+            if (!container) return;
+
+            const connections = mapConnections[continentId];
+            if (!connections || connections.length === 0) return;
+
+            const treeContainer = document.createElement('div');
+            treeContainer.className = 'tree-container';
+
+            connections.forEach((conn, index) => {
+                const loc = getLocationById(conn.location);
+                if (!loc) return;
+
+                // 应用筛选
+                if (factionFilter) {
+                    const factions = locationFactionMap[loc.id];
+                    if (!factions || !factions.some(f => f.id === factionFilter)) {
+                        return;
+                    }
+                }
+
+                if (typeFilter && loc.type !== typeFilter) {
+                    return;
+                }
+
+                const isLast = index === connections.length - 1;
+                const nodeHtml = renderTreeNode(conn.location, isLast);
+                treeContainer.insertAdjacentHTML('beforeend', nodeHtml);
+
+                if (conn.branches && conn.branches.length > 0) {
+                    conn.branches.forEach(branch => {
+                        const branchHtml = renderBranch(branch);
+                        treeContainer.insertAdjacentHTML('beforeend', branchHtml);
+                    });
+                }
+            });
+
+            container.innerHTML = '';
+            container.appendChild(treeContainer);
+        }
+
+        // ==================== 子位置展开/收起 ====================
+
+        function toggleSubLocationsOnMap(parentId) {
+            const container = document.getElementById(`sub-locations-${parentId}`);
+            const btn = document.querySelector(`.location-card[onclick*="${parentId}"] .sub-toggle-btn`);
+            const loc = getLocationById(parentId);
+
+            if (container && loc) {
+                const isExpanded = container.classList.contains('expanded');
+
+                if (isExpanded) {
+                    container.classList.remove('expanded');
+                    if (btn) {
+                        btn.textContent = `展开子位置 (${loc.subLocations.length})`;
+                    }
+                } else {
+                    container.classList.add('expanded');
+                    if (btn) {
+                        btn.textContent = `收起子位置 (${loc.subLocations.length})`;
+                    }
+                }
+            }
+        }
+
+        // ==================== 详情弹窗 ====================
+
+        function showDetail(locationId) {
+            const loc = getLocationById(locationId);
+            if (!loc) return;
+
+            document.getElementById('detailTitle').textContent = loc.name;
+            document.getElementById('detailContent').innerHTML = `
+                <div class="detail-row">
+                    <span class="detail-label">类型:</span>
+                    <span class="detail-value">${getTypeLabel(loc.type)}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">等级:</span>
+                    <span class="detail-value">${loc.level}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">推荐战力:</span>
+                    <span class="detail-value">${loc.power}</span>
+                </div>
+                <div class="detail-desc">${loc.description}</div>
+            `;
+
+            document.getElementById('overlay').classList.add('active');
+            document.getElementById('detailModal').classList.add('active');
+        }
+
+        function closeDetail() {
+            document.getElementById('overlay').classList.remove('active');
+            document.getElementById('detailModal').classList.remove('active');
+        }
+
+        // ==================== 搜索功能 ====================
+
+        function searchMap() {
+            const query = document.getElementById('searchInput').value.toLowerCase().trim();
+            if (!query) {
+                // 清除高亮
+                document.querySelectorAll('.location-card, .branch-node').forEach(el => {
+                    el.style.borderColor = '';
+                    el.style.boxShadow = '';
+                });
+                return;
+            }
+
+            let found = false;
+            const cards = document.querySelectorAll('.location-card, .branch-node');
+
+            cards.forEach(el => {
+                const name = el.querySelector('.card-name, .node-name').textContent.toLowerCase();
+                if (name.includes(query)) {
+                    el.style.borderColor = '#3366cc';
+                    el.style.boxShadow = '0 0 8px rgba(51, 102, 204, 0.5)';
+                    if (!found) {
+                        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        found = true;
+                    }
+                } else {
+                    el.style.borderColor = '';
+                    el.style.boxShadow = '';
+                }
+            });
+        }
+
+        // ==================== 初始化 ====================
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            await loadFactionsData();
+            renderMap();
+
+            // 搜索框回车事件
+            document.getElementById('searchInput').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') searchMap();
+            });
+        });
+    </script>
+</body>
+</html>

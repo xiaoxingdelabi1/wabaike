@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>战斗系统 - 蛙噻！好摊</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        .combat-overview {
+            background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
+            border: 1px solid #a2a9b1;
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+
+        .attribute-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 16px;
+            margin: 16px 0;
+        }
+
+        .attribute-card {
+            padding: 16px;
+            background: #fff;
+            border: 1px solid #a2a9b1;
+            text-align: center;
+        }
+
+        .attribute-icon {
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+
+        .attribute-name {
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+
+        .attribute-desc {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .command-list {
+            display: grid;
+            gap: 12px;
+            margin: 16px 0;
+        }
+
+        .command-item {
+            display: flex;
+            gap: 16px;
+            padding: 16px;
+            background: #f8f9fa;
+            border: 1px solid #e0e0e0;
+        }
+
+        .command-icon {
+            width: 48px;
+            height: 48px;
+            background: #fff;
+            border: 2px solid #a2a9b1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+
+        .command-content {
+            flex: 1;
+        }
+
+        .command-name {
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 4px;
+        }
+
+        .command-desc {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .skill-tree-preview {
+            padding: 20px;
+            background: #f8f9fa;
+            border: 1px solid #a2a9b1;
+            margin: 16px 0;
+        }
+
+        .skill-branch {
+            margin-bottom: 20px;
+        }
+
+        .skill-branch h4 {
+            margin: 0 0 12px 0;
+            padding: 8px 12px;
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+        }
+
+        .skill-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+        }
+
+        .skill-item {
+            padding: 12px;
+            background: #fff;
+            border: 1px solid #ddd;
+        }
+
+        .skill-name {
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+
+        .skill-type {
+            font-size: 11px;
+            padding: 2px 6px;
+            background: #e8f5e9;
+            color: #2e7d32;
+            display: inline-block;
+            margin-bottom: 4px;
+        }
+
+        .skill-type.passive { background: #fff3e0; color: #e65100; }
+
+        .enemy-type-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 16px;
+            margin: 16px 0;
+        }
+
+        .enemy-card {
+            padding: 16px;
+            background: #fff;
+            border: 1px solid #a2a9b1;
+        }
+
+        .enemy-card h4 {
+            margin: 0 0 12px 0;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #a2a9b1;
+        }
+
+        .strategy-section {
+            margin: 24px 0;
+            padding: 20px;
+            background: #fff;
+            border: 1px solid #a2a9b1;
+        }
+
+        .strategy-section h3 {
+            margin-top: 0;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #a2a9b1;
+        }
+
+        .tip-box {
+            background: #fffbeb;
+            border-left: 4px solid #f59e0b;
+            padding: 12px 16px;
+            margin: 12px 0;
+        }
+
+        .tip-box h5 {
+            margin: 0 0 8px 0;
+            color: #92400e;
+        }
+
+        .boss-list {
+            display: grid;
+            gap: 12px;
+            margin: 16px 0;
+        }
+
+        .boss-item {
+            display: flex;
+            gap: 16px;
+            padding: 16px;
+            background: #ffebee;
+            border: 2px solid #ef5350;
+        }
+
+        .boss-icon {
+            width: 64px;
+            height: 64px;
+            background: #fff;
+            border: 2px solid #ef5350;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            flex-shrink: 0;
+        }
+
+        .boss-content {
+            flex: 1;
+        }
+
+        .boss-name {
+            font-weight: bold;
+            font-size: 18px;
+            color: #c62828;
+            margin-bottom: 4px;
+        }
+
+        .boss-difficulty {
+            font-size: 12px;
+            padding: 2px 8px;
+            background: #ef5350;
+            color: #fff;
+            display: inline-block;
+            margin-bottom: 8px;
+        }
+
+        .combat-mechanic {
+            margin: 24px 0;
+            padding: 20px;
+            background: #fff;
+            border: 1px solid #a2a9b1;
+        }
+
+        .combat-mechanic h3 {
+            margin-top: 0;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #a2a9b1;
+        }
+
+        .weakness-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 16px 0;
+        }
+
+        .weakness-table th,
+        .weakness-table td {
+            border: 1px solid #a2a9b1;
+            padding: 10px;
+            text-align: center;
+        }
+
+        .weakness-table th {
+            background: #f0f0f0;
+        }
+
+        .weakness-table .strong {
+            background: #c8e6c9;
+            color: #2e7d32;
+            font-weight: bold;
+        }
+
+        .weakness-table .weak {
+            background: #ffcdd2;
+            color: #c62828;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body class="wiki-layout">
+    <header class="wiki-topbar">
+        <div class="wiki-logo">
+            <a href="../index.html">蛙噻！好摊</a>
+        </div>
+        <div class="wiki-search">
+            <input type="text" placeholder="搜索百科..." id="searchInput">
+            <button onclick="search()">搜索</button>
+        </div>
+        <div class="wiki-user">
+            <span>欢迎访问</span>
+        </div>
+    </header>
+
+    <div class="wiki-container">
+        <aside class="wiki-sidebar">
+            <nav class="wiki-nav">
+                <div class="nav-section">
+                    <h3>百科分类</h3>
+                    <ul>
+                        <li><a href="../index.html">首页</a></li>
+                        <li><a href="game-intro.html">游戏介绍</a></li>
+                        <li><a href="world.html">世界观</a></li>
+                        <li><a href="factions.html">势力分布</a></li>
+                        <li><a href="history.html">历史年表</a></li>
+                        <li><a href="price-mechanism.html">价格机制</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>游戏特色</h3>
+                    <ul>
+                        <li><a href="bazaar.html">集市</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>游戏玩法</h3>
+                    <ul>
+                        <li><a href="market.html">摆摊系统</a></li>
+                        <li><a href="achievements.html">成就系统</a></li>
+                        <li><a href="combat.html" class="active">战斗系统</a></li>
+                        <li><a href="progression.html">成长系统</a></li>
+                        <li><a href="currency.html">货币系统</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>角色</h3>
+                    <ul>
+                        <li><a href="characters.html">角色总览</a></li>
+                        <li><a href="characters.html?type=playable">主要角色</a></li>
+                        <li><a href="characters.html?type=npc">NPC</a></li>
+                        <li><a href="enemies.html">敌人</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>物品装备</h3>
+                    <ul>
+                        <li><a href="items.html">物品总览</a></li>
+                        <li><a href="weapon.html">武器</a></li>
+                        <li><a href="armor.html">防具</a></li>
+                        <li><a href="accessory.html">饰品</a></li>
+                        <li><a href="treasure.html">法宝</a></li>
+                        <li><a href="consumable.html">消耗品</a></li>
+                        <li><a href="material.html">材料</a></li>
+                        <li><a href="collection.html">收藏品</a></li>
+                        <li><a href="crafting.html">生活技能</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>世界探索</h3>
+                    <ul>
+                        <li><a href="locations.html">地点总览</a></li>
+                        <li><a href="map.html">游戏地图</a></li>
+                        <li><a href="quests.html">任务剧情</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>关于</h3>
+                    <ul>
+                        <li><a href="dev-thoughts.html">开发者随想</a></li>
+                    </ul>
+                </div>
+            </nav>
+        </aside>
+
+        <main class="wiki-content">
+            <nav class="breadcrumb">
+                <a href="../index.html">首页</a> &gt; <span class="current">战斗系统</span>
+            </nav>
+
+            <article class="wiki-article">
+                <h1 class="article-title">战斗系统</h1>
+                
+                <div class="article-intro">
+                    <p>战斗系统是《蛙噻！好摊》中保护自己和货物的重要手段。取经路上妖魔鬼怪横行，你需要掌握<strong>战斗技巧</strong>、合理搭配<strong>装备技能</strong>、了解敌人的<strong>弱点</strong>，才能在危险的环境中生存下来，保护你辛苦赚来的财富。</p>
+                </div>
+
+                <div class="wiki-toc">
+                    <h3>目录</h3>
+                    <ul>
+                        <li><a href="#overview">系统概述</a></li>
+                        <li><a href="#attributes">战斗属性</a></li>
+                        <li><a href="#commands">战斗指令</a></li>
+                        <li><a href="#skills">技能系统</a></li>
+                        <li><a href="#equipment">装备影响</a></li>
+                        <li><a href="#enemies">敌人机制</a></li>
+                        <li><a href="#strategy">战斗策略</a></li>
+                        <li><a href="#special">特殊战斗</a></li>
+                    </ul>
+                </div>
+
+                <div class="combat-overview" id="overview">
+                    <h2>系统概述</h2>
+                    <p>《蛙噻！好摊》采用<strong>回合制战斗</strong>系统，战斗节奏明快，策略性强。战斗的基本流程如下：</p>
+                    <ol>
+                        <li><strong>遭遇敌人</strong>：在野外探索时可能遭遇随机敌人，或在特定地点触发BOSS战</li>
+                        <li><strong>选择指令</strong>：每回合选择攻击、技能、道具或逃跑</li>
+                        <li><strong>执行行动</strong>：根据双方速度属性决定行动顺序</li>
+                        <li><strong>结算伤害</strong>：计算伤害并扣除生命值</li>
+                        <li><strong>胜负判定</strong>：一方生命值归零或逃跑成功时战斗结束</li>
+                    </ol>
+                    
+                    <div class="info-box">
+                        <h4>战斗提示</h4>
+                        <ul>
+                            <li>战斗前确保装备和道具准备充分</li>
+                            <li>观察敌人的行动模式，找出弱点</li>
+                            <li>保留一些恢复道具以备不时之需</li>
+                            <li>遇到强敌时，逃跑也是一种智慧</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="combat-mechanic" id="attributes">
+                    <h3>战斗属性</h3>
+                    <p>角色的战斗能力由以下属性决定：</p>
+                    
+                    <div class="attribute-grid">
+                        <div class="attribute-card">
+                            <div class="attribute-icon">⚔️</div>
+                            <div class="attribute-name">攻击力</div>
+                            <div class="attribute-desc">决定物理伤害输出</div>
+                        </div>
+                        <div class="attribute-card">
+                            <div class="attribute-icon">🛡️</div>
+                            <div class="attribute-name">防御力</div>
+                            <div class="attribute-desc">减少受到的物理伤害</div>
+                        </div>
+                        <div class="attribute-card">
+                            <div class="attribute-icon">❤️</div>
+                            <div class="attribute-name">生命值</div>
+                            <div class="attribute-desc">角色的生存能力</div>
+                        </div>
+                        <div class="attribute-card">
+                            <div class="attribute-icon">⚡</div>
+                            <div class="attribute-name">速度</div>
+                            <div class="attribute-desc">决定行动先后顺序</div>
+                        </div>
+                        <div class="attribute-card">
+                            <div class="attribute-icon">🎯</div>
+                            <div class="attribute-name">暴击率</div>
+                            <div class="attribute-desc">造成额外伤害的概率</div>
+                        </div>
+                        <div class="attribute-card">
+                            <div class="attribute-icon">✨</div>
+                            <div class="attribute-name">命中率</div>
+                            <div class="attribute-desc">攻击命中敌人的概率</div>
+                        </div>
+                    </div>
+
+                    <h4>属性成长</h4>
+                    <p>属性会随着等级提升而成长，不同成长路线会影响属性的成长率：</p>
+                    <ul>
+                        <li><strong>战斗型</strong>：攻击力、暴击率成长较高</li>
+                        <li><strong>防御型</strong>：防御力、生命值成长较高</li>
+                        <li><strong>平衡型</strong>：各项属性均衡成长</li>
+                    </ul>
+                </div>
+
+                <div class="combat-mechanic" id="commands">
+                    <h3>战斗指令</h3>
+                    <p>每回合你可以选择以下指令之一：</p>
+                    
+                    <div class="command-list">
+                        <div class="command-item">
+                            <div class="command-icon">⚔️</div>
+                            <div class="command-content">
+                                <div class="command-name">普通攻击</div>
+                                <div class="command-desc">使用武器进行基础攻击，消耗低但伤害一般。适合在技能点不足时使用。</div>
+                            </div>
+                        </div>
+                        <div class="command-item">
+                            <div class="command-icon">🔥</div>
+                            <div class="command-content">
+                                <div class="command-name">技能释放</div>
+                                <div class="command-desc">使用已学会的技能，消耗技能点或怒气值。技能效果多样，包括攻击、治疗、增益等。</div>
+                            </div>
+                        </div>
+                        <div class="command-item">
+                            <div class="command-icon">🎒</div>
+                            <div class="command-content">
+                                <div class="command-name">道具使用</div>
+                                <div class="command-desc">使用背包中的道具，如恢复药水、增益丹药等。战斗中合理使用道具可以扭转战局。</div>
+                            </div>
+                        </div>
+                        <div class="command-item">
+                            <div class="command-icon">🏃</div>
+                            <div class="command-content">
+                                <div class="command-name">逃跑</div>
+                                <div class="command-desc">尝试脱离战斗。成功率受速度差和敌人强度影响。BOSS战通常无法逃跑。</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="combat-mechanic" id="skills">
+                    <h3>技能系统</h3>
+                    <p>技能是战斗中的核心要素，合理搭配技能可以大幅提升战斗力。</p>
+                    
+                    <h4>技能类型</h4>
+                    <ul>
+                        <li><strong>主动技能</strong>：需要手动释放，消耗资源，效果强大</li>
+                        <li><strong>被动技能</strong>：自动生效，持续提供增益效果</li>
+                    </ul>
+
+                    <div class="skill-tree-preview">
+                        <h4>技能树预览</h4>
+                        
+                        <div class="skill-branch">
+                            <h4>攻击系</h4>
+                            <div class="skill-list">
+                                <div class="skill-item">
+                                    <div class="skill-name">重击</div>
+                                    <span class="skill-type">主动</span>
+                                    <p>造成150%攻击力的伤害</p>
+                                </div>
+                                <div class="skill-item">
+                                    <div class="skill-name">连斩</div>
+                                    <span class="skill-type">主动</span>
+                                    <p>连续攻击2-3次</p>
+                                </div>
+                                <div class="skill-item">
+                                    <div class="skill-name">破甲</div>
+                                    <span class="skill-type">主动</span>
+                                    <p>攻击并降低敌人防御</p>
+                                </div>
+                                <div class="skill-item">
+                                    <div class="skill-name">狂暴</div>
+                                    <span class="skill-type passive">被动</span>
+                                    <p>生命值低于30%时攻击提升</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="skill-branch">
+                            <h4>防御系</h4>
+                            <div class="skill-list">
+                                <div class="skill-item">
+                                    <div class="skill-name">护盾</div>
+                                    <span class="skill-type">主动</span>
+                                    <p>获得护盾吸收伤害</p>
+                                </div>
+                                <div class="skill-item">
+                                    <div class="skill-name">反击</div>
+                                    <span class="skill-type">主动</span>
+                                    <p>本回合受到攻击时反击</p>
+                                </div>
+                                <div class="skill-item">
+                                    <div class="skill-name">铁壁</div>
+                                    <span class="skill-type passive">被动</span>
+                                    <p>永久提升防御力</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="skill-branch">
+                            <h4>辅助系</h4>
+                            <div class="skill-list">
+                                <div class="skill-item">
+                                    <div class="skill-name">治疗术</div>
+                                    <span class="skill-type">主动</span>
+                                    <p>恢复生命值</p>
+                                </div>
+                                <div class="skill-item">
+                                    <div class="skill-name">加速</div>
+                                    <span class="skill-type">主动</span>
+                                    <p>提升速度属性</p>
+                                </div>
+                                <div class="skill-item">
+                                    <div class="skill-name">洞察</div>
+                                    <span class="skill-type passive">被动</span>
+                                    <p>提升暴击率</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h4>技能升级</h4>
+                    <p>技能可以通过使用技能书或消耗技能点来升级，升级后效果会增强：</p>
+                    <ul>
+                        <li>技能等级最高为10级</li>
+                        <li>每升1级，技能效果提升约10%</li>
+                        <li>某些技能在特定等级会解锁额外效果</li>
+                    </ul>
+                </div>
+
+                <div class="combat-mechanic" id="equipment">
+                    <h3>装备影响</h3>
+                    <p>装备对战斗能力有显著影响，合理搭配装备是制胜关键。</p>
+                    
+                    <h4>武器类型</h4>
+                    <table class="wiki-table">
+                        <thead>
+                            <tr>
+                                <th>武器类型</th>
+                                <th>特点</th>
+                                <th>适合风格</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>剑</td>
+                                <td>攻击力中等，命中率高</td>
+                                <td>平衡型</td>
+                            </tr>
+                            <tr>
+                                <td>刀</td>
+                                <td>攻击力高，暴击率高</td>
+                                <td>攻击型</td>
+                            </tr>
+                            <tr>
+                                <td>枪</td>
+                                <td>攻击范围广，先手优势</td>
+                                <td>速度型</td>
+                            </tr>
+                            <tr>
+                                <td>棍</td>
+                                <td>攻击稳定，破甲效果好</td>
+                                <td>防御型</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h4>防具效果</h4>
+                    <ul>
+                        <li><strong>轻甲</strong>：提供少量防御，不降低速度</li>
+                        <li><strong>重甲</strong>：提供大量防御，但会降低速度</li>
+                        <li><strong>法袍</strong>：提供技能加成，适合技能流</li>
+                    </ul>
+
+                    <div class="tip-box">
+                        <h5>装备搭配建议</h5>
+                        <ul>
+                            <li>根据敌人特点选择装备：对高防御敌人使用破甲武器</li>
+                            <li>平衡攻防：不要只堆攻击而忽视防御</li>
+                            <li>注意装备特效：某些装备有特殊效果，如吸血、反弹等</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="combat-mechanic" id="enemies">
+                    <h3>敌人机制</h3>
+                    <p>了解敌人的特性和机制是战斗胜利的前提。</p>
+                    
+                    <h4>敌人类型</h4>
+                    <div class="enemy-type-grid">
+                        <div class="enemy-card">
+                            <h4>普通怪</h4>
+                            <p><strong>特点：</strong>数量多，实力弱，经验少</p>
+                            <p><strong>策略：</strong>普通攻击即可解决，用于练级</p>
+                            <p><strong>掉落：</strong>普通材料、少量金币</p>
+                        </div>
+                        <div class="enemy-card">
+                            <h4>精英怪</h4>
+                            <p><strong>特点：</strong>实力较强，有特殊技能</p>
+                            <p><strong>策略：</strong>需要合理运用技能</p>
+                            <p><strong>掉落：</strong>稀有材料、装备</p>
+                        </div>
+                        <div class="enemy-card">
+                            <h4>BOSS</h4>
+                            <p><strong>特点：</strong>实力强大，多阶段战斗</p>
+                            <p><strong>策略：</strong>充分准备，了解机制</p>
+                            <p><strong>掉落：</strong>稀有装备、大量奖励</p>
+                        </div>
+                    </div>
+
+                    <h4>弱点系统</h4>
+                    <p>不同敌人有不同的属性弱点，利用弱点可以造成额外伤害：</p>
+                    
+                    <table class="weakness-table">
+                        <thead>
+                            <tr>
+                                <th>敌人类型</th>
+                                <th>弱点属性</th>
+                                <th>抗性属性</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>火属性敌人</td>
+                                <td class="weak">水</td>
+                                <td class="strong">火</td>
+                            </tr>
+                            <tr>
+                                <td>水属性敌人</td>
+                                <td class="weak">雷</td>
+                                <td class="strong">水</td>
+                            </tr>
+                            <tr>
+                                <td>雷属性敌人</td>
+                                <td class="weak">土</td>
+                                <td class="strong">雷</td>
+                            </tr>
+                            <tr>
+                                <td>土属性敌人</td>
+                                <td class="weak">木</td>
+                                <td class="strong">土</td>
+                            </tr>
+                            <tr>
+                                <td>木属性敌人</td>
+                                <td class="weak">火</td>
+                                <td class="strong">木</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h4>掉落机制</h4>
+                    <p>击败敌人后可能获得以下掉落：</p>
+                    <ul>
+                        <li><strong>固定掉落</strong>：必定获得的物品</li>
+                        <li><strong>随机掉落</strong>：按概率获得的物品</li>
+                        <li><strong>稀有掉落</strong>：低概率获得的高级物品</li>
+                        <li><strong>首杀奖励</strong>：首次击败时额外获得的奖励</li>
+                    </ul>
+                </div>
+
+                <div class="strategy-section" id="strategy">
+                    <h3>战斗策略</h3>
+                    
+                    <div class="tip-box">
+                        <h5>属性克制</h5>
+                        <p>利用属性克制可以事半功倍。在战斗前了解敌人的属性，选择克制属性的技能和装备。例如面对火焰山的火属性妖怪，携带水属性技能会有奇效。</p>
+                    </div>
+
+                    <div class="tip-box">
+                        <h5>技能搭配</h5>
+                        <p>合理的技能搭配可以形成强力的连招：</p>
+                        <ul>
+                            <li><strong>爆发流</strong>：增益技能 → 高伤害技能 → 追击技能</li>
+                            <li><strong>控制流</strong>：减速/眩晕 → 持续输出 → 收割</li>
+                            <li><strong>消耗流</strong>：护盾 → 反击 → 治疗，慢慢磨死敌人</li>
+                        </ul>
+                    </div>
+
+                    <div class="tip-box">
+                        <h5>装备选择</h5>
+                        <ul>
+                            <li>面对高攻击敌人时，优先选择高防御装备</li>
+                            <li>面对高防御敌人时，选择破甲或真实伤害装备</li>
+                            <li>持久战选择有回复效果的装备</li>
+                            <li>速战速决选择高暴击装备</li>
+                        </ul>
+                    </div>
+
+                    <div class="tip-box">
+                        <h5>战斗节奏</h5>
+                        <ul>
+                            <li>开局观察：先了解敌人的攻击模式</li>
+                            <li>中期压制：利用技能优势建立优势</li>
+                            <li>后期收割：敌人虚弱时全力输出</li>
+                            <li>见势不妙：血量过低时及时逃跑或使用恢复道具</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="combat-mechanic" id="special">
+                    <h3>特殊战斗</h3>
+                    
+                    <h4>BOSS战</h4>
+                    <p>BOSS战是游戏中最具挑战性的战斗，通常具有以下特点：</p>
+                    <ul>
+                        <li>多阶段：BOSS会在血量降低时变换形态或技能</li>
+                        <li>特殊机制：需要特定策略才能有效伤害</li>
+                        <li>时间限制：部分BOSS战有时间限制</li>
+                        <li>无法逃跑：BOSS战一旦开始只能胜利或失败</li>
+                    </ul>
+
+                    <div class="boss-list">
+                        <div class="boss-item">
+                            <div class="boss-icon">👹</div>
+                            <div class="boss-content">
+                                <div class="boss-name">示例：黑熊精</div>
+                                <span class="boss-difficulty">推荐等级：15</span>
+                                <p><strong>特点：</strong>高防御，会召唤小怪</p>
+                                <p><strong>策略：</strong>先清理小怪，使用破甲技能降低其防御</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h4>精英战</h4>
+                    <p>精英怪比普通怪强大，但比BOSS弱小。它们通常：</p>
+                    <ul>
+                        <li>拥有特殊技能或强化属性</li>
+                        <li>出现在特定地点或任务中</li>
+                        <li>掉落稀有材料和装备</li>
+                    </ul>
+
+                    <h4>连战机制</h4>
+                    <p>某些特殊场景会触发连战：</p>
+                    <ul>
+                        <li><strong>车轮战</strong>：连续击败多波敌人，中间有短暂休息</li>
+                        <li><strong>生存战</strong>：在限定回合内存活</li>
+                        <li><strong>竞速战</strong>：在限定回合内击败所有敌人</li>
+                    </ul>
+                    <p>连战通常有额外的奖励，但难度也更高，需要合理分配资源。</p>
+                </div>
+
+                <div class="article-footer">
+                    <p>最后更新于：2026-03-20 | 编辑次数：1</p>
+                </div>
+            </article>
+        </main>
+    </div>
+
+    <footer class="wiki-footer">
+        <p>&copy; 2026 《蛙噻！好摊》游戏百科 | 本百科由玩家共同维护</p>
+    </footer>
+
+    <script src="../js/main.js"></script>
+</body>
+</html>

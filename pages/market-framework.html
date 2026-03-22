@@ -1,0 +1,1279 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>摆摊系统框架搭建指南 - 蛙噻！好摊</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        /* 标签页样式 - Wiki风格 */
+        .tab-container {
+            margin-bottom: 20px;
+        }
+        .tab-nav {
+            display: flex;
+            border-bottom: 1px solid var(--wiki-border);
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .tab-btn {
+            padding: 8px 16px;
+            background: var(--wiki-header-bg);
+            border: 1px solid var(--wiki-border);
+            border-bottom: none;
+            cursor: pointer;
+            font-size: 14px;
+            color: var(--wiki-link);
+            margin-right: 4px;
+            margin-bottom: 4px;
+        }
+        .tab-btn:hover {
+            background: var(--wiki-content-bg);
+            text-decoration: underline;
+        }
+        .tab-btn.active {
+            background: var(--wiki-content-bg);
+            border-bottom: 1px solid var(--wiki-content-bg);
+            margin-bottom: -1px;
+            font-weight: bold;
+            color: var(--wiki-text);
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+
+        /* 模拟器样式 */
+        .simulator-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        @media (max-width: 900px) {
+            .simulator-container {
+                grid-template-columns: 1fr;
+            }
+        }
+        .simulator-panel {
+            background: var(--wiki-box-bg);
+            border: 1px solid var(--wiki-border);
+            padding: 16px;
+        }
+        .simulator-panel h3 {
+            margin-top: 0;
+            color: var(--wiki-text);
+            border-bottom: 1px solid var(--wiki-border);
+            padding-bottom: 8px;
+            font-size: 16px;
+        }
+        .form-group {
+            margin-bottom: 12px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 4px;
+            font-weight: normal;
+            color: var(--wiki-text);
+        }
+        .form-group select,
+        .form-group input {
+            width: 100%;
+            padding: 6px 8px;
+            border: 1px solid var(--wiki-border);
+            font-size: 13px;
+            box-sizing: border-box;
+        }
+        .btn-group {
+            display: flex;
+            gap: 8px;
+            margin-top: 16px;
+        }
+
+        /* 结果展示样式 */
+        .result-box {
+            background: var(--wiki-content-bg);
+            border: 1px solid var(--wiki-border);
+            padding: 12px;
+            margin-bottom: 12px;
+        }
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 0;
+            border-bottom: 1px dashed var(--wiki-border);
+        }
+        .result-item:last-child {
+            border-bottom: none;
+        }
+        .result-label {
+            color: var(--wiki-text-secondary);
+        }
+        .result-value {
+            font-weight: bold;
+            color: var(--wiki-text);
+        }
+        .result-value.highlight {
+            color: var(--wiki-link);
+        }
+        .result-value.warning {
+            color: #ff6b35;
+        }
+        .result-value.danger {
+            color: #d32f2f;
+        }
+        .result-value.success {
+            color: #388e3c;
+        }
+
+        /* 建议框 */
+        .suggestion-box {
+            background: #e3f2fd;
+            border: 1px solid #90caf9;
+            padding: 12px;
+            margin-top: 12px;
+        }
+
+        /* 快速入门卡片 */
+        .quick-start-cards {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin: 16px 0;
+        }
+        @media (max-width: 600px) {
+            .quick-start-cards {
+                grid-template-columns: 1fr;
+            }
+        }
+        .quick-card {
+            background: var(--wiki-box-bg);
+            border: 1px solid var(--wiki-border);
+            padding: 12px;
+        }
+        .quick-card h4 {
+            margin: 0 0 8px 0;
+            color: var(--wiki-link);
+            font-size: 14px;
+        }
+        .quick-card p {
+            margin: 0;
+            font-size: 13px;
+            color: var(--wiki-text-secondary);
+        }
+
+        /* 代码折叠 */
+        .code-section {
+            margin: 12px 0;
+            border: 1px solid var(--wiki-border);
+        }
+        .code-header {
+            background: var(--wiki-header-bg);
+            padding: 8px 12px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+        }
+        .code-header:hover {
+            background: var(--wiki-box-bg);
+        }
+        .code-content {
+            display: none;
+            background: var(--wiki-content-bg);
+        }
+        .code-content.active {
+            display: block;
+        }
+        .toggle-icon {
+            font-size: 12px;
+        }
+        .toggle-icon.rotated {
+            transform: rotate(180deg);
+        }
+
+        /* FAQ样式 */
+        .faq-item {
+            margin-bottom: 8px;
+            border: 1px solid var(--wiki-border);
+        }
+        .faq-question {
+            background: var(--wiki-header-bg);
+            padding: 10px 12px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 500;
+        }
+        .faq-question:hover {
+            background: var(--wiki-box-bg);
+        }
+        .faq-answer {
+            display: none;
+            padding: 12px;
+            background: var(--wiki-content-bg);
+            border-top: 1px solid var(--wiki-border);
+        }
+        .faq-answer.active {
+            display: block;
+        }
+
+        /* 数据表格 */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 12px 0;
+            font-size: 13px;
+        }
+        .data-table th,
+        .data-table td {
+            border: 1px solid var(--wiki-border);
+            padding: 8px 12px;
+            text-align: left;
+        }
+        .data-table th {
+            background: var(--wiki-box-bg);
+            font-weight: bold;
+        }
+        .data-table tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+
+        /* 代码块 */
+        .code-block {
+            background: #f6f8fa;
+            padding: 12px;
+            overflow-x: auto;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 12px;
+            line-height: 1.5;
+            white-space: pre;
+        }
+
+        /* 信息框 */
+        .info-box {
+            background: var(--wiki-box-bg);
+            border: 1px solid var(--wiki-border);
+            border-left: 4px solid var(--wiki-link);
+            padding: 12px;
+            margin: 12px 0;
+        }
+        .warning-box {
+            background: #fff3e0;
+            border: 1px solid #ffcc80;
+            border-left: 4px solid #ff9800;
+            padding: 12px;
+            margin: 12px 0;
+        }
+        .tip-box {
+            background: #e3f2fd;
+            border: 1px solid #90caf9;
+            border-left: 4px solid #2196f3;
+            padding: 12px;
+            margin: 12px 0;
+        }
+    </style>
+</head>
+<body class="wiki-layout">
+    <header class="wiki-topbar">
+        <div class="wiki-logo">
+            <a href="../index.html">蛙噻！好摊</a>
+        </div>
+        <div class="wiki-search">
+            <input type="text" placeholder="搜索百科..." id="searchInput">
+            <button onclick="search()">搜索</button>
+        </div>
+        <div class="wiki-user">
+            <span>欢迎访问</span>
+        </div>
+    </header>
+
+    <div class="wiki-container">
+        <aside class="wiki-sidebar">
+            <nav class="wiki-nav">
+                <div class="nav-section">
+                    <h3>百科分类</h3>
+                    <ul>
+                        <li><a href="../index.html">首页</a></li>
+                        <li><a href="game-intro.html">游戏介绍</a></li>
+                        <li><a href="world.html">世界观</a></li>
+                        <li><a href="factions.html">势力分布</a></li>
+                        <li><a href="history.html">历史年表</a></li>
+                        <li><a href="price-mechanism.html">价格机制</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>游戏特色</h3>
+                    <ul>
+                        <li><a href="bazaar.html">集市</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>游戏玩法</h3>
+                    <ul>
+                        <li><a href="market.html">摆摊系统</a></li>
+                        <li><a href="market-framework.html" class="active">框架搭建指南</a></li>
+                        <li><a href="achievements.html">成就系统</a></li>
+                        <li><a href="combat.html">战斗系统</a></li>
+                        <li><a href="progression.html">成长系统</a></li>
+                        <li><a href="currency.html">货币系统</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>角色</h3>
+                    <ul>
+                        <li><a href="characters.html">角色总览</a></li>
+                        <li><a href="characters.html?type=playable">主要角色</a></li>
+                        <li><a href="characters.html?type=npc">NPC</a></li>
+                        <li><a href="enemies.html">敌人</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>物品装备</h3>
+                    <ul>
+                        <li><a href="items.html">物品总览</a></li>
+                        <li><a href="weapon.html">武器</a></li>
+                        <li><a href="armor.html">防具</a></li>
+                        <li><a href="accessory.html">饰品</a></li>
+                        <li><a href="treasure.html">法宝</a></li>
+                        <li><a href="consumable.html">消耗品</a></li>
+                        <li><a href="material.html">材料</a></li>
+                        <li><a href="collection.html">收藏品</a></li>
+                        <li><a href="crafting.html">生活技能</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>世界探索</h3>
+                    <ul>
+                        <li><a href="locations.html">地点总览</a></li>
+                        <li><a href="map.html">游戏地图</a></li>
+                        <li><a href="quests.html">任务剧情</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>关于</h3>
+                    <ul>
+                        <li><a href="dev-thoughts.html">开发者随想</a></li>
+                    </ul>
+                </div>
+            </nav>
+        </aside>
+
+        <main class="wiki-content">
+            <nav class="breadcrumb">
+                <a href="../index.html">首页</a> &gt; <a href="market.html">摆摊系统</a> &gt; <span class="current">框架搭建指南</span>
+            </nav>
+
+            <article class="wiki-article">
+                <h1 class="article-title">摆摊系统框架搭建指南</h1>
+                <p style="color: #666; font-size: 13px;">摆摊系统完全指南 | 开发者框架参考 | 搭建模拟器 | 文档版本：v1.0</p>
+
+                <!-- 标签导航 -->
+                <div class="tab-container">
+                    <div class="tab-nav">
+                        <button class="tab-btn active" onclick="switchTab('player')">玩家指南</button>
+                        <button class="tab-btn" onclick="switchTab('developer')">开发者文档</button>
+                        <button class="tab-btn" onclick="switchTab('simulator')">搭建模拟器</button>
+                    </div>
+
+                    <!-- 标签1：玩家指南 -->
+                    <div id="tab-player" class="tab-content active">
+                        <h2>玩家快速入门</h2>
+                        <div class="info-box">
+                            <strong>一句话理解摆摊系统：</strong>摆摊系统是《蛙噻！好摊》的核心玩法。你需要通过<strong>低买高卖</strong>来积累财富，在四条街道的800+摊位中选择合适位置，上架商品并设定价格，通过观察市场反馈来调整策略，最终成为一代商业传奇。
+                        </div>
+
+                        <div class="quick-start-cards">
+                            <div class="quick-card">
+                                <h4>选择摊位</h4>
+                                <p>在四条街道中选择一个空摊位，位置越好人流量越大</p>
+                            </div>
+                            <div class="quick-card">
+                                <h4>上架商品</h4>
+                                <p>从背包中选择商品上架，设定一个有竞争力的价格</p>
+                            </div>
+                            <div class="quick-card">
+                                <h4>观察反馈</h4>
+                                <p>NPC议价意味着定价偏高，快速成交说明定价合理</p>
+                            </div>
+                            <div class="quick-card">
+                                <h4>使用模拟器</h4>
+                                <p>切换到"搭建模拟器"标签，测试不同场景的效果</p>
+                            </div>
+                        </div>
+
+                        <h2>摆摊基础流程</h2>
+                        
+                        <h3>第一步：选择位置</h3>
+                        <p>集市由四条街道组成，每条街道有200+摊位，各有特色：</p>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>街道</th>
+                                    <th>主营</th>
+                                    <th>特点</th>
+                                    <th>适合商品</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>东街</td><td>工具</td><td>工匠聚集地</td><td>采矿镐、钓鱼竿</td></tr>
+                                <tr><td>南街</td><td>综合</td><td>人流量最大</td><td>各类商品皆宜</td></tr>
+                                <tr><td>西街</td><td>道具</td><td>炼金师必去</td><td>药水、卷轴</td></tr>
+                                <tr><td>北街</td><td>装备</td><td>战士天堂</td><td>武器、防具</td></tr>
+                            </tbody>
+                        </table>
+
+                        <h3>第二步：出摊费用</h3>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>费用类型</th>
+                                    <th>费率</th>
+                                    <th>说明</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>出摊手续费</td><td>1%</td><td>上架商品市场价格的1%</td></tr>
+                                <tr><td>交易税费</td><td>5%</td><td>成交金额的5%</td></tr>
+                                <tr><td>收摊费用</td><td>0</td><td>收摊不收取任何费用</td></tr>
+                            </tbody>
+                        </table>
+
+                        <h3>第三步：观察反馈调整策略</h3>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>反馈类型</th>
+                                    <th>含义</th>
+                                    <th>建议操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>快速成交（15分钟内）</td>
+                                    <td>定价偏低或市场短缺</td>
+                                    <td>下次可适当提价10-20%</td>
+                                </tr>
+                                <tr>
+                                    <td>正常成交（1-2小时）</td>
+                                    <td>定价合理</td>
+                                    <td>保持当前定价策略</td>
+                                </tr>
+                                <tr>
+                                    <td>收到NPC议价</td>
+                                    <td>定价偏高</td>
+                                    <td>参考议价价格调整，或接受议价</td>
+                                </tr>
+                                <tr>
+                                    <td>长时间无人问津</td>
+                                    <td>定价严重过高</td>
+                                    <td>收摊后重新开摊定价</td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <h2>摊位位置与装饰</h2>
+
+                        <h3>位置价值</h3>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>位置</th>
+                                    <th>人流量</th>
+                                    <th>出售效率</th>
+                                    <th>适合阶段</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>中心区域</td><td>5星</td><td>+50%</td><td>中后期</td></tr>
+                                <tr><td>街道中段</td><td>4星</td><td>+25%</td><td>中期</td></tr>
+                                <tr><td>街道边缘</td><td>3星</td><td>标准</td><td>新手期</td></tr>
+                            </tbody>
+                        </table>
+
+                        <h3>摊位自动前移机制</h3>
+                        <p>当某个摊位收摊后，该摊位后方的所有摊位会自动向前移动填补空位。只要你持续经营的时间够久，摊位会慢慢移动到更靠前的位置。</p>
+
+                        <h3>装饰加成</h3>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>称号</th>
+                                    <th>解锁装饰</th>
+                                    <th>成交率加成</th>
+                                    <th>离线收益加成</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>小商贩</td><td>草创期6个</td><td>+1%</td><td>-</td></tr>
+                                <tr><td>行商</td><td>立业期6个</td><td>+2%</td><td>+1%</td></tr>
+                                <tr><td>富商</td><td>兴业期6个</td><td>+3%</td><td>+2%</td></tr>
+                                <tr><td>巨贾</td><td>旺业期6个</td><td>+4%</td><td>+3%</td></tr>
+                                <tr><td>商业大亨</td><td>鸿业期6个</td><td>+5%</td><td>+4%</td></tr>
+                                <tr><td>大富翁</td><td>传世期6个</td><td>+6%</td><td>+5%</td></tr>
+                            </tbody>
+                        </table>
+
+                        <h2>常见问题</h2>
+                        
+                        <div class="faq-item">
+                            <div class="faq-question" onclick="toggleFaq(this)">
+                                <span>出摊后可以修改商品价格吗？</span>
+                                <span>-</span>
+                            </div>
+                            <div class="faq-answer">
+                                <p>不可以。出摊后无法更新上架的商品，也无法修改价格。如果需要更换商品或调整价格，必须先收摊（已售商品收益会结算，未售商品返还背包），然后重新选择摊位出摊。</p>
+                            </div>
+                        </div>
+
+                        <div class="faq-item">
+                            <div class="faq-question" onclick="toggleFaq(this)">
+                                <span>摊位自动前移是怎么运作的？</span>
+                                <span>-</span>
+                            </div>
+                            <div class="faq-answer">
+                                <p>当某个摊位收摊后，该摊位后方的所有摊位会自动向前移动填补空位。摊位始终向街道中心方向（左侧）靠拢，保持紧凑排列。这个机制鼓励玩家长期经营，即使一开始只能在边缘位置出摊，只要坚持经营，终有机会移动到黄金位置。</p>
+                            </div>
+                        </div>
+
+                        <div class="faq-item">
+                            <div class="faq-question" onclick="toggleFaq(this)">
+                                <span>离线时摊位还在营业吗？</span>
+                                <span>-</span>
+                            </div>
+                            <div class="faq-answer">
+                                <p>是的。《蛙噻！好摊》是放置类游戏，摊位支持离线自动运营。重新上线时自动结算离线期间的收益，离线时间最长累计24小时。离线收益受摊位位置和装饰加成影响。</p>
+                            </div>
+                        </div>
+
+                        <div class="faq-item">
+                            <div class="faq-question" onclick="toggleFaq(this)">
+                                <span>如何解锁更多装饰？</span>
+                                <span>-</span>
+                            </div>
+                            <div class="faq-answer">
+                                <p>装饰通过消耗不同时期的凭证来获得称号解锁：消耗1000草创凭证获得"小商贩"称号，消耗1500立业凭证获得"行商"称号，以此类推。不同时期需要不同类型的凭证，凭证通过交易、任务、成就等途径获得。</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 标签2：开发者文档 -->
+                    <div id="tab-developer" class="tab-content">
+                        <h2>系统架构</h2>
+                        <p>摆摊系统采用模块化架构设计，主要包含以下核心模块：</p>
+                        <ul>
+                            <li><strong>StallManager（摊位管理模块）</strong>：负责摊位的选择、占用、撤离、自动对齐</li>
+                            <li><strong>TradingSystem（交易系统模块）</strong>：负责商品的上架、下架、议价、成交</li>
+                            <li><strong>PriceSystem（价格系统模块）</strong>：负责市场价格计算、定价反馈</li>
+                            <li><strong>DecorationSystem（装饰系统模块）</strong>：负责装饰解锁、称号加成、效果计算</li>
+                        </ul>
+
+                        <h2>数据结构设计</h2>
+
+                        <h3>摊位数据表</h3>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>字段名</th>
+                                    <th>类型</th>
+                                    <th>说明</th>
+                                    <th>示例</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>id</td><td>string</td><td>摊位唯一ID</td><td>"stall_001"</td></tr>
+                                <tr><td>street</td><td>string</td><td>所属街道</td><td>"east/west/south/north"</td></tr>
+                                <tr><td>index</td><td>int</td><td>在街道中的位置序号</td><td>15</td></tr>
+                                <tr><td>owner</td><td>string</td><td>拥有者ID</td><td>"player_001"</td></tr>
+                                <tr><td>status</td><td>string</td><td>状态</td><td>"occupied/vacant/locked"</td></tr>
+                                <tr><td>decorations</td><td>array</td><td>已购买装饰ID列表</td><td>["dec_001", "dec_002"]</td></tr>
+                            </tbody>
+                        </table>
+
+                        <h3>商品数据表</h3>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>字段名</th>
+                                    <th>类型</th>
+                                    <th>说明</th>
+                                    <th>示例</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>id</td><td>string</td><td>商品唯一ID</td><td>"item_001"</td></tr>
+                                <tr><td>name</td><td>string</td><td>商品名称</td><td>"精铁剑"</td></tr>
+                                <tr><td>type</td><td>string</td><td>商品类型</td><td>"weapon/armor/consumable"</td></tr>
+                                <tr><td>rarity</td><td>string</td><td>稀有度</td><td>"common/rare/epic"</td></tr>
+                                <tr><td>basePrice</td><td>int</td><td>基础价格（市场均价）</td><td>1000</td></tr>
+                            </tbody>
+                        </table>
+
+                        <h3>玩家摊位数据表</h3>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>字段名</th>
+                                    <th>类型</th>
+                                    <th>说明</th>
+                                    <th>示例</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>playerId</td><td>string</td><td>玩家ID</td><td>"player_001"</td></tr>
+                                <tr><td>stallId</td><td>string</td><td>摊位ID</td><td>"stall_001"</td></tr>
+                                <tr><td>listedItems</td><td>array</td><td>上架商品列表</td><td>[...]</td></tr>
+                                <tr><td>earnings.total</td><td>int</td><td>累计收益</td><td>15000</td></tr>
+                                <tr><td>stats.totalSales</td><td>int</td><td>累计销售数</td><td>100</td></tr>
+                            </tbody>
+                        </table>
+
+                        <h2>核心算法实现</h2>
+
+                        <h3>出摊流程</h3>
+                        <div class="code-section">
+                            <div class="code-header" onclick="toggleCode(this)">
+                                <span>startStall 实现代码</span>
+                                <span class="toggle-icon">-</span>
+                            </div>
+                            <div class="code-content">
+                                <pre class="code-block">// 出摊流程
+async function startStall(stallId, items, player) {
+    const stall = stallManager.selectStall(stallId);
+    if (!stall) return { success: false, message: "摊位不存在" };
+
+    // 1. 计算手续费
+    let totalFee = 0;
+    items.forEach(listing => {
+        const marketPrice = priceSystem.calculateMarketPrice(listing.itemId, stall.position.street);
+        totalFee += marketPrice * 0.01; // 1% 上架费
+    });
+
+    // 2. 检查余额
+    if (player.money < totalFee) {
+        return { success: false, message: "余额不足，无法出摊" };
+    }
+
+    // 3. 扣除费用并上架商品
+    player.money -= totalFee;
+    items.forEach(listing => {
+        tradingSystem.listItem(listing.itemId, listing.price, listing.quantity);
+    });
+
+    // 4. 更新摊位状态
+    stallManager.occupyStall(stallId, player.id);
+
+    return { success: true, message: "出摊成功", fee: totalFee };
+}</pre>
+                            </div>
+                        </div>
+
+                        <h3>收摊流程</h3>
+                        <div class="code-section">
+                            <div class="code-header" onclick="toggleCode(this)">
+                                <span>endStall 实现代码</span>
+                                <span class="toggle-icon">-</span>
+                            </div>
+                            <div class="code-content">
+                                <pre class="code-block">// 收摊流程
+async function endStall(stallId, player) {
+    const stall = stallManager.selectStall(stallId);
+    if (!stall || stall.owner !== player.id) {
+        return { success: false, message: "摊位不属于你" };
+    }
+
+    // 1. 获取已售商品收益
+    const soldItems = tradingSystem.getSoldItems(stallId);
+    let totalEarnings = 0;
+    soldItems.forEach(sale => {
+        const tax = sale.price * 0.05; // 5% 交易税
+        totalEarnings += sale.price - tax;
+    });
+
+    // 2. 获取未售出商品
+    const unsoldItems = tradingSystem.getUnlistedItems(stallId);
+    unsoldItems.forEach(item => {
+        player.addToInventory(item);
+    });
+
+    // 3. 撤离摊位
+    stallManager.vacateStall(stallId);
+
+    // 4. 返回收益
+    player.money += totalEarnings;
+
+    return {
+        success: true,
+        earnings: totalEarnings,
+        unsoldCount: unsoldItems.length
+    };
+}</pre>
+                            </div>
+                        </div>
+
+                        <h3>离线收益计算</h3>
+                        <div class="code-section">
+                            <div class="code-header" onclick="toggleCode(this)">
+                                <span>calculateOfflineEarnings 实现代码</span>
+                                <span class="toggle-icon">-</span>
+                            </div>
+                            <div class="code-content">
+                                <pre class="code-block">// 离线收益计算
+function calculateOfflineEarnings(offlineTime, stall) {
+    const maxOfflineTime = 24 * 60 * 60 * 1000; // 24小时上限
+    const effectiveTime = Math.min(offlineTime, maxOfflineTime);
+
+    // 基础收益
+    let baseEarnings = 0;
+    stall.listedItems.forEach(listing => {
+        const avgSellTime = calculateAvgSellTime(listing);
+        const expectedSales = effectiveTime / avgSellTime;
+        baseEarnings += listing.price * expectedSales * 0.95;
+    });
+
+    // 位置加成
+    const positionBonus = {
+        "center": 1.5,
+        "middle": 1.25,
+        "edge": 1.0
+    }[stall.position.type];
+
+    // 装饰加成
+    const decorationBonus = decorationSystem.getTotalBonus();
+
+    // 最终收益
+    const finalEarnings = baseEarnings
+        * positionBonus
+        * (1 + decorationBonus.offlineRate)
+        * (1 - decorationBonus.taxReduction);
+
+    return Math.floor(finalEarnings);
+}</pre>
+                            </div>
+                        </div>
+
+                        <h3>摊位自动对齐</h3>
+                        <div class="code-section">
+                            <div class="code-header" onclick="toggleCode(this)">
+                                <span>autoAlignStalls 实现代码</span>
+                                <span class="toggle-icon">-</span>
+                            </div>
+                            <div class="code-content">
+                                <pre class="code-block">// 摊位自动前移对齐
+autoAlignStalls(street) {
+    // 当有摊位收摊后，后面的摊位自动前移
+    const streetStalls = this.stalls.filter(s => s.position.street === street);
+    streetStalls.sort((a, b) => a.position.index - b.position.index);
+
+    let currentIndex = 0;
+    streetStalls.forEach(stall => {
+        if (stall.status === "occupied") {
+            stall.position.index = currentIndex++;
+        }
+    });
+}</pre>
+                            </div>
+                        </div>
+
+                        <h2>完整类实现</h2>
+
+                        <h3>Game主类</h3>
+                        <div class="code-section">
+                            <div class="code-header" onclick="toggleCode(this)">
+                                <span>完整代码</span>
+                                <span class="toggle-icon">-</span>
+                            </div>
+                            <div class="code-content">
+                                <pre class="code-block">class Game {
+    constructor() {
+        this.player = { ...PLAYER_DATA };
+        this.stalls = this.initStalls();
+        this.currentStall = null;
+    }
+
+    initStalls() {
+        const stalls = [];
+        let id = 1;
+        for (const street of Object.keys(STALL_POSITIONS)) {
+            for (let i = 0; i < 200; i++) {
+                stalls.push({
+                    id: `stall_${id++}`,
+                    street: street,
+                    index: i,
+                    owner: null,
+                    listedItems: []
+                });
+            }
+        }
+        return stalls;
+    }
+
+    selectStall(stallId) {
+        this.currentStall = this.stalls.find(s => s.id === stallId);
+        return this.currentStall;
+    }
+
+    startStall(stallId, items) {
+        const stall = this.selectStall(stallId);
+        if (!stall || stall.owner) {
+            return { success: false, message: "摊位不可用" };
+        }
+        let fee = 0;
+        items.forEach(item => { fee += item.price * 0.01; });
+        if (this.player.money < fee) {
+            return { success: false, message: "余额不足" };
+        }
+        this.player.money -= fee;
+        stall.owner = this.player.id;
+        stall.listedItems = items;
+        return { success: true, message: "出摊成功", fee: fee };
+    }
+
+    endStall(stallId) {
+        const stall = this.stalls.find(s => s.id === stallId);
+        if (!stall || stall.owner !== this.player.id) {
+            return { success: false, message: "摊位不属于你" };
+        }
+        let earnings = 0;
+        stall.listedItems.forEach(item => {
+            earnings += item.price * 0.95; // 5%税费
+        });
+        const unsold = [...stall.listedItems];
+        stall.listedItems = [];
+        stall.owner = null;
+        this.player.money += earnings;
+        return { success: true, earnings: earnings, unsold: unsold };
+    }
+}</pre>
+                            </div>
+                        </div>
+
+                        <h2>扩展建议</h2>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>扩展功能</th>
+                                    <th>难度</th>
+                                    <th>说明</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>多摊位管理</td><td>简单</td><td>玩家同时租用多个摊位</td></tr>
+                                <tr><td>摊位升级</td><td>中等</td><td>增加货架容量、解锁特殊功能</td></tr>
+                                <tr><td>雇员工资</td><td>中等</td><td>雇佣NPC自动议价、进货</td></tr>
+                                <tr><td>连锁店铺</td><td>困难</td><td>多集市开设分店</td></tr>
+                                <tr><td>商会系统</td><td>困难</td><td>玩家结成商会共享信息</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- 标签3：搭建模拟器 -->
+                    <div id="tab-simulator" class="tab-content">
+                        <h2>摆摊系统模拟器</h2>
+                        <p>输入参数，模拟计算摆摊的各项费用和收益。</p>
+
+                        <div class="simulator-container">
+                            <!-- 左侧：参数输入 -->
+                            <div class="simulator-panel">
+                                <h3>参数设置</h3>
+                                
+                                <div class="form-group">
+                                    <label for="sim-item">商品类型</label>
+                                    <select id="sim-item" onchange="updateSimulator()">
+                                        <option value="100" data-base="100">普通商品 (基础价: 100文)</option>
+                                        <option value="500" data-base="500">稀有商品 (基础价: 500文)</option>
+                                        <option value="2000" data-base="2000">精良装备 (基础价: 2000文)</option>
+                                        <option value="5000" data-base="5000">史诗物品 (基础价: 5000文)</option>
+                                        <option value="10000" data-base="10000">传说神器 (基础价: 10000文)</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="sim-quantity">上架数量</label>
+                                    <input type="number" id="sim-quantity" value="1" min="1" max="99" oninput="updateSimulator()">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="sim-price">设定售价 (文)</label>
+                                    <input type="number" id="sim-price" value="150" min="1" oninput="updateSimulator()">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="sim-position">摊位位置</label>
+                                    <select id="sim-position" onchange="updateSimulator()">
+                                        <option value="1.0">街道边缘 (人流: 低)</option>
+                                        <option value="1.25" selected>街道中段 (人流: 中)</option>
+                                        <option value="1.5">中心区域 (人流: 高)</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="sim-decoration">装饰加成</label>
+                                    <select id="sim-decoration" onchange="updateSimulator()">
+                                        <option value="1.0">无装饰 (1.0x)</option>
+                                        <option value="1.1">初级配置+10% (1.1x)</option>
+                                        <option value="1.2">中级配置+20% (1.2x)</option>
+                                        <option value="1.35">高级配置+35% (1.35x)</option>
+                                        <option value="1.5">顶级配置+50% (1.5x)</option>
+                                        <option value="1.65">毕业配置+65% (1.65x)</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="sim-offline">离线时间</label>
+                                    <select id="sim-offline" onchange="updateSimulator()">
+                                        <option value="0">不离线 (0小时)</option>
+                                        <option value="4">轻度离线 (4小时)</option>
+                                        <option value="8">中度离线 (8小时)</option>
+                                        <option value="12">长时间离线 (12小时)</option>
+                                        <option value="24" selected>最大离线 (24小时)</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="sim-PlayerMoney">玩家当前余额 (文)</label>
+                                    <input type="number" id="sim-player-money" value="1000" min="0" oninput="updateSimulator()">
+                                </div>
+
+                                <div class="btn-group">
+                                    <button class="btn-primary" onclick="calculateStall()">开始计算</button>
+                                    <button class="btn-secondary" onclick="resetSimulator()">重置</button>
+                                </div>
+                            </div>
+
+                            <!-- 右侧：计算结果 -->
+                            <div class="simulator-panel">
+                                <h3>计算结果</h3>
+                                
+                                <div class="result-box">
+                                    <div class="result-item">
+                                        <span class="result-label">上架商品数</span>
+                                        <span class="result-value" id="result-quantity">--</span>
+                                    </div>
+                                    <div class="result-item">
+                                        <span class="result-label">设定售价</span>
+                                        <span class="result-value" id="result-price">--</span>
+                                    </div>
+                                    <div class="result-item">
+                                        <span class="result-label">市场参考价</span>
+                                        <span class="result-value highlight" id="result-market-price">--</span>
+                                    </div>
+                                    <div class="result-item">
+                                        <span class="result-label">定价偏离度</span>
+                                        <span class="result-value" id="result-deviation">--</span>
+                                    </div>
+                                </div>
+
+                                <div class="result-box" style="border-color: #ff9800;">
+                                    <h4 style="margin: 0 0 10px 0;">费用明细</h4>
+                                    <div class="result-item">
+                                        <span class="result-label">出摊手续费 (1%)</span>
+                                        <span class="result-value" id="result-fee">--</span>
+                                    </div>
+                                    <div class="result-item">
+                                        <span class="result-label">交易税费 (5%)</span>
+                                        <span class="result-value" id="result-tax">--</span>
+                                    </div>
+                                    <div class="result-item">
+                                        <span class="result-label">实际总支出</span>
+                                        <span class="result-value warning" id="result-total-cost">--</span>
+                                    </div>
+                                </div>
+
+                                <div class="result-box" style="border-color: #4caf50;">
+                                    <h4 style="margin: 0 0 10px 0;">收益明细</h4>
+                                    <div class="result-item">
+                                        <span class="result-label">预估成交数</span>
+                                        <span class="result-value" id="result-sales">--</span>
+                                    </div>
+                                    <div class="result-item">
+                                        <span class="result-label">预估成交时间</span>
+                                        <span class="result-value" id="result-time">--</span>
+                                    </div>
+                                    <div class="result-item">
+                                        <span class="result-label">单件预估收益</span>
+                                        <span class="result-value success" id="result-per-item">--</span>
+                                    </div>
+                                    <div class="result-item">
+                                        <span class="result-label">离线收益加成</span>
+                                        <span class="result-value" id="result-offline">--</span>
+                                    </div>
+                                    <div class="result-item">
+                                        <span class="result-label">总预估收益</span>
+                                        <span class="result-value success" id="result-total-earnings">--</span>
+                                    </div>
+                                </div>
+
+                                <div class="result-box" style="border-color: #2196f3;">
+                                    <h4 style="margin: 0 0 10px 0;">账户变化</h4>
+                                    <div class="result-item">
+                                        <span class="result-label">当前余额</span>
+                                        <span class="result-value" id="result-current-money">--</span>
+                                    </div>
+                                    <div class="result-item">
+                                        <span class="result-label">支出</span>
+                                        <span class="result-value warning" id="result-spend">--</span>
+                                    </div>
+                                    <div class="result-item">
+                                        <span class="result-label">预计回款</span>
+                                        <span class="result-value success" id="result-return">--</span>
+                                    </div>
+                                    <div class="result-item">
+                                        <span class="result-label">预计最终余额</span>
+                                        <span class="result-value highlight" id="result-final-money">--</span>
+                                    </div>
+                                </div>
+
+                                <div class="suggestion-box" id="suggestion-box">
+                                    <h4 style="margin-top: 0;">系统建议</h4>
+                                    <p id="suggestion-text">点击"开始计算"获取建议</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 场景预设 -->
+                        <div class="simulator-panel" style="margin-top: 20px;">
+                            <h3>快速场景模拟</h3>
+                            <p>点击预设场景，快速填入参数进行模拟：</p>
+                            <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px;">
+                                <button class="tab-btn" onclick="loadScenario('newbie')">新手开局</button>
+                                <button class="tab-btn" onclick="loadScenario('normal')">普通摆摊</button>
+                                <button class="tab-btn" onclick="loadScenario('high-end')">高端装备</button>
+                                <button class="tab-btn" onclick="loadScenario('overnight')"> overnight挂机</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="article-footer">
+                    <p>文档版本：v1.0 | 最后更新于：2026-03-22 | 编辑次数：2</p>
+                </div>
+            </article>
+        </main>
+    </div>
+
+    <footer class="wiki-footer">
+        <p>&copy; 2026 《蛙噻！好摊》游戏百科 | 本百科由玩家共同维护</p>
+    </footer>
+
+    <script src="../js/main.js"></script>
+    <script>
+        // 标签切换
+        function switchTab(tabName) {
+            // 隐藏所有标签内容
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            // 移除所有按钮激活状态
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            // 显示选中标签
+            document.getElementById('tab-' + tabName).classList.add('active');
+            // 激活对应按钮
+            event.target.classList.add('active');
+        }
+
+        // FAQ切换
+        function toggleFaq(element) {
+            const answer = element.nextElementSibling;
+            const icon = element.querySelector('span:last-child');
+            answer.classList.toggle('active');
+            icon.textContent = answer.classList.contains('active') ? '-' : '+';
+        }
+
+        // 代码折叠
+        function toggleCode(header) {
+            const content = header.nextElementSibling;
+            const icon = header.querySelector('.toggle-icon');
+            content.classList.toggle('active');
+            icon.classList.toggle('rotated');
+            icon.textContent = content.classList.contains('active') ? '-' : '+';
+        }
+
+        // 模拟器核心算法
+        function calculateStall() {
+            const basePrice = parseInt(document.getElementById('sim-item').value);
+            const quantity = parseInt(document.getElementById('sim-quantity').value) || 1;
+            const playerPrice = parseInt(document.getElementById('sim-price').value) || basePrice;
+            const positionBonus = parseFloat(document.getElementById('sim-position').value);
+            const decorationBonus = parseFloat(document.getElementById('sim-decoration').value);
+            const offlineHours = parseInt(document.getElementById('sim-offline').value);
+            const playerMoney = parseInt(document.getElementById('sim-player-money').value) || 1000;
+
+            // 市场参考价（加入随机波动）
+            const marketPrice = Math.round(basePrice * (0.95 + Math.random() * 0.1));
+            
+            // 定价偏离度
+            const deviation = (playerPrice - marketPrice) / marketPrice;
+
+            // 费用计算
+            const listingFee = Math.round(marketPrice * 0.01 * quantity); // 1% 上架费
+            const taxRate = 0.05; // 5% 交易税
+            const totalCost = listingFee;
+
+            // 成交概率计算
+            const lambda = 2.0;
+            const sigmoid = 1 / (1 + Math.exp(-(-deviation * lambda)));
+            const baseProb = 0.7;
+            const probability = Math.min(Math.max(baseProb * sigmoid * positionBonus * decorationBonus, 0), 1);
+
+            // 预估成交
+            const expectedSales = Math.round(quantity * probability);
+            const taxPerItem = Math.round(playerPrice * taxRate);
+            const earningsPerItem = playerPrice - taxPerItem;
+            const totalEarnings = expectedSales * earningsPerItem;
+
+            // 离线收益
+            const offlineBonus = offlineHours > 0 ? (1 + offlineHours * 0.02 * decorationBonus) : 1;
+            const totalWithOffline = Math.round(totalEarnings * offlineBonus);
+
+            // 预计成交时间
+            let estimatedTime = "";
+            if (probability >= 0.8) estimatedTime = "15分钟内";
+            else if (probability >= 0.5) estimatedTime = "1-2小时";
+            else if (probability >= 0.3) estimatedTime = "3-5小时";
+            else if (probability >= 0.1) estimatedTime = "5-8小时";
+            else estimatedTime = "8小时以上";
+
+            // 账户变化
+            const spend = totalCost;
+            const returnMoney = totalWithOffline;
+            const finalMoney = playerMoney - spend + returnMoney;
+
+            // 更新显示
+            document.getElementById('result-quantity').textContent = quantity + " 件";
+            document.getElementById('result-price').textContent = playerPrice + " 文";
+            document.getElementById('result-market-price').textContent = marketPrice + " 文";
+
+            const deviationElem = document.getElementById('result-deviation');
+            const deviationPercent = (deviation * 100).toFixed(1);
+            if (deviation < -0.1) {
+                deviationElem.textContent = deviationPercent + "% (偏低)";
+                deviationElem.className = "result-value success";
+            } else if (deviation <= 0.15) {
+                deviationElem.textContent = deviationPercent + "% (合理)";
+                deviationElem.className = "result-value success";
+            } else if (deviation <= 0.35) {
+                deviationElem.textContent = deviationPercent + "% (偏高)";
+                deviationElem.className = "result-value warning";
+            } else {
+                deviationElem.textContent = deviationPercent + "% (过高)";
+                deviationElem.className = "result-value danger";
+            }
+
+            document.getElementById('result-fee').textContent = listingFee + " 文";
+            document.getElementById('result-tax').textContent = taxPerItem + " 文/件";
+            document.getElementById('result-total-cost').textContent = totalCost + " 文";
+
+            document.getElementById('result-sales').textContent = expectedSales + " / " + quantity + " 件";
+            document.getElementById('result-time').textContent = estimatedTime;
+            document.getElementById('result-per-item').textContent = earningsPerItem + " 文";
+            document.getElementById('result-offline').textContent = offlineHours > 0 ? "+" + Math.round((offlineBonus - 1) * 100) + "%" : "无";
+            document.getElementById('result-total-earnings').textContent = totalWithOffline + " 文";
+
+            document.getElementById('result-current-money').textContent = playerMoney + " 文";
+            document.getElementById('result-spend').textContent = spend + " 文";
+            document.getElementById('result-return').textContent = returnMoney + " 文";
+            document.getElementById('result-final-money').textContent = finalMoney + " 文";
+
+            // 建议
+            let suggestion = "";
+            if (deviation < -0.2) {
+                suggestion = "定价偏低，建议提价20-30%以获得更高利润";
+            } else if (deviation < -0.05) {
+                suggestion = "定价略低，适合快速回笼资金";
+            } else if (deviation <= 0.15) {
+                suggestion = "定价合理，保持当前价格策略";
+            } else if (deviation <= 0.35) {
+                suggestion = "定价偏高，建议参考市场均价调整";
+            } else {
+                suggestion = "定价严重过高，建议收摊后重新定价";
+            }
+
+            if (playerMoney < totalCost) {
+                suggestion = "余额不足，需要 " + totalCost + " 文才能出摊";
+            }
+
+            document.getElementById('suggestion-text').textContent = suggestion;
+        }
+
+        function updateSimulator() {
+            // 实时更新（可选）
+        }
+
+        function resetSimulator() {
+            document.getElementById('sim-item').selectedIndex = 0;
+            document.getElementById('sim-quantity').value = 1;
+            document.getElementById('sim-price').value = 150;
+            document.getElementById('sim-position').selectedIndex = 1;
+            document.getElementById('sim-decoration').selectedIndex = 0;
+            document.getElementById('sim-offline').selectedIndex = 4;
+            document.getElementById('sim-player-money').value = 1000;
+
+            // 清空结果
+            const resultIds = ['result-quantity', 'result-price', 'result-market-price', 'result-deviation',
+                'result-fee', 'result-tax', 'result-total-cost', 'result-sales', 'result-time',
+                'result-per-item', 'result-offline', 'result-total-earnings', 'result-current-money',
+                'result-spend', 'result-return', 'result-final-money'];
+            
+            resultIds.forEach(id => {
+                const elem = document.getElementById(id);
+                if (elem) elem.textContent = "--";
+            });
+
+            document.getElementById('suggestion-text').textContent = "点击"开始计算"获取建议";
+        }
+
+        function loadScenario(scenario) {
+            switch(scenario) {
+                case 'newbie':
+                    document.getElementById('sim-item').selectedIndex = 0;
+                    document.getElementById('sim-quantity').value = 5;
+                    document.getElementById('sim-price').value = 100;
+                    document.getElementById('sim-position').selectedIndex = 0;
+                    document.getElementById('sim-decoration').selectedIndex = 0;
+                    document.getElementById('sim-offline').selectedIndex = 0;
+                    document.getElementById('sim-player-money').value = 500;
+                    break;
+                case 'normal':
+                    document.getElementById('sim-item').selectedIndex = 1;
+                    document.getElementById('sim-quantity').value = 3;
+                    document.getElementById('sim-price').value = 500;
+                    document.getElementById('sim-position').selectedIndex = 1;
+                    document.getElementById('sim-decoration').selectedIndex = 2;
+                    document.getElementById('sim-offline').selectedIndex = 4;
+                    document.getElementById('sim-player-money').value = 2000;
+                    break;
+                case 'high-end':
+                    document.getElementById('sim-item').selectedIndex = 3;
+                    document.getElementById('sim-quantity').value = 1;
+                    document.getElementById('sim-price').value = 5500;
+                    document.getElementById('sim-position').selectedIndex = 2;
+                    document.getElementById('sim-decoration').selectedIndex = 5;
+                    document.getElementById('sim-offline').selectedIndex = 4;
+                    document.getElementById('sim-player-money').value = 10000;
+                    break;
+                case 'overnight':
+                    document.getElementById('sim-item').selectedIndex = 1;
+                    document.getElementById('sim-quantity').value = 10;
+                    document.getElementById('sim-price').value = 480;
+                    document.getElementById('sim-position').selectedIndex = 1;
+                    document.getElementById('sim-decoration').selectedIndex = 3;
+                    document.getElementById('sim-offline').selectedIndex = 4;
+                    document.getElementById('sim-player-money').value = 3000;
+                    break;
+            }
+            calculateStall();
+        }
+
+        // 页面加载时初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 默认显示玩家指南
+        });
+    </script>
+</body>
+</html>

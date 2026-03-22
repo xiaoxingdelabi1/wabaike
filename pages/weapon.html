@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>武器 - 蛙噻！好摊</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        /* 物品卡片样式 */
+        .item-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+            margin: 16px 0;
+        }
+        .item-card {
+            background: var(--wiki-box-bg);
+            border: 1px solid var(--wiki-border);
+            padding: 12px;
+        }
+        .item-card h4 {
+            margin: 0 0 8px 0;
+            color: var(--wiki-text);
+            font-size: 15px;
+        }
+        .item-card .meta {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+        .item-card .description {
+            font-size: 13px;
+            color: var(--wiki-text-secondary);
+            margin: 0 0 8px 0;
+        }
+        .item-card .effect-box {
+            background: var(--wiki-content-bg);
+            padding: 8px;
+            font-size: 12px;
+            border-left: 3px solid var(--wiki-link);
+        }
+
+        /* 类型标签 */
+        .type-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            font-size: 11px;
+            border-radius: 2px;
+        }
+        .type-badge.weapon {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        /* 稀有度标签 */
+        .rarity-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            font-size: 11px;
+            border-radius: 2px;
+        }
+        .rarity-badge.common {
+            background: #f5f5f5;
+            color: #616161;
+        }
+        .rarity-badge.uncommon {
+            background: #e8f5e9;
+            color: #388e3c;
+        }
+        .rarity-badge.rare {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+        .rarity-badge.epic {
+            background: #f3e5f5;
+            color: #7b1fa2;
+        }
+        .rarity-badge.legendary {
+            background: #fff8e1;
+            color: #f57f17;
+        }
+
+        /* 信息框 - Wiki风格 */
+        .info-box {
+            background: var(--wiki-box-bg);
+            border: 1px solid var(--wiki-border);
+            border-left: 4px solid var(--wiki-link);
+            padding: 12px;
+            margin: 12px 0;
+        }
+        .tip-box {
+            background: #e3f2fd;
+            border: 1px solid #90caf9;
+            border-left: 4px solid #2196f3;
+            padding: 12px;
+            margin: 12px 0;
+        }
+
+        /* 筛选标签 */
+        .filter-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 16px 0;
+        }
+        .filter-tabs .tab-btn {
+            padding: 6px 12px;
+            background: var(--wiki-box-bg);
+            border: 1px solid var(--wiki-border);
+            cursor: pointer;
+            font-size: 13px;
+            margin-right: 0;
+        }
+        .filter-tabs .tab-btn:hover {
+            background: var(--wiki-header-bg);
+        }
+        .filter-tabs .tab-btn.active {
+            background: var(--wiki-content-bg);
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body class="wiki-layout">
+    <header class="wiki-topbar">
+        <div class="wiki-logo">
+            <a href="../index.html">蛙噻！好摊</a>
+        </div>
+        <div class="wiki-search">
+            <input type="text" placeholder="搜索百科..." id="searchInput">
+            <button onclick="search()">搜索</button>
+        </div>
+        <div class="wiki-user">
+            <span>欢迎访问</span>
+        </div>
+    </header>
+
+    <div class="wiki-container">
+        <aside class="wiki-sidebar">
+            <nav class="wiki-nav">
+                <div class="nav-section">
+                    <h3>百科分类</h3>
+                    <ul>
+                        <li><a href="../index.html">首页</a></li>
+                        <li><a href="game-intro.html">游戏介绍</a></li>
+                        <li><a href="world.html">世界观</a></li>
+                        <li><a href="factions.html">势力分布</a></li>
+                        <li><a href="history.html">历史年表</a></li>
+                        <li><a href="price-mechanism.html">价格机制</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>游戏特色</h3>
+                    <ul>
+                        <li><a href="bazaar.html">集市</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>游戏玩法</h3>
+                    <ul>
+                        <li><a href="market.html">摆摊系统</a></li>
+                        <li><a href="achievements.html">成就系统</a></li>
+                        <li><a href="combat.html">战斗系统</a></li>
+                        <li><a href="progression.html">成长系统</a></li>
+                        <li><a href="currency.html">货币系统</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>角色</h3>
+                    <ul>
+                        <li><a href="characters.html">角色总览</a></li>
+                        <li><a href="characters.html?type=playable">主要角色</a></li>
+                        <li><a href="characters.html?type=npc">NPC</a></li>
+                        <li><a href="enemies.html">敌人</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>物品装备</h3>
+                    <ul>
+                        <li><a href="items.html">物品总览</a></li>
+                        <li><a href="weapon.html" class="active">武器</a></li>
+                        <li><a href="armor.html">防具</a></li>
+                        <li><a href="accessory.html">饰品</a></li>
+                        <li><a href="treasure.html">法宝</a></li>
+                        <li><a href="consumable.html">消耗品</a></li>
+                        <li><a href="material.html">材料</a></li>
+                        <li><a href="collection.html">收藏品</a></li>
+                        <li><a href="crafting.html">生活技能</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>世界探索</h3>
+                    <ul>
+                        <li><a href="locations.html">地点总览</a></li>
+                        <li><a href="map.html">游戏地图</a></li>
+                        <li><a href="quests.html">任务剧情</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>关于</h3>
+                    <ul>
+                        <li><a href="dev-thoughts.html">开发者随想</a></li>
+                    </ul>
+                </div>
+            </nav>
+        </aside>
+
+        <main class="wiki-content">
+            <nav class="breadcrumb">
+                <a href="../index.html">首页</a> &gt; <a href="items.html">物品装备</a> &gt; <span class="current">武器</span>
+            </nav>
+
+            <article class="wiki-article">
+                <h1 class="article-title">武器</h1>
+                
+                <div class="info-box">
+                    <strong>武器系统简介：</strong>武器是提升角色攻击力的主要装备。不同类型的武器拥有不同的攻击范围、攻击速度和特殊效果。合理选择武器是战斗胜利的关键。
+                </div>
+
+                <h2>武器类型</h2>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>武器类型</th>
+                            <th>攻击范围</th>
+                            <th>攻击速度</th>
+                            <th>特点</th>
+                            <th>适用场景</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>剑类</td>
+                            <td>中等</td>
+                            <td>中等</td>
+                            <td>平衡型武器，攻守兼备</td>
+                            <td>适合新手，各种场景通用</td>
+                        </tr>
+                        <tr>
+                            <td>刀类</td>
+                            <td>较短</td>
+                            <td>较快</td>
+                            <td>高攻速，连续输出</td>
+                            <td>近战快速输出，对付单个敌人</td>
+                        </tr>
+                        <tr>
+                            <td>枪类</td>
+                            <td>较长</td>
+                            <td>较慢</td>
+                            <td>长距离攻击，可穿透</td>
+                            <td>控制距离，对付群体敌人</td>
+                        </tr>
+                        <tr>
+                            <td>法器</td>
+                            <td>远程</td>
+                            <td>慢</td>
+                            <td>法术伤害，范围攻击</td>
+                            <td>远程输出，群体伤害</td>
+                        </tr>
+                        <tr>
+                            <td>棍棒</td>
+                            <td>中等</td>
+                            <td>中等</td>
+                            <td>高击退，控制效果</td>
+                            <td>控制敌人，保护队友</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h2>武器列表</h2>
+                <div class="filter-tabs">
+                    <button class="tab-btn active" onclick="filterWeapons('all')">全部</button>
+                    <button class="tab-btn" onclick="filterWeapons('sword')">剑类</button>
+                    <button class="tab-btn" onclick="filterWeapons('blade')">刀类</button>
+                    <button class="tab-btn" onclick="filterWeapons('spear')">枪类</button>
+                    <button class="tab-btn" onclick="filterWeapons('club')">棍棒</button>
+                    <button class="tab-btn" onclick="filterWeapons('staff')">法器</button>
+                </div>
+                <div class="item-grid" id="weaponGrid"></div>
+
+                <h2>武器获取途径</h2>
+                <div class="tip-box">
+                    <ul>
+                        <li><strong>击败敌人</strong>：普通敌人掉落普通武器，精英和Boss掉落稀有以上武器</li>
+                        <li><strong>商店购买</strong>：武器店出售基础武器，集市可购买玩家出售的武器</li>
+                        <li><strong>任务奖励</strong>：完成主线和支线任务可获得武器奖励</li>
+                        <li><strong>锻造制作</strong>：收集材料后在铁匠铺锻造高级武器</li>
+                        <li><strong>探索宝箱</strong>：地图上的宝箱有概率开出武器</li>
+                    </ul>
+                </div>
+
+                <h2>武器强化</h2>
+                <p>武器可以通过以下方式提升属性：</p>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>强化方式</th>
+                            <th>所需材料</th>
+                            <th>效果</th>
+                            <th>成功率</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>强化+1~+5</td>
+                            <td>铁矿石 x5</td>
+                            <td>攻击力+10%</td>
+                            <td>100%</td>
+                        </tr>
+                        <tr>
+                            <td>强化+6~+10</td>
+                            <td>精铁矿石 x5 + 金币</td>
+                            <td>攻击力+20%</td>
+                            <td>80%</td>
+                        </tr>
+                        <tr>
+                            <td>强化+11~+15</td>
+                            <td>玄铁矿石 x5 + 妖丹 x1</td>
+                            <td>攻击力+35%</td>
+                            <td>60%</td>
+                        </tr>
+                        <tr>
+                            <td>附魔</td>
+                            <td>附魔石 + 灵草</td>
+                            <td>附加元素伤害</td>
+                            <td>100%</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="article-footer">
+                    <p>最后更新于：2026-03-21 | 编辑次数：1</p>
+                </div>
+            </article>
+        </main>
+    </div>
+
+    <footer class="wiki-footer">
+        <p>&copy; 2026 《蛙噻！好摊》游戏百科 | 本百科由玩家共同维护</p>
+    </footer>
+
+    <script src="../js/main.js"></script>
+    <script>
+        let weapons = [
+            { id: 1, name: "新手木剑", type: "sword", rarity: "common", description: "初学者使用的木剑，轻便但威力有限。", effect: "攻击力+5", attack: 5 },
+            { id: 2, name: "铁剑", type: "sword", rarity: "uncommon", description: "用精铁打造的剑，比木剑更加锋利耐用。", effect: "攻击力+15", attack: 15 },
+            { id: 23, name: "青铜剑", type: "sword", rarity: "common", description: "青铜铸造的剑，古朴耐用。", effect: "攻击力+8", attack: 8 },
+            { id: 24, name: "精钢长剑", type: "sword", rarity: "rare", description: "用精钢锻造的长剑，锋利无比。", effect: "攻击力+25", attack: 25 },
+            { id: 25, name: "烈焰剑", type: "sword", rarity: "epic", description: "蕴含火焰之力的魔法剑，攻击时有几率造成燃烧效果。", effect: "攻击力+40，火属性伤害+10", attack: 40 },
+            { id: 26, name: "屠龙剑", type: "sword", rarity: "legendary", description: "传说可以屠龙的圣剑，拥有毁天灭地的力量。", effect: "攻击力+80，暴击率+20%", attack: 80 },
+            
+            { id: 27, name: "短刀", type: "blade", rarity: "common", description: "短小的刀具，适合近战。", effect: "攻击力+6，攻速+5%", attack: 6 },
+            { id: 28, name: "精铁刀", type: "blade", rarity: "uncommon", description: "精铁打造的刀，锋利异常。", effect: "攻击力+18，攻速+8%", attack: 18 },
+            { id: 29, name: "斩马刀", type: "blade", rarity: "rare", description: "长柄大刀，威力巨大。", effect: "攻击力+30，破甲+10%", attack: 30 },
+            
+            { id: 30, name: "木枪", type: "spear", rarity: "common", description: "木制长枪，基础武器。", effect: "攻击力+7，攻击距离+1", attack: 7 },
+            { id: 31, name: "铁枪", type: "spear", rarity: "uncommon", description: "铁制枪头，威力不俗。", effect: "攻击力+20，攻击距离+1", attack: 20 },
+            { id: 32, name: "龙胆亮银枪", type: "spear", rarity: "epic", description: "赵云使用的名枪，锋利无比。", effect: "攻击力+45，穿透攻击", attack: 45 },
+            
+            { id: 33, name: "桃木杖", type: "staff", rarity: "common", description: "桃木制成的法杖，蕴含微弱灵力。", effect: "法术攻击+10", attack: 10 },
+            { id: 34, name: "紫竹杖", type: "staff", rarity: "uncommon", description: "紫竹制成的法杖，适合施法。", effect: "法术攻击+25", attack: 25 },
+            { id: 35, name: "九环锡杖", type: "staff", rarity: "rare", description: "唐僧持有的法杖，具有驱邪之力。", effect: "法术攻击+40，治疗效果+20%", attack: 40 },
+            { id: 36, name: "芭蕉扇", type: "staff", rarity: "epic", description: "铁扇公主的芭蕉扇，一扇能灭火，二扇生风，三扇下雨。", effect: "法术攻击+60，火属性伤害+20%", attack: 60 },
+            { id: 37, name: "玉净瓶", type: "staff", rarity: "legendary", description: "观音菩萨的玉净瓶，装有甘露水。", effect: "法术攻击+100，治疗效果+50%，复活队友", attack: 100 },
+            
+            // 棍棒类 - 西游主题
+            { id: 38, name: "木棍", type: "club", rarity: "common", description: "普通的木棍，随处可见。", effect: "攻击力+6，击退+10%", attack: 6 },
+            { id: 39, name: "铁棍", type: "club", rarity: "uncommon", description: "铁制的棍棒，沉重有力。", effect: "攻击力+18，击退+15%", attack: 18 },
+            { id: 40, name: "盘龙棍", type: "club", rarity: "rare", description: "刻有龙纹的棍棒，威力不凡。", effect: "攻击力+32，击退+20%，暴击率+5%", attack: 32 },
+            { id: 41, name: "九齿钉耙", type: "club", rarity: "epic", description: "猪八戒的兵器，由太上老君锻造。", effect: "攻击力+55，攻击范围+1，对妖兽伤害+30%", attack: 55 },
+            { id: 42, name: "如意金箍棒", type: "club", rarity: "legendary", description: "孙悟空的兵器，重一万三千五百斤，可大可小。", effect: "攻击力+100，暴击率+25%，暴击伤害+50%，攻击时10%概率造成双倍伤害", attack: 100 },
+            
+            // 西游主题剑类
+            { id: 43, name: "七星剑", type: "sword", rarity: "rare", description: "太上老君炼魔的宝剑，上有七星符文。", effect: "攻击力+35，对妖魔伤害+20%", attack: 35 },
+            { id: 44, name: "倚天剑", type: "sword", rarity: "epic", description: "曹操的佩剑，削铁如泥。", effect: "攻击力+50，破甲+20%", attack: 50 },
+            
+            // 西游主题刀类
+            { id: 45, name: "鬼头刀", type: "blade", rarity: "uncommon", description: "刀头刻有鬼头的凶刀。", effect: "攻击力+20，暴击率+8%", attack: 20 },
+            { id: 46, name: "青龙偃月刀", type: "blade", rarity: "epic", description: "关羽的兵器，重八十二斤。", effect: "攻击力+60，攻击范围+1，对精英敌人伤害+30%", attack: 60 },
+            
+            // 西游主题枪类
+            { id: 47, name: "火尖枪", type: "spear", rarity: "epic", description: "哪吒的兵器，枪头能喷火。", effect: "攻击力+50，火属性伤害+15%，攻击速度+10%", attack: 50 },
+            { id: 48, name: "方天画戟", type: "spear", rarity: "legendary", description: "吕布的兵器，集轻重兵器之长。", effect: "攻击力+85，攻击范围+2，可同时攻击3个目标", attack: 85 }
+        ];
+
+        function getRarityLabel(r) { 
+            const l = {common:'普通',uncommon:'优秀',rare:'稀有',epic:'史诗',legendary:'传说'}; 
+            return l[r] || r; 
+        }
+        
+        function getTypeLabel(t) { 
+            const l = {sword:'剑类',blade:'刀类',spear:'枪类',staff:'法器',club:'棍棒'}; 
+            return l[t] || t; 
+        }
+
+        function renderWeapons(filter = 'all') {
+            const grid = document.getElementById('weaponGrid');
+            let filtered = weapons;
+            if (filter !== 'all') filtered = weapons.filter(w => w.type === filter);
+            
+            if (filtered.length === 0) { 
+                grid.innerHTML = '<p style="color:var(--wiki-text-secondary);padding:20px;">暂无该类型的武器</p>'; 
+                return; 
+            }
+            
+            grid.innerHTML = filtered.map(weapon => `
+                <div class="item-card" data-type="${weapon.type}">
+                    <h4>${weapon.name}</h4>
+                    <div class="meta">
+                        <span class="type-badge weapon">${getTypeLabel(weapon.type)}</span>
+                        <span class="rarity-badge ${weapon.rarity}">${getRarityLabel(weapon.rarity)}</span>
+                    </div>
+                    <p class="description">${weapon.description}</p>
+                    <div class="effect-box"><strong>效果：</strong>${weapon.effect}</div>
+                </div>
+            `).join('');
+        }
+
+        function filterWeapons(type) {
+            document.querySelectorAll('.filter-tabs .tab-btn').forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+            renderWeapons(type);
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            renderWeapons();
+        });
+    </script>
+</body>
+</html>

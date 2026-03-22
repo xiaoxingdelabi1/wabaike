@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>材料 - 蛙噻！好摊</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        /* 物品卡片样式 */
+        .item-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+            margin: 16px 0;
+        }
+        .item-card {
+            background: var(--wiki-box-bg);
+            border: 1px solid var(--wiki-border);
+            padding: 12px;
+        }
+        .item-card h4 {
+            margin: 0 0 8px 0;
+            color: var(--wiki-text);
+            font-size: 15px;
+        }
+        .item-card .meta {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+        .item-card .description {
+            font-size: 13px;
+            color: var(--wiki-text-secondary);
+            margin: 0 0 8px 0;
+        }
+        .item-card .effect-box {
+            background: var(--wiki-content-bg);
+            padding: 8px;
+            font-size: 12px;
+            border-left: 3px solid var(--wiki-link);
+        }
+
+        /* 类型标签 */
+        .type-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            font-size: 11px;
+            border-radius: 2px;
+        }
+        .type-badge.material {
+            background: #fff3e0;
+            color: #ef6c00;
+        }
+
+        /* 稀有度标签 */
+        .rarity-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            font-size: 11px;
+            border-radius: 2px;
+        }
+        .rarity-badge.common {
+            background: #f5f5f5;
+            color: #616161;
+        }
+        .rarity-badge.uncommon {
+            background: #e8f5e9;
+            color: #388e3c;
+        }
+        .rarity-badge.rare {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+        .rarity-badge.epic {
+            background: #f3e5f5;
+            color: #7b1fa2;
+        }
+        .rarity-badge.legendary {
+            background: #fff8e1;
+            color: #f57f17;
+        }
+
+        /* 信息框 - Wiki风格 */
+        .info-box {
+            background: var(--wiki-box-bg);
+            border: 1px solid var(--wiki-border);
+            border-left: 4px solid var(--wiki-link);
+            padding: 12px;
+            margin: 12px 0;
+        }
+        .tip-box {
+            background: #e3f2fd;
+            border: 1px solid #90caf9;
+            border-left: 4px solid #2196f3;
+            padding: 12px;
+            margin: 12px 0;
+        }
+
+        /* 筛选标签 */
+        .filter-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 16px 0;
+        }
+        .filter-tabs .tab-btn {
+            padding: 6px 12px;
+            background: var(--wiki-box-bg);
+            border: 1px solid var(--wiki-border);
+            cursor: pointer;
+            font-size: 13px;
+            margin-right: 0;
+        }
+        .filter-tabs .tab-btn:hover {
+            background: var(--wiki-header-bg);
+        }
+        .filter-tabs .tab-btn.active {
+            background: var(--wiki-content-bg);
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body class="wiki-layout">
+    <header class="wiki-topbar">
+        <div class="wiki-logo">
+            <a href="../index.html">蛙噻！好摊</a>
+        </div>
+        <div class="wiki-search">
+            <input type="text" placeholder="搜索百科..." id="searchInput">
+            <button onclick="search()">搜索</button>
+        </div>
+        <div class="wiki-user">
+            <span>欢迎访问</span>
+        </div>
+    </header>
+
+    <div class="wiki-container">
+        <aside class="wiki-sidebar">
+            <nav class="wiki-nav">
+                <div class="nav-section">
+                    <h3>百科分类</h3>
+                    <ul>
+                        <li><a href="../index.html">首页</a></li>
+                        <li><a href="game-intro.html">游戏介绍</a></li>
+                        <li><a href="world.html">世界观</a></li>
+                        <li><a href="factions.html">势力分布</a></li>
+                        <li><a href="history.html">历史年表</a></li>
+                        <li><a href="price-mechanism.html">价格机制</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>游戏特色</h3>
+                    <ul>
+                        <li><a href="bazaar.html">集市</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>游戏玩法</h3>
+                    <ul>
+                        <li><a href="market.html">摆摊系统</a></li>
+                        <li><a href="achievements.html">成就系统</a></li>
+                        <li><a href="combat.html">战斗系统</a></li>
+                        <li><a href="progression.html">成长系统</a></li>
+                        <li><a href="currency.html">货币系统</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>角色</h3>
+                    <ul>
+                        <li><a href="characters.html">角色总览</a></li>
+                        <li><a href="characters.html?type=playable">主要角色</a></li>
+                        <li><a href="characters.html?type=npc">NPC</a></li>
+                        <li><a href="enemies.html">敌人</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>物品装备</h3>
+                    <ul>
+                        <li><a href="items.html">物品总览</a></li>
+                        <li><a href="weapon.html">武器</a></li>
+                        <li><a href="armor.html">防具</a></li>
+                        <li><a href="accessory.html">饰品</a></li>
+                        <li><a href="treasure.html">法宝</a></li>
+                        <li><a href="consumable.html">消耗品</a></li>
+                        <li><a href="material.html" class="active">材料</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>世界探索</h3>
+                    <ul>
+                        <li><a href="locations.html">地点总览</a></li>
+                        <li><a href="map.html">游戏地图</a></li>
+                        <li><a href="quests.html">任务剧情</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>关于</h3>
+                    <ul>
+                        <li><a href="dev-thoughts.html">开发者随想</a></li>
+                    </ul>
+                </div>
+            </nav>
+        </aside>
+
+        <main class="wiki-content">
+            <nav class="breadcrumb">
+                <a href="../index.html">首页</a> &gt; <a href="items.html">物品装备</a> &gt; <span class="current">材料</span>
+            </nav>
+
+            <article class="wiki-article">
+                <h1 class="article-title">材料</h1>
+                
+                <div class="info-box">
+                    <strong>材料系统简介：</strong>材料是游戏中的基础资源，用于锻造装备、炼制丹药、合成物品等各种制作系统。收集和合理利用材料是提升角色实力的重要途径。
+                </div>
+
+                <h2>材料类型</h2>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>材料类型</th>
+                            <th>主要用途</th>
+                            <th>获取方式</th>
+                            <th>说明</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>矿石</td>
+                            <td>锻造装备</td>
+                            <td>采矿、击败敌人</td>
+                            <td>打造武器和防具的基础材料</td>
+                        </tr>
+                        <tr>
+                            <td>草药</td>
+                            <td>炼制丹药</td>
+                            <td>采集、购买</td>
+                            <td>炼制各种恢复和增益丹药</td>
+                        </tr>
+                        <tr>
+                            <td>虫类</td>
+                            <td>炼丹材料</td>
+                            <td>特定地点采集</td>
+                            <td>花果山特产，用于高级丹药</td>
+                        </tr>
+                        <tr>
+                            <td>妖丹</td>
+                            <td>高级炼丹/炼器</td>
+                            <td>击败妖怪</td>
+                            <td>蕴含妖怪修为精华的珍贵材料</td>
+                        </tr>
+                        <tr>
+                            <td>皮革</td>
+                            <td>制作防具</td>
+                            <td>击败野兽、采集</td>
+                            <td>制作皮甲和饰品的基础材料</td>
+                        </tr>
+                        <tr>
+                            <td>布料</td>
+                            <td>制作布甲</td>
+                            <td>采集、购买</td>
+                            <td>制作布甲和饰品的材料</td>
+                        </tr>
+                        <tr>
+                            <td>木材</td>
+                            <td>制作法器</td>
+                            <td>伐木、采集</td>
+                            <td>制作法杖和法器的基础材料</td>
+                        </tr>
+                        <tr>
+                            <td>宝石</td>
+                            <td>装备镶嵌</td>
+                            <td>采矿、击败敌人</td>
+                            <td>镶嵌到装备上提升属性</td>
+                        </tr>
+                        <tr>
+                            <td>符文材料</td>
+                            <td>制作符咒</td>
+                            <td>采集、商店购买</td>
+                            <td>制作各种符咒和卷轴的材料</td>
+                        </tr>
+                        <tr>
+                            <td>染料</td>
+                            <td>染色、装饰</td>
+                            <td>采集、炼制</td>
+                            <td>用于装备染色和制作工艺品</td>
+                        </tr>
+                        <tr>
+                            <td>书籍材料</td>
+                            <td>制作技能书</td>
+                            <td>采集、击败敌人</td>
+                            <td>制作技能书和卷轴的材料</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h2>材料列表</h2>
+                <div class="filter-tabs">
+                    <button class="tab-btn active" onclick="filterMaterials('all')">全部</button>
+                    <button class="tab-btn" onclick="filterMaterials('ore')">矿石</button>
+                    <button class="tab-btn" onclick="filterMaterials('herb')">草药</button>
+                    <button class="tab-btn" onclick="filterMaterials('insect')">虫类</button>
+                    <button class="tab-btn" onclick="filterMaterials('demon')">妖丹</button>
+                    <button class="tab-btn" onclick="filterMaterials('leather')">皮革</button>
+                    <button class="tab-btn" onclick="filterMaterials('fabric')">布料</button>
+                    <button class="tab-btn" onclick="filterMaterials('wood')">木材</button>
+                    <button class="tab-btn" onclick="filterMaterials('gem')">宝石</button>
+                    <button class="tab-btn" onclick="filterMaterials('rune')">符文材料</button>
+                    <button class="tab-btn" onclick="filterMaterials('dye')">染料</button>
+                    <button class="tab-btn" onclick="filterMaterials('paper')">书籍材料</button>
+                </div>
+                <div class="item-grid" id="materialGrid"></div>
+
+                <h2>材料获取途径</h2>
+                <div class="tip-box">
+                    <ul>
+                        <li><strong>采矿</strong>：在矿山地图使用矿镐采集矿石</li>
+                        <li><strong>采集</strong>：在森林、草地地图采集草药</li>
+                        <li><strong>击败敌人</strong>：妖怪掉落妖丹，野兽掉落皮革</li>
+                        <li><strong>商店购买</strong>：材料店出售基础材料</li>
+                        <li><strong>任务奖励</strong>：完成任务可获得稀有材料</li>
+                    </ul>
+                </div>
+
+                <h2>材料用途</h2>
+                <p>材料主要用于以下系统：</p>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>系统</th>
+                            <th>所需材料</th>
+                            <th>产出</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>锻造</td>
+                            <td>矿石 + 皮革</td>
+                            <td>武器、防具</td>
+                        </tr>
+                        <tr>
+                            <td>炼丹</td>
+                            <td>草药 + 虫类 + 妖丹</td>
+                            <td>丹药</td>
+                        </tr>
+                        <tr>
+                            <td>附魔</td>
+                            <td>妖丹 + 灵石</td>
+                            <td>附魔装备</td>
+                        </tr>
+                        <tr>
+                            <td>合成</td>
+                            <td>各种材料组合</td>
+                            <td>高级材料、特殊物品</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="article-footer">
+                    <p>最后更新于：2026-03-21 | 编辑次数：1</p>
+                </div>
+            </article>
+        </main>
+    </div>
+
+    <footer class="wiki-footer">
+        <p>&copy; 2026 《蛙噻！好摊》游戏百科 | 本百科由玩家共同维护</p>
+    </footer>
+
+    <script src="../js/main.js"></script>
+    <script>
+        let materials = [
+            // 矿石
+            { id: 12, name: "铁矿石", type: "ore", rarity: "common", description: "常见的矿石，可用于打造装备。", effect: "锻造材料" },
+            { id: 55, name: "铜矿石", type: "ore", rarity: "common", description: "含有铜的矿石，可提炼出铜。", effect: "锻造材料，制作青铜装备" },
+            { id: 56, name: "银矿石", type: "ore", rarity: "uncommon", description: "含有银的矿石，较为稀有。", effect: "锻造材料，制作银质装备" },
+            { id: 57, name: "金矿石", type: "ore", rarity: "rare", description: "含有金的矿石，非常珍贵。", effect: "锻造材料，制作金质装备" },
+            { id: 58, name: "玄铁矿石", type: "ore", rarity: "epic", description: "蕴含神秘力量的矿石，极为稀有。", effect: "锻造材料，制作传说级装备" },
+            
+            // 草药
+            { id: 13, name: "灵草", type: "herb", rarity: "common", description: "生长在灵气充沛之地的草药，是炼制丹药的基础材料。", effect: "炼丹材料" },
+            { id: 14, name: "仙草", type: "herb", rarity: "uncommon", description: "比灵草更加稀有的草药，炼制高级丹药必备。", effect: "炼丹材料" },
+            { id: 59, name: "灵芝", type: "herb", rarity: "uncommon", description: "千年灵芝，具有强大的恢复功效。", effect: "炼丹材料，炼制高级恢复丹药" },
+            { id: 60, name: "人参", type: "herb", rarity: "rare", description: "百年人参，大补元气。", effect: "炼丹材料，炼制增益丹药" },
+            { id: 61, name: "雪莲", type: "herb", rarity: "epic", description: "生长在雪山的珍稀草药。", effect: "炼丹材料，炼制顶级丹药" },
+            
+            // 虫类
+            { id: 16, name: "灵虫", type: "insect", rarity: "common", description: "花果山常见的灵虫，体内含有微弱的灵气，可用于炼制初级丹药。", effect: "炼丹材料，可炼制小还丹" },
+            { id: 17, name: "花蜜虫", type: "insect", rarity: "common", description: "以花蜜为食的虫子，体内储存着花蜜精华，是炼制恢复类丹药的材料。", effect: "炼丹材料，增加丹药恢复效果" },
+            { id: 18, name: "仙草蚕", type: "insect", rarity: "uncommon", description: "以仙草为食的蚕虫，体内蕴含着仙草的精华，十分珍贵。", effect: "炼丹材料，可炼制大还丹" },
+            { id: 19, name: "金蝉子", type: "insect", rarity: "rare", description: "花果山特有的金色蝉虫，传说与唐僧前世同名，蕴含强大灵力。", effect: "炼丹材料，可炼制九转金丹" },
+            { id: 20, name: "百草虫", type: "insect", rarity: "common", description: "以各种草药为食的虫子，是炼制解毒丹药的好材料。", effect: "炼丹材料，可炼制解毒丹" },
+            { id: 21, name: "灵芝虫", type: "insect", rarity: "uncommon", description: "生活在灵芝附近的虫子，吸收了灵芝的灵气，十分稀有。", effect: "炼丹材料，大幅提升丹药品质" },
+            
+            // 妖丹
+            { id: 15, name: "妖丹", type: "demon", rarity: "rare", description: "妖怪体内凝结的内丹，蕴含着妖怪的修为精华。", effect: "炼丹/炼器材料" },
+            { id: 78, name: "大妖内丹", type: "demon", rarity: "epic", description: "大妖体内凝结的内丹，蕴含更强大的修为。", effect: "炼制高级丹药/法宝的核心材料" },
+            { id: 79, name: "妖王精魄", type: "demon", rarity: "legendary", description: "妖王死后留下的精魄，蕴含毁天灭地的力量。", effect: "炼制传说级丹药/法宝的必需材料" },
+            
+            // 皮革
+            { id: 80, name: "普通皮革", type: "leather", rarity: "common", description: "从普通野兽身上剥取的皮革。", effect: "制作皮甲和基础饰品" },
+            { id: 81, name: "优质皮革", type: "leather", rarity: "uncommon", description: "质地优良的皮革，更加坚韧耐用。", effect: "制作高级皮甲和饰品" },
+            { id: 82, name: "妖兽皮", type: "leather", rarity: "rare", description: "妖兽身上剥取的皮革，蕴含妖力。", effect: "制作稀有皮甲和饰品，附加特殊属性" },
+            { id: 83, name: "龙皮", type: "leather", rarity: "epic", description: "龙族身上剥取的皮革，极其稀有。", effect: "制作史诗级防具，拥有极强的防御力" },
+            
+            // 布料
+            { id: 84, name: "粗布", type: "fabric", rarity: "common", description: "普通的粗布，随处可见。", effect: "制作布甲和基础饰品" },
+            { id: 85, name: "丝绸", type: "fabric", rarity: "uncommon", description: "光滑柔软的丝绸，较为珍贵。", effect: "制作高级布甲和饰品" },
+            { id: 86, name: "云锦", type: "fabric", rarity: "rare", description: "天上织女织造的锦缎，流光溢彩。", effect: "制作稀有布甲和饰品，附加法术强度" },
+            { id: 87, name: "天蚕丝", type: "fabric", rarity: "epic", description: "天蚕吐出的丝线，坚韧无比。", effect: "制作史诗级布甲，刀枪不入" },
+            
+            // 木材
+            { id: 88, name: "普通木材", type: "wood", rarity: "common", description: "普通的树木砍伐后得到的木材。", effect: "制作基础法杖和木剑" },
+            { id: 89, name: "桃木", type: "wood", rarity: "uncommon", description: "千年桃木，具有辟邪之力。", effect: "制作法杖，对妖魔鬼怪有额外伤害" },
+            { id: 90, name: "紫檀", type: "wood", rarity: "rare", description: "珍贵的紫檀木，质地坚硬。", effect: "制作高级法杖，附加法术穿透" },
+            { id: 91, name: "千年古木", type: "wood", rarity: "epic", description: "生长千年的古木，蕴含浓郁灵气。", effect: "制作史诗级法杖，大幅提升法术伤害" },
+            
+            // 宝石
+            { id: 92, name: "攻击宝石", type: "gem", rarity: "uncommon", description: "蕴含攻击之力的宝石。", effect: "镶嵌到武器/戒指上，攻击力+5" },
+            { id: 93, name: "防御宝石", type: "gem", rarity: "uncommon", description: "蕴含防御之力的宝石。", effect: "镶嵌到防具上，防御力+3" },
+            { id: 94, name: "生命宝石", type: "gem", rarity: "uncommon", description: "蕴含生命之力的宝石。", effect: "镶嵌到装备上，生命值+50" },
+            { id: 95, name: "暴击宝石", type: "gem", rarity: "rare", description: "蕴含暴击之力的宝石。", effect: "镶嵌到武器/戒指上，暴击率+3%" },
+            { id: 96, name: "火晶石", type: "gem", rarity: "rare", description: "蕴含火焰之力的晶石。", effect: "镶嵌到武器上，攻击附加火属性伤害" },
+            { id: 97, name: "水晶石", type: "gem", rarity: "rare", description: "蕴含水之力的晶石。", effect: "镶嵌到装备上，水抗性+15%" },
+            { id: 98, name: "雷晶石", type: "gem", rarity: "rare", description: "蕴含雷电之力的晶石。", effect: "镶嵌到武器上，攻击附加雷属性伤害" },
+            { id: 99, name: "土晶石", type: "gem", rarity: "rare", description: "蕴含大地之力的晶石。", effect: "镶嵌到防具上，生命值+100，防御力+5" },
+            
+            // 符文材料
+            { id: 100, name: "黄纸", type: "rune", rarity: "common", description: "普通的黄色纸张，用于画符的基础材料。", effect: "制作初级符咒" },
+            { id: 101, name: "朱砂", type: "rune", rarity: "common", description: "红色的矿物粉末，画符的必备材料。", effect: "制作各种符咒，增加符咒效果" },
+            { id: 102, name: "符纸", type: "rune", rarity: "uncommon", description: "经过特殊处理的纸张，更适合承载法力。", effect: "制作中级符咒" },
+            { id: 103, name: "灵砂", type: "rune", rarity: "uncommon", description: "蕴含灵气的朱砂，画符效果更佳。", effect: "制作中级符咒，提升符咒品质" },
+            { id: 104, name: "金箔", type: "rune", rarity: "rare", description: "薄薄的金片，用于制作高级符咒。", effect: "制作高级符咒，附加额外效果" },
+            { id: 105, name: "龙血砂", type: "rune", rarity: "epic", description: "用龙血调配的朱砂，蕴含强大力量。", effect: "制作史诗级符咒，大幅提升效果" },
+            { id: 106, name: "天书残页", type: "rune", rarity: "epic", description: "上古天书的残页，记载着失传的符咒。", effect: "制作史诗级符咒，学习失传法术" },
+            { id: 107, name: "盘古开天图", type: "rune", rarity: "legendary", description: "传说盘古开天时留下的图谱，拥有创世之力。", effect: "制作传说级符咒，蕴含天地法则" },
+            
+            // 染料
+            { id: 108, name: "草木灰", type: "dye", rarity: "common", description: "植物燃烧后的灰烬，可用作灰色染料。", effect: "装备染色，制作工艺品" },
+            { id: 109, name: "泥土", type: "dye", rarity: "common", description: "普通的泥土，可用作棕色染料。", effect: "装备染色，制作陶器" },
+            { id: 110, name: "花汁", type: "dye", rarity: "uncommon", description: "从鲜花中提取的汁液，色彩鲜艳。", effect: "装备染色，制作精美工艺品" },
+            { id: 111, name: "矿物粉", type: "dye", rarity: "uncommon", description: "研磨后的矿物粉末，颜色持久不褪。", effect: "装备染色，制作高级工艺品" },
+            { id: 112, name: "天青石", type: "dye", rarity: "rare", description: "珍贵的蓝色矿物，可提炼出天蓝色染料。", effect: "装备染色，制作稀有工艺品" },
+            { id: 113, name: "朱砂红", type: "dye", rarity: "rare", description: "上等朱砂提炼的红色染料，色泽纯正。", effect: "装备染色，制作喜庆用品" },
+            { id: 114, name: "龙血", type: "dye", rarity: "epic", description: "龙族血液，可提炼出金红色染料。", effect: "装备染色，制作史诗级工艺品" },
+            { id: 115, name: "凤羽金", type: "dye", rarity: "epic", description: "凤凰羽毛研磨的金色粉末，流光溢彩。", effect: "装备染色，制作史诗级装饰品" },
+            { id: 116, name: "七彩云霞", type: "dye", rarity: "legendary", description: "采集天边云霞炼制的染料，拥有七彩光芒。", effect: "装备染色，制作传说级工艺品，附加特殊光效" },
+            
+            // 书籍材料
+            { id: 117, name: "竹简", type: "paper", rarity: "common", description: "竹子削成的薄片，古代常用的书写材料。", effect: "制作初级技能书" },
+            { id: 118, name: "羊皮纸", type: "paper", rarity: "common", description: "处理过的羊皮，质地坚韧。", effect: "制作初级技能书，保存时间更长" },
+            { id: 119, name: "宣纸", type: "paper", rarity: "uncommon", description: "优质纸张，适合书写和绘画。", effect: "制作中级技能书" },
+            { id: 120, name: "锦缎", type: "paper", rarity: "uncommon", description: "华丽的丝织品，可用于制作精美书卷。", effect: "制作中级技能书，提升书籍品质" },
+            { id: 121, name: "天蚕丝纸", type: "paper", rarity: "rare", description: "用天蚕丝制成的纸张，轻薄坚韧。", effect: "制作高级技能书" },
+            { id: 122, name: "龙皮", type: "paper", rarity: "rare", description: "处理过的龙皮，可保存千年不坏。", effect: "制作高级技能书，永久保存" },
+            { id: 123, name: "上古卷轴残片", type: "paper", rarity: "epic", description: "上古时期流传下来的卷轴碎片，蕴含知识。", effect: "制作史诗级技能书，附加额外经验" },
+            { id: 124, name: "无字天书", type: "paper", rarity: "legendary", description: "传说中的无字天书，可自行显现内容。", effect: "制作传说级技能书，领悟特殊技能" }
+        ];
+
+        function getRarityLabel(r) { 
+            const l = {common:'普通',uncommon:'优秀',rare:'稀有',epic:'史诗',legendary:'传说'}; 
+            return l[r] || r; 
+        }
+        
+        function getTypeLabel(t) { 
+            const l = {ore:'矿石',herb:'草药',insect:'虫类',demon:'妖丹',leather:'皮革',fabric:'布料',wood:'木材',gem:'宝石',rune:'符文材料',dye:'染料',paper:'书籍材料'}; 
+            return l[t] || t; 
+        }
+
+        function renderMaterials(filter = 'all') {
+            const grid = document.getElementById('materialGrid');
+            let filtered = materials;
+            if (filter !== 'all') filtered = materials.filter(m => m.type === filter);
+            
+            if (filtered.length === 0) { 
+                grid.innerHTML = '<p style="color:var(--wiki-text-secondary);padding:20px;">暂无该类型的材料</p>'; 
+                return; 
+            }
+            
+            grid.innerHTML = filtered.map(material => `
+                <div class="item-card" data-type="${material.type}">
+                    <h4>${material.name}</h4>
+                    <div class="meta">
+                        <span class="type-badge material">${getTypeLabel(material.type)}</span>
+                        <span class="rarity-badge ${material.rarity}">${getRarityLabel(material.rarity)}</span>
+                    </div>
+                    <p class="description">${material.description}</p>
+                    <div class="effect-box"><strong>用途：</strong>${material.effect}</div>
+                </div>
+            `).join('');
+        }
+
+        function filterMaterials(type) {
+            document.querySelectorAll('.filter-tabs .tab-btn').forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+            renderMaterials(type);
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            renderMaterials();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,979 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>敌人图鉴 - 蛙噻！好摊</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        /* 筛选面板样式 */
+        .filter-panel {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            padding: 16px;
+            background: #f8f9fa;
+            border: 1px solid #a2a9b1;
+            margin-bottom: 20px;
+        }
+
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .filter-group label {
+            font-size: 13px;
+            color: #333;
+            white-space: nowrap;
+        }
+
+        .filter-group select {
+            padding: 6px 10px;
+            border: 1px solid #a2a9b1;
+            font-size: 13px;
+            background: #fff;
+        }
+
+        .filter-btn {
+            padding: 6px 16px;
+            background: #fff;
+            border: 1px solid #a2a9b1;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        .filter-btn:hover {
+            background: #f0f0f0;
+        }
+
+        .filter-btn.primary {
+            background: #3366cc;
+            color: #fff;
+            border-color: #3366cc;
+        }
+
+        .filter-btn.primary:hover {
+            background: #2a56b0;
+        }
+
+        /* 敌人卡片样式 */
+        .enemy-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 16px;
+        }
+
+        .enemy-card {
+            padding: 16px;
+            background: #fff;
+            border: 1px solid #a2a9b1;
+            transition: all 0.2s;
+        }
+
+        .enemy-card:hover {
+            border-color: #3366cc;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .enemy-card .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .enemy-card .card-name {
+            font-size: 16px;
+            font-weight: bold;
+            color: #000;
+        }
+
+        .enemy-card .card-level {
+            font-size: 12px;
+            padding: 3px 8px;
+            background: #f5f5f5;
+            border: 1px solid #ddd;
+            color: #333;
+        }
+
+        .enemy-card .card-stats {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 12px;
+        }
+
+        .enemy-card .card-stat {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 13px;
+        }
+
+        .enemy-card .card-stat-label {
+            color: #666;
+        }
+
+        .enemy-card .card-stat-value {
+            font-weight: 500;
+            color: #000;
+        }
+
+        .enemy-card .card-location {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 8px;
+            padding: 8px;
+            background: #f8f9fa;
+            border-left: 3px solid #3366cc;
+        }
+
+        .enemy-card .card-location strong {
+            color: #333;
+        }
+
+        .enemy-card .card-description {
+            font-size: 13px;
+            line-height: 1.6;
+            color: #333;
+            margin-bottom: 12px;
+        }
+
+        .enemy-card .card-loot {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 12px;
+        }
+
+        .enemy-card .loot-tag {
+            font-size: 11px;
+            padding: 2px 8px;
+            background: #f0f0f0;
+            border: 1px solid #d0d0d0;
+            color: #333;
+        }
+
+        .enemy-card .card-actions {
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        /* 危险等级标签 */
+        .danger-badge {
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 0;
+        }
+
+        .danger-badge.low {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .danger-badge.medium {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeeba;
+        }
+
+        .danger-badge.high {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .danger-badge.extreme {
+            background: #721c24;
+            color: #fff;
+            border: 1px solid #721c24;
+        }
+
+        /* 统计面板 */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            padding: 16px;
+            background: #f8f9fa;
+            border: 1px solid #a2a9b1;
+            text-align: center;
+        }
+
+        .stat-card .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #3366cc;
+        }
+
+        .stat-card .stat-label {
+            font-size: 12px;
+            color: #666;
+            margin-top: 4px;
+        }
+
+        /* 大洲标签 */
+        .continent-badge {
+            font-size: 11px;
+            padding: 2px 8px;
+            border: 1px solid #ddd;
+        }
+
+        .continent-badge.east {
+            background: #e3f2fd;
+            color: #1565c0;
+            border-color: #bbdefb;
+        }
+
+        .continent-badge.south {
+            background: #fff3e0;
+            color: #e65100;
+            border-color: #ffe0b2;
+        }
+
+        .continent-badge.west {
+            background: #e8f5e9;
+            color: #2e7d32;
+            border-color: #c8e6c9;
+        }
+
+        .continent-badge.north {
+            background: #f3e5f5;
+            color: #7b1fa2;
+            border-color: #e1bee7;
+        }
+
+        .continent-badge.other {
+            background: #eceff1;
+            color: #546e7a;
+            border-color: #cfd8dc;
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .filter-panel {
+                flex-direction: column;
+            }
+
+            .filter-group {
+                width: 100%;
+            }
+
+            .filter-group select {
+                flex: 1;
+            }
+
+            .enemy-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body class="wiki-layout">
+    <header class="wiki-topbar">
+        <div class="wiki-logo">
+            <a href="../index.html">蛙噻！好摊</a>
+        </div>
+        <div class="wiki-search">
+            <input type="text" placeholder="搜索敌人..." id="searchInput">
+            <button onclick="searchEnemies()">搜索</button>
+        </div>
+        <div class="wiki-user">
+            <span>欢迎访问</span>
+        </div>
+    </header>
+
+    <div class="wiki-container">
+        <aside class="wiki-sidebar">
+            <nav class="wiki-nav">
+                <div class="nav-section">
+                    <h3>百科分类</h3>
+                    <ul>
+                        <li><a href="../index.html">首页</a></li>
+                        <li><a href="game-intro.html">游戏介绍</a></li>
+                        <li><a href="world.html">世界观</a></li>
+                        <li><a href="factions.html">势力分布</a></li>
+                        <li><a href="history.html">历史年表</a></li>
+                        <li><a href="price-mechanism.html">价格机制</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>游戏特色</h3>
+                    <ul>
+                        <li><a href="bazaar.html">集市</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>游戏玩法</h3>
+                    <ul>
+                        <li><a href="market.html">摆摊系统</a></li>
+                        <li><a href="achievements.html">成就系统</a></li>
+                        <li><a href="combat.html">战斗系统</a></li>
+                        <li><a href="progression.html">成长系统</a></li>
+                        <li><a href="currency.html">货币系统</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>角色</h3>
+                    <ul>
+                        <li><a href="characters.html">角色总览</a></li>
+                        <li><a href="characters.html?type=playable">主要角色</a></li>
+                        <li><a href="characters.html?type=npc">NPC</a></li>
+                        <li><a href="enemies.html" class="active">敌人</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>物品装备</h3>
+                    <ul>
+                        <li><a href="items.html">物品总览</a></li>
+                        <li><a href="weapon.html">武器</a></li>
+                        <li><a href="armor.html">防具</a></li>
+                        <li><a href="accessory.html">饰品</a></li>
+                        <li><a href="treasure.html">法宝</a></li>
+                        <li><a href="consumable.html">消耗品</a></li>
+                        <li><a href="material.html">材料</a></li>
+                        <li><a href="collection.html">收藏品</a></li>
+                        <li><a href="crafting.html">生活技能</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>世界探索</h3>
+                    <ul>
+                        <li><a href="locations.html">地点总览</a></li>
+                        <li><a href="map.html">游戏地图</a></li>
+                        <li><a href="quests.html">任务剧情</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>关于</h3>
+                    <ul>
+                        <li><a href="dev-thoughts.html">开发者随想</a></li>
+                    </ul>
+                </div>
+            </nav>
+        </aside>
+
+        <main class="wiki-content">
+            <nav class="breadcrumb">
+                <a href="../index.html">首页</a> &gt; <span class="current">敌人图鉴</span>
+            </nav>
+
+            <article class="wiki-article">
+                <h1 class="article-title">敌人图鉴</h1>
+                
+                <div class="article-intro">
+                    <p>本页面收录了取经之路上遇到的所有<strong>妖怪</strong>和<strong>敌人</strong>，按大洲和区域分类。了解敌人的特点，才能更好地保护你的货物！</p>
+                </div>
+
+                <!-- 统计面板 -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="totalCount">-</div>
+                        <div class="stat-label">总敌人</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="eastCount">-</div>
+                        <div class="stat-label">东胜神洲</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="southCount">-</div>
+                        <div class="stat-label">南赡部洲</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="westCount">-</div>
+                        <div class="stat-label">西牛贺洲</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="otherCount">-</div>
+                        <div class="stat-label">其他</div>
+                    </div>
+                </div>
+
+                <!-- 筛选面板 -->
+                <div class="filter-panel">
+                    <div class="filter-group">
+                        <label>大洲:</label>
+                        <select id="filterContinent" onchange="onContinentChange()">
+                            <option value="">全部</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>区域:</label>
+                        <select id="filterRegion" onchange="applyFilters()">
+                            <option value="">全部</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>危险等级:</label>
+                        <select id="filterDanger" onchange="applyFilters()">
+                            <option value="">全部</option>
+                            <option value="low">低</option>
+                            <option value="medium">中</option>
+                            <option value="high">高</option>
+                            <option value="extreme">极高</option>
+                        </select>
+                    </div>
+                    <button class="filter-btn" onclick="resetFilters()">重置</button>
+                </div>
+
+                <h2 id="list">敌人列表</h2>
+                
+                <div class="enemy-grid" id="enemyGrid"></div>
+
+                <h2 id="add">添加新敌人</h2>
+                <form id="addEnemyForm" class="wiki-form">
+                    <div class="form-group">
+                        <label>敌人名称</label>
+                        <input type="text" id="enemyName" placeholder="输入敌人名称" required>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>等级</label>
+                            <input type="number" id="enemyLevel" placeholder="等级" min="1" max="100" required>
+                        </div>
+                        <div class="form-group">
+                            <label>战力</label>
+                            <input type="number" id="enemyPower" placeholder="战力" min="1" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>大洲</label>
+                            <select id="enemyContinent" onchange="onAddFormContinentChange()" required>
+                                <option value="">选择大洲</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>区域</label>
+                            <select id="enemyRegion" required>
+                                <option value="">选择区域</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>具体地点</label>
+                        <select id="enemyLocation" required>
+                            <option value="">选择地点</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>危险等级</label>
+                        <select id="enemyDanger">
+                            <option value="low">低</option>
+                            <option value="medium">中</option>
+                            <option value="high">高</option>
+                            <option value="extreme">极高</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>敌人描述</label>
+                        <textarea id="enemyDesc" placeholder="输入敌人描述" rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>掉落物品（用逗号分隔）</label>
+                        <input type="text" id="enemyLoot" placeholder="例如：妖丹, 皮毛, 金币">
+                    </div>
+                    <button type="submit" class="btn-primary">添加敌人</button>
+                </form>
+
+                <div class="article-footer">
+                    <p>最后更新于：2026-03-20 | 编辑次数：2</p>
+                </div>
+            </article>
+        </main>
+    </div>
+
+    <footer class="wiki-footer">
+        <p>&copy; 2026 《蛙噻！好摊》游戏百科 | 本百科由玩家共同维护</p>
+    </footer>
+
+    <script src="../js/main.js"></script>
+    <script>
+        // ==================== 数据结构 ====================
+
+        // 大洲数据
+        const continents = [
+            { id: 'east', name: '东胜神洲', description: '孙悟空的故乡，修仙圣地' },
+            { id: 'south', name: '南赡部洲', description: '人间繁华之地，取经主路' },
+            { id: 'west', name: '西牛贺洲', description: '西方极乐世界附近，取经终点' },
+            { id: 'north', name: '北俱芦洲', description: '苦寒之地，环境恶劣' },
+            { id: 'other', name: '其他仙境', description: '天庭、仙岛等特殊区域' }
+        ];
+
+        // 区域数据
+        const regions = [
+            // 东胜神洲
+            { id: 'huaguo', name: '花果山区域', continent: 'east' },
+            { id: 'aolai', name: '傲来国区域', continent: 'east' },
+            { id: 'donghai', name: '东海区域', continent: 'east' },
+            { id: 'fangcun', name: '方寸山区域', continent: 'east' },
+
+            // 南赡部洲
+            { id: 'chang_an', name: '长安区域', continent: 'south' },
+            { id: 'liangjie', name: '两界山区域', continent: 'south' },
+            { id: 'wuxing', name: '五行山区域', continent: 'south' },
+            { id: 'yingchou', name: '鹰愁涧区域', continent: 'south' },
+            { id: 'guanyin', name: '观音禅院区域', continent: 'south' },
+            { id: 'heifeng', name: '黑风山区域', continent: 'south' },
+            { id: 'huangfeng', name: '黄风岭区域', continent: 'south' },
+            { id: 'liusha', name: '流沙河区域', continent: 'south' },
+            { id: 'wuzhuang', name: '五庄观区域', continent: 'south' },
+            { id: 'baihu', name: '白虎岭区域', continent: 'south' },
+            { id: 'wanzi', name: '碗子山区域', continent: 'south' },
+            { id: 'baoxiang', name: '宝象国区域', continent: 'south' },
+            { id: 'pingding', name: '平顶山区域', continent: 'south' },
+            { id: 'wuji', name: '乌鸡国区域', continent: 'south' },
+            { id: 'haoshan', name: '号山区域', continent: 'south' },
+            { id: 'heishui', name: '黑水河区域', continent: 'south' },
+            { id: 'chechi', name: '车迟国区域', continent: 'south' },
+            { id: 'tongtian', name: '通天河区域', continent: 'south' },
+            { id: 'jindou', name: '金兜山区域', continent: 'south' },
+            { id: 'nver', name: '女儿国区域', continent: 'south' },
+            { id: 'dudi', name: '毒敌山区域', continent: 'south' },
+            { id: 'huoyan', name: '火焰山区域', continent: 'south' },
+            { id: 'cuiyun', name: '翠云山区域', continent: 'south' },
+            { id: 'jilei', name: '积雷山区域', continent: 'south' },
+
+            // 西牛贺洲
+            { id: 'jisai', name: '祭赛国区域', continent: 'west' },
+            { id: 'jingji', name: '荆棘岭区域', continent: 'west' },
+            { id: 'zhuzi', name: '朱紫国区域', continent: 'west' },
+            { id: 'pansi', name: '盘丝岭区域', continent: 'west' },
+            { id: 'shituo', name: '狮驼岭区域', continent: 'west' },
+            { id: 'biqiu', name: '比丘国区域', continent: 'west' },
+            { id: 'xiankong', name: '陷空山区域', continent: 'west' },
+            { id: 'miefo', name: '灭法国区域', continent: 'west' },
+            { id: 'yinwu', name: '隐雾山区域', continent: 'west' },
+            { id: 'fengxian', name: '凤仙郡区域', continent: 'west' },
+            { id: 'yuhua', name: '玉华州区域', continent: 'west' },
+            { id: 'baotou', name: '豹头山区域', continent: 'west' },
+            { id: 'zhujie', name: '竹节山区域', continent: 'west' },
+            { id: 'jinping', name: '金平府区域', continent: 'west' },
+            { id: 'qinglong', name: '青龙山区域', continent: 'west' },
+            { id: 'bujin', name: '布金禅寺区域', continent: 'west' },
+            { id: 'tianzhu', name: '天竺国区域', continent: 'west' },
+            { id: 'tongtai', name: '铜台府区域', continent: 'west' },
+            { id: 'lingyun', name: '凌云渡区域', continent: 'west' },
+            { id: 'leiyin', name: '雷音寺区域', continent: 'west' },
+
+            // 北俱芦洲
+            { id: 'xueyuan', name: '雪原区域', continent: 'north' },
+
+            // 其他仙境
+            { id: 'penglai', name: '蓬莱区域', continent: 'other' },
+            { id: 'yaochi', name: '瑶池区域', continent: 'other' },
+            { id: 'doushuai', name: '兜率宫区域', continent: 'other' }
+        ];
+
+        // 地点数据
+        const locations = [
+            // 东胜神洲
+            { id: 1, name: '花果山', region: 'huaguo', continent: 'east' },
+            { id: 2, name: '傲来国集市', region: 'aolai', continent: 'east' },
+            { id: 3, name: '水帘洞', region: 'huaguo', continent: 'east' },
+            { id: 4, name: '东海龙宫', region: 'donghai', continent: 'east' },
+            { id: 5, name: '方寸山', region: 'fangcun', continent: 'east' },
+
+            // 南赡部洲
+            { id: 6, name: '长安城', region: 'chang_an', continent: 'south' },
+            { id: 7, name: '两界山', region: 'liangjie', continent: 'south' },
+            { id: 8, name: '双叉岭', region: 'liangjie', continent: 'south' },
+            { id: 9, name: '五行山', region: 'wuxing', continent: 'south' },
+            { id: 10, name: '鹰愁涧', region: 'yingchou', continent: 'south' },
+            { id: 11, name: '观音禅院', region: 'guanyin', continent: 'south' },
+            { id: 12, name: '黑风山', region: 'heifeng', continent: 'south' },
+            { id: 13, name: '黄风岭', region: 'huangfeng', continent: 'south' },
+            { id: 14, name: '流沙河', region: 'liusha', continent: 'south' },
+            { id: 15, name: '万寿山', region: 'liusha', continent: 'south' },
+            { id: 16, name: '五庄观', region: 'wuzhuang', continent: 'south' },
+            { id: 17, name: '白虎岭', region: 'baihu', continent: 'south' },
+            { id: 18, name: '碗子山', region: 'wanzi', continent: 'south' },
+            { id: 19, name: '宝象国', region: 'baoxiang', continent: 'south' },
+            { id: 20, name: '平顶山', region: 'pingding', continent: 'south' },
+            { id: 21, name: '莲花洞', region: 'pingding', continent: 'south' },
+            { id: 22, name: '乌鸡国', region: 'wuji', continent: 'south' },
+            { id: 23, name: '火云洞', region: 'haoshan', continent: 'south' },
+            { id: 24, name: '号山', region: 'haoshan', continent: 'south' },
+            { id: 25, name: '黑水河', region: 'heishui', continent: 'south' },
+            { id: 26, name: '车迟国', region: 'chechi', continent: 'south' },
+            { id: 27, name: '三清观', region: 'chechi', continent: 'south' },
+            { id: 28, name: '通天河', region: 'tongtian', continent: 'south' },
+            { id: 29, name: '陈家庄', region: 'tongtian', continent: 'south' },
+            { id: 30, name: '金兜山', region: 'jindou', continent: 'south' },
+            { id: 31, name: '金兜洞', region: 'jindou', continent: 'south' },
+            { id: 32, name: '西梁女国', region: 'nver', continent: 'south' },
+            { id: 33, name: '毒敌山', region: 'dudi', continent: 'south' },
+            { id: 34, name: '琵琶洞', region: 'dudi', continent: 'south' },
+            { id: 35, name: '火焰山', region: 'huoyan', continent: 'south' },
+            { id: 36, name: '翠云山', region: 'cuiyun', continent: 'south' },
+            { id: 37, name: '积雷山', region: 'jilei', continent: 'south' },
+            { id: 38, name: '摩云洞', region: 'jilei', continent: 'south' },
+
+            // 西牛贺洲
+            { id: 39, name: '祭赛国', region: 'jisai', continent: 'west' },
+            { id: 40, name: '金光寺', region: 'jisai', continent: 'west' },
+            { id: 41, name: '荆棘岭', region: 'jingji', continent: 'west' },
+            { id: 42, name: '木仙庵', region: 'jingji', continent: 'west' },
+            { id: 43, name: '小雷音寺', region: 'jingji', continent: 'west' },
+            { id: 44, name: '七绝山', region: 'jingji', continent: 'west' },
+            { id: 45, name: '朱紫国', region: 'zhuzi', continent: 'west' },
+            { id: 46, name: '麒麟山', region: 'zhuzi', continent: 'west' },
+            { id: 47, name: '獬豸洞', region: 'zhuzi', continent: 'west' },
+            { id: 48, name: '盘丝岭', region: 'pansi', continent: 'west' },
+            { id: 49, name: '盘丝洞', region: 'pansi', continent: 'west' },
+            { id: 50, name: '黄花观', region: 'pansi', continent: 'west' },
+            { id: 51, name: '狮驼岭', region: 'shituo', continent: 'west' },
+            { id: 52, name: '狮驼洞', region: 'shituo', continent: 'west' },
+            { id: 53, name: '比丘国', region: 'biqiu', continent: 'west' },
+            { id: 54, name: '清华洞', region: 'biqiu', continent: 'west' },
+            { id: 55, name: '陷空山', region: 'xiankong', continent: 'west' },
+            { id: 56, name: '无底洞', region: 'xiankong', continent: 'west' },
+            { id: 57, name: '灭法国', region: 'miefo', continent: 'west' },
+            { id: 58, name: '隐雾山', region: 'yinwu', continent: 'west' },
+            { id: 59, name: '折岳连环洞', region: 'yinwu', continent: 'west' },
+            { id: 60, name: '凤仙郡', region: 'fengxian', continent: 'west' },
+            { id: 61, name: '玉华州', region: 'yuhua', continent: 'west' },
+            { id: 62, name: '豹头山', region: 'baotou', continent: 'west' },
+            { id: 63, name: '虎口洞', region: 'baotou', continent: 'west' },
+            { id: 64, name: '竹节山', region: 'zhujie', continent: 'west' },
+            { id: 65, name: '九曲盘桓洞', region: 'zhujie', continent: 'west' },
+            { id: 66, name: '金平府', region: 'jinping', continent: 'west' },
+            { id: 67, name: '青龙山', region: 'qinglong', continent: 'west' },
+            { id: 68, name: '玄英洞', region: 'qinglong', continent: 'west' },
+            { id: 69, name: '布金禅寺', region: 'bujin', continent: 'west' },
+            { id: 70, name: '天竺国', region: 'tianzhu', continent: 'west' },
+            { id: 71, name: '铜台府', region: 'tongtai', continent: 'west' },
+            { id: 72, name: '凌云渡', region: 'lingyun', continent: 'west' },
+            { id: 73, name: '雷音寺', region: 'leiyin', continent: 'west' },
+
+            // 北俱芦洲
+            { id: 75, name: '北俱芦洲雪原', region: 'xueyuan', continent: 'north' },
+
+            // 其他仙境
+            { id: 76, name: '蓬莱仙岛', region: 'penglai', continent: 'other' },
+            { id: 77, name: '瑶池', region: 'yaochi', continent: 'other' },
+            { id: 79, name: '兜率宫', region: 'doushuai', continent: 'other' }
+        ];
+
+        // 敌人数据
+        let enemies = JSON.parse(localStorage.getItem('wiki_enemies_v2')) || [
+            // 东胜神洲
+            { id: 1, name: "东海虾兵", level: 5, power: 500, continent: "east", region: "donghai", locationId: 4, danger: "low", description: "东海龙宫的低级守卫，手持长枪，数量众多但实力一般。", loot: ["虾壳", "长枪", "珍珠"] },
+            { id: 2, name: "东海蟹将", level: 8, power: 800, continent: "east", region: "donghai", locationId: 4, danger: "medium", description: "东海龙宫的中级将领，身披重甲，防御力较高。", loot: ["蟹钳", "重甲碎片", "龙宫令牌"] },
+            { id: 3, name: "巡海夜叉", level: 10, power: 1000, continent: "east", region: "donghai", locationId: 4, danger: "medium", description: "在东海沿岸巡逻的夜叉，速度极快，喜欢袭击落单的商人。", loot: ["夜叉叉", "避水珠", "海怪皮"] },
+            { id: 4, name: "花果山猴妖", level: 3, power: 300, continent: "east", region: "huaguo", locationId: 1, danger: "low", description: "花果山的野生猴妖，虽然顽皮但实力不强，会偷取货物。", loot: ["猴毛", "野果", "碎银"] },
+            
+            // 南赡部洲
+            { id: 5, name: "黑熊精", level: 15, power: 1500, continent: "south", region: "heifeng", locationId: 12, danger: "medium", description: "黑风山的熊妖首领，力大无穷，喜欢收集袈裟和佛经。", loot: ["熊胆", "黑铁", "佛经残卷"] },
+            { id: 6, name: "黄风怪", level: 18, power: 1800, continent: "south", region: "huangfeng", locationId: 13, danger: "high", description: "能吹三昧神风的妖怪，风沙所过之处寸草不生。", loot: ["定风珠碎片", "黄风砂", "妖丹"] },
+            { id: 7, name: "白骨精", level: 25, power: 2500, continent: "south", region: "baihu", locationId: 17, danger: "high", description: "善于变化的白骨妖怪，曾三次变化欺骗唐僧。", loot: ["白骨", "阴魂珠", "变化之术残卷"] },
+            { id: 8, name: "黄袍怪", level: 28, power: 2800, continent: "south", region: "wanzi", locationId: 18, danger: "high", description: "原是天庭奎木狼下凡，法力高强，占据波月洞。", loot: ["黄袍", "奎木狼内丹", "天庭令牌"] },
+            { id: 9, name: "金角大王", level: 35, power: 3500, continent: "south", region: "pingding", locationId: 21, danger: "high", description: "太上老君看炉童子下凡，手持紫金葫芦和七星剑。", loot: ["紫金葫芦碎片", "七星剑", "老君法宝"] },
+            { id: 10, name: "银角大王", level: 35, power: 3500, continent: "south", region: "pingding", locationId: 21, danger: "high", description: "金角大王的弟弟，持有羊脂玉净瓶和幌金绳。", loot: ["羊脂玉净瓶", "幌金绳", "银角"] },
+            { id: 11, name: "红孩儿", level: 45, power: 4500, continent: "south", region: "haoshan", locationId: 23, danger: "high", description: "牛魔王之子，能喷三昧真火，曾让孙悟空吃尽苦头。", loot: ["三昧真火", "火尖枪", "红莲"] },
+            { id: 12, name: "鼍龙", level: 45, power: 4500, continent: "south", region: "heishui", locationId: 25, danger: "medium", description: "西海龙王的外甥，在黑水河兴风作浪。", loot: ["鼍龙皮", "黑水珍珠", "龙筋"] },
+            { id: 13, name: "虎力大仙", level: 48, power: 4800, continent: "south", region: "chechi", locationId: 26, danger: "medium", description: "车迟国三位国师之一，原形是黄毛老虎。", loot: ["虎骨", "道袍", "五雷正法"] },
+            { id: 14, name: "鹿力大仙", level: 48, power: 4800, continent: "south", region: "chechi", locationId: 26, danger: "medium", description: "车迟国三位国师之一，原形是白鹿。", loot: ["鹿茸", "鹿角", "道家符箓"] },
+            { id: 15, name: "羊力大仙", level: 48, power: 4800, continent: "south", region: "chechi", locationId: 26, danger: "medium", description: "车迟国三位国师之一，原形是羚羊。", loot: ["羊角", "羊毫", "炼丹炉"] },
+            { id: 16, name: "灵感大王", level: 52, power: 5200, continent: "south", region: "tongtian", locationId: 28, danger: "high", description: "观音菩萨莲花池中的金鱼成精，每年要吃童男童女。", loot: ["鱼鳞", "灵感珠", "莲花瓣"] },
+            { id: 17, name: "独角兕大王", level: 58, power: 5800, continent: "south", region: "jindou", locationId: 31, danger: "extreme", description: "太上老君的坐骑青牛下凡，持有金刚琢，能收走各种法宝。", loot: ["金刚琢", "独角", "老君丹"] },
+            { id: 18, name: "蝎子精", level: 65, power: 6500, continent: "south", region: "dudi", locationId: 34, danger: "high", description: "琵琶洞的女妖，倒马毒钩连如来都曾被她蜇伤。", loot: ["蝎子尾", "倒马毒", "琵琶"] },
+            { id: 19, name: "牛魔王", level: 70, power: 7000, continent: "south", region: "jilei", locationId: 37, danger: "extreme", description: "七大圣之首，孙悟空的结拜大哥，法力无边。", loot: ["牛角", "牛魔内丹", "混铁棍"] },
+            { id: 20, name: "玉面狐狸", level: 72, power: 7200, continent: "south", region: "jilei", locationId: 38, danger: "medium", description: "牛魔王的小妾，万岁狐王的女儿，拥有大量财宝。", loot: ["狐狸毛", "狐妖内丹", "摩云洞宝藏"] },
+            { id: 21, name: "铁扇公主", level: 65, power: 6500, continent: "south", region: "cuiyun", locationId: 36, danger: "high", description: "牛魔王的妻子，持有芭蕉扇，能扇灭火焰山之火。", loot: ["芭蕉扇", "芭蕉叶", "公主首饰"] },
+            
+            // 西牛贺洲
+            { id: 22, name: "万圣龙王", level: 48, power: 4800, continent: "west", region: "jisai", locationId: 40, danger: "medium", description: "碧波潭龙王，与九头虫合伙偷取佛宝。", loot: ["龙鳞", "佛宝", "龙王冠"] },
+            { id: 23, name: "九头虫", level: 55, power: 5500, continent: "west", region: "jisai", locationId: 39, danger: "high", description: "有九个头颅的妖怪，偷取祭赛国佛宝舍利。", loot: ["九头", "虫壳", "佛舍利"] },
+            { id: 24, name: "树精", level: 52, power: 5200, continent: "west", region: "jingji", locationId: 42, danger: "low", description: "荆棘岭的树木成精，虽然年老但并无恶意。", loot: ["树心", "桃木", "千年灵芝"] },
+            { id: 25, name: "黄眉老佛", level: 55, power: 5500, continent: "west", region: "jingji", locationId: 43, danger: "extreme", description: "弥勒佛座下童子，假扮如来设下小雷音寺陷阱。", loot: ["人种袋", "金铙", "弥勒法宝"] },
+            { id: 26, name: "蟒蛇精", level: 48, power: 4800, continent: "west", region: "jingji", locationId: 44, danger: "medium", description: "七绝山的红鳞大蟒，吞食了许多路人。", loot: ["蟒蛇皮", "红鳞", "蛇胆"] },
+            { id: 27, name: "赛太岁", level: 58, power: 5800, continent: "west", region: "zhuzi", locationId: 47, danger: "high", description: "观音菩萨的坐骑金毛犼下凡，掳走朱紫国王后。", loot: ["紫金铃", "金毛", "观音法宝"] },
+            { id: 28, name: "蜘蛛精", level: 58, power: 5800, continent: "west", region: "pansi", locationId: 49, danger: "high", description: "七个蜘蛛精姐妹，擅长用蛛丝困住敌人。", loot: ["蛛丝", "蜘蛛毒", "七姐妹内丹"] },
+            { id: 29, name: "百眼魔君", level: 60, power: 6000, continent: "west", region: "pansi", locationId: 50, danger: "high", description: "蜈蚣精，千只眼睛能放金光，是蜘蛛精的师兄。", loot: ["蜈蚣毒", "金光珠", "千眼"] },
+            { id: 30, name: "青狮精", level: 80, power: 8000, continent: "west", region: "shituo", locationId: 52, danger: "extreme", description: "文殊菩萨坐骑，曾一口吞下十万天兵，狮驼岭三魔之首。", loot: ["狮鬃", "青狮内丹", "吞天袋"] },
+            { id: 31, name: "白象精", level: 80, power: 8000, continent: "west", region: "shituo", locationId: 52, danger: "extreme", description: "普贤菩萨坐骑，狮驼岭三魔之一，鼻子能卷人。", loot: ["象牙", "象鼻", "白象内丹"] },
+            { id: 32, name: "大鹏金翅雕", level: 85, power: 8500, continent: "west", region: "shituo", locationId: 52, danger: "extreme", description: "如来佛祖的舅舅，速度极快，是狮驼岭最强妖怪。", loot: ["大鹏羽", "金翅", "阴阳二气瓶"] },
+            { id: 33, name: "白鹿精", level: 62, power: 6200, continent: "west", region: "biqiu", locationId: 54, danger: "medium", description: "寿星的坐骑，在比丘国假扮国师，要用小孩心脏炼丹。", loot: ["鹿茸", "寿桃", "寿星拐杖"] },
+            { id: 34, name: "地涌夫人", level: 65, power: 6500, continent: "west", region: "xiankong", locationId: 56, danger: "high", description: "金鼻白毛老鼠精，偷吃如来香花宝烛，认李靖为父。", loot: ["老鼠须", "托塔天王牌位", "佛前灯油"] },
+            { id: 35, name: "南山大王", level: 55, power: 5500, continent: "west", region: "yinwu", locationId: 59, danger: "medium", description: "艾叶花皮豹子精，用假人头骗孙悟空。", loot: ["豹子皮", "豹胆", "连环洞地图"] },
+            { id: 36, name: "黄狮精", level: 58, power: 5800, continent: "west", region: "baotou", locationId: 63, danger: "medium", description: "九灵元圣的干孙子，偷走孙悟空三兄弟的兵器。", loot: ["黄狮皮", "兵器仿品", "虎口洞钥匙"] },
+            { id: 37, name: "九灵元圣", level: 82, power: 8200, continent: "west", region: "zhujie", locationId: 65, danger: "extreme", description: "太乙救苦天尊的坐骑九头狮子，一声吼能通彻三界。", loot: ["九头狮鬃", "天尊令牌", "九灵内丹"] },
+            { id: 38, name: "辟寒大王", level: 62, power: 6200, continent: "west", region: "qinglong", locationId: 68, danger: "high", description: "三只犀牛精之一，怕冷，骗取天竺国香油。", loot: ["犀牛角", "辟寒珠", "玄英石"] },
+            { id: 39, name: "辟暑大王", level: 62, power: 6200, continent: "west", region: "qinglong", locationId: 68, danger: "high", description: "三只犀牛精之一，怕热，与兄弟一起作乱。", loot: ["犀牛角", "辟暑珠", "玄英石"] },
+            { id: 40, name: "辟尘大王", level: 62, power: 6200, continent: "west", region: "qinglong", locationId: 68, danger: "high", description: "三只犀牛精之一，怕尘，三兄弟合力威力巨大。", loot: ["犀牛角", "辟尘珠", "玄英石"] },
+            
+            // 其他
+            { id: 41, name: "六耳猕猴", level: 95, power: 9500, continent: "other", region: "penglai", locationId: 76, danger: "extreme", description: "与孙悟空一模一样的妖怪，连观音都分辨不出，只有如来能识破。", loot: ["六耳", "猕猴毛", "随心铁杆兵"] }
+        ];
+
+        // ==================== 辅助函数 ====================
+
+        function getContinentName(id) {
+            const c = continents.find(x => x.id === id);
+            return c ? c.name : id;
+        }
+
+        function getRegionName(id) {
+            const r = regions.find(x => x.id === id);
+            return r ? r.name : id;
+        }
+
+        function getLocationName(id) {
+            const l = locations.find(x => x.id === id);
+            return l ? l.name : '未知地点';
+        }
+
+        function getDangerLabel(d) {
+            const labels = { low: '低', medium: '中', high: '高', extreme: '极高' };
+            return labels[d] || d;
+        }
+
+        function saveEnemies() {
+            localStorage.setItem('wiki_enemies_v2', JSON.stringify(enemies));
+        }
+
+        // ==================== 初始化筛选器 ====================
+
+        function initFilters() {
+            const continentSelect = document.getElementById('filterContinent');
+            const addFormContinent = document.getElementById('enemyContinent');
+
+            // 填充大洲选项
+            continents.forEach(c => {
+                const option = document.createElement('option');
+                option.value = c.id;
+                option.textContent = c.name;
+                continentSelect.appendChild(option);
+
+                const option2 = document.createElement('option');
+                option2.value = c.id;
+                option2.textContent = c.name;
+                addFormContinent.appendChild(option2);
+            });
+
+            // 填充区域选项
+            updateRegionFilter();
+        }
+
+        function updateRegionFilter() {
+            const continentId = document.getElementById('filterContinent').value;
+            const regionSelect = document.getElementById('filterRegion');
+
+            regionSelect.innerHTML = '<option value="">全部</option>';
+
+            const filteredRegions = continentId
+                ? regions.filter(r => r.continent === continentId)
+                : regions;
+
+            filteredRegions.forEach(r => {
+                const option = document.createElement('option');
+                option.value = r.id;
+                option.textContent = r.name;
+                regionSelect.appendChild(option);
+            });
+        }
+
+        function onContinentChange() {
+            updateRegionFilter();
+            applyFilters();
+        }
+
+        // ==================== 添加表单联动 ====================
+
+        function onAddFormContinentChange() {
+            const continentId = document.getElementById('enemyContinent').value;
+            const regionSelect = document.getElementById('enemyRegion');
+            const locationSelect = document.getElementById('enemyLocation');
+
+            regionSelect.innerHTML = '<option value="">选择区域</option>';
+            locationSelect.innerHTML = '<option value="">选择地点</option>';
+
+            if (!continentId) return;
+
+            const filteredRegions = regions.filter(r => r.continent === continentId);
+            filteredRegions.forEach(r => {
+                const option = document.createElement('option');
+                option.value = r.id;
+                option.textContent = r.name;
+                regionSelect.appendChild(option);
+            });
+        }
+
+        // 区域改变时更新地点选项
+        document.getElementById('enemyRegion').addEventListener('change', function() {
+            const regionId = this.value;
+            const locationSelect = document.getElementById('enemyLocation');
+
+            locationSelect.innerHTML = '<option value="">选择地点</option>';
+
+            if (!regionId) return;
+
+            const filteredLocations = locations.filter(l => l.region === regionId);
+            filteredLocations.forEach(l => {
+                const option = document.createElement('option');
+                option.value = l.id;
+                option.textContent = l.name;
+                locationSelect.appendChild(option);
+            });
+        });
+
+        // ==================== 渲染函数 ====================
+
+        function updateStats() {
+            document.getElementById('totalCount').textContent = enemies.length;
+            document.getElementById('eastCount').textContent = enemies.filter(e => e.continent === 'east').length;
+            document.getElementById('southCount').textContent = enemies.filter(e => e.continent === 'south').length;
+            document.getElementById('westCount').textContent = enemies.filter(e => e.continent === 'west').length;
+            document.getElementById('otherCount').textContent = enemies.filter(e => e.continent === 'north' || e.continent === 'other').length;
+        }
+
+        function renderEnemies(filteredEnemies = enemies) {
+            const grid = document.getElementById('enemyGrid');
+
+            if (filteredEnemies.length === 0) {
+                grid.innerHTML = '<p style="color: #666; padding: 20px; text-align: center;">暂无符合条件的敌人</p>';
+                return;
+            }
+
+            grid.innerHTML = filteredEnemies.map(enemy => {
+                const location = locations.find(l => l.id === enemy.locationId);
+                const locationName = location ? location.name : '未知地点';
+                const regionName = getRegionName(enemy.region);
+                const continentName = getContinentName(enemy.continent);
+
+                return `
+                    <div class="enemy-card" data-continent="${enemy.continent}" data-region="${enemy.region}">
+                        <div class="card-header">
+                            <span class="card-name">${enemy.name}</span>
+                            <span class="card-level">Lv.${enemy.level}</span>
+                        </div>
+                        <div class="card-stats">
+                            <div class="card-stat">
+                                <span class="card-stat-label">战力:</span>
+                                <span class="card-stat-value">${enemy.power}</span>
+                            </div>
+                            <div class="card-stat">
+                                <span class="danger-badge ${enemy.danger}">危险: ${getDangerLabel(enemy.danger)}</span>
+                            </div>
+                        </div>
+                        <div class="card-location">
+                            <strong>所在地点:</strong> 
+                            <span class="continent-badge ${enemy.continent}">${continentName}</span> > 
+                            ${regionName} > 
+                            ${locationName}
+                        </div>
+                        <p class="card-description">${enemy.description}</p>
+                        <div class="card-loot">
+                            ${enemy.loot.map(item => `<span class="loot-tag">${item}</span>`).join('')}
+                        </div>
+                        <div class="card-actions">
+                            <button onclick="deleteEnemy(${enemy.id})" class="btn-delete">删除</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function applyFilters() {
+            const continentId = document.getElementById('filterContinent').value;
+            const regionId = document.getElementById('filterRegion').value;
+            const danger = document.getElementById('filterDanger').value;
+
+            let filtered = enemies.filter(e => {
+                if (continentId && e.continent !== continentId) return false;
+                if (regionId && e.region !== regionId) return false;
+                if (danger && e.danger !== danger) return false;
+                return true;
+            });
+
+            renderEnemies(filtered);
+        }
+
+        function resetFilters() {
+            document.getElementById('filterContinent').value = '';
+            document.getElementById('filterRegion').value = '';
+            document.getElementById('filterDanger').value = '';
+            updateRegionFilter();
+            renderEnemies();
+        }
+
+        function searchEnemies() {
+            const query = document.getElementById('searchInput').value.toLowerCase().trim();
+            if (!query) {
+                renderEnemies();
+                return;
+            }
+
+            const filtered = enemies.filter(e =>
+                e.name.toLowerCase().includes(query) ||
+                e.description.toLowerCase().includes(query) ||
+                e.loot.some(item => item.toLowerCase().includes(query))
+            );
+
+            renderEnemies(filtered);
+        }
+
+        // ==================== 表单处理 ====================
+
+        document.getElementById('addEnemyForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const locationId = parseInt(document.getElementById('enemyLocation').value);
+            const location = locations.find(l => l.id === locationId);
+
+            enemies.push({
+                id: Date.now(),
+                name: document.getElementById('enemyName').value,
+                level: parseInt(document.getElementById('enemyLevel').value),
+                power: parseInt(document.getElementById('enemyPower').value),
+                continent: document.getElementById('enemyContinent').value,
+                region: document.getElementById('enemyRegion').value,
+                locationId: locationId,
+                danger: document.getElementById('enemyDanger').value,
+                description: document.getElementById('enemyDesc').value,
+                loot: document.getElementById('enemyLoot').value.split(',').map(s => s.trim()).filter(s => s)
+            });
+
+            saveEnemies();
+            renderEnemies();
+            updateStats();
+            this.reset();
+            alert('敌人添加成功！');
+        });
+
+        function deleteEnemy(id) {
+            if (confirm('确定要删除这个敌人吗？')) {
+                enemies = enemies.filter(e => e.id !== id);
+                saveEnemies();
+                renderEnemies();
+                updateStats();
+            }
+        }
+
+        // ==================== 初始化 ====================
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initFilters();
+            updateStats();
+            renderEnemies();
+
+            // 搜索框回车事件
+            document.getElementById('searchInput').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') searchEnemies();
+            });
+        });
+    </script>
+</body>
+</html>

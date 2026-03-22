@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>生活技能产物 - 蛙噻！好摊</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        /* 物品卡片样式 */
+        .item-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+            margin: 16px 0;
+        }
+        .item-card {
+            background: var(--wiki-box-bg);
+            border: 1px solid var(--wiki-border);
+            padding: 12px;
+        }
+        .item-card h4 {
+            margin: 0 0 8px 0;
+            color: var(--wiki-text);
+            font-size: 15px;
+        }
+        .item-card .meta {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+        .item-card .description {
+            font-size: 13px;
+            color: var(--wiki-text-secondary);
+            margin: 0 0 8px 0;
+        }
+        .item-card .effect-box {
+            background: var(--wiki-content-bg);
+            padding: 8px;
+            font-size: 12px;
+            border-left: 3px solid var(--wiki-link);
+        }
+
+        /* 类型标签 */
+        .type-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            font-size: 11px;
+            border-radius: 2px;
+        }
+        .type-badge.crafting {
+            background: #e8f5e9;
+            color: #388e3c;
+        }
+
+        /* 稀有度标签 */
+        .rarity-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            font-size: 11px;
+            border-radius: 2px;
+        }
+        .rarity-badge.common {
+            background: #f5f5f5;
+            color: #616161;
+        }
+        .rarity-badge.uncommon {
+            background: #e8f5e9;
+            color: #388e3c;
+        }
+        .rarity-badge.rare {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+        .rarity-badge.epic {
+            background: #f3e5f5;
+            color: #7b1fa2;
+        }
+        .rarity-badge.legendary {
+            background: #fff8e1;
+            color: #f57f17;
+        }
+
+        /* 信息框 - Wiki风格 */
+        .info-box {
+            background: var(--wiki-box-bg);
+            border: 1px solid var(--wiki-border);
+            border-left: 4px solid var(--wiki-link);
+            padding: 12px;
+            margin: 12px 0;
+        }
+        .tip-box {
+            background: #e3f2fd;
+            border: 1px solid #90caf9;
+            border-left: 4px solid #2196f3;
+            padding: 12px;
+            margin: 12px 0;
+        }
+
+        /* 筛选标签 */
+        .filter-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 16px 0;
+        }
+        .filter-tabs .tab-btn {
+            padding: 6px 12px;
+            background: var(--wiki-box-bg);
+            border: 1px solid var(--wiki-border);
+            cursor: pointer;
+            font-size: 13px;
+            margin-right: 0;
+        }
+        .filter-tabs .tab-btn:hover {
+            background: var(--wiki-header-bg);
+        }
+        .filter-tabs .tab-btn.active {
+            background: var(--wiki-content-bg);
+            font-weight: bold;
+            color: var(--wiki-text);
+        }
+    </style>
+</head>
+<body class="wiki-layout">
+    <header class="wiki-topbar">
+        <div class="wiki-logo">
+            <a href="../index.html">蛙噻！好摊</a>
+        </div>
+        <div class="wiki-search">
+            <input type="text" placeholder="搜索百科..." id="searchInput">
+            <button onclick="search()">搜索</button>
+        </div>
+        <div class="wiki-user">
+            <span>欢迎访问</span>
+        </div>
+    </header>
+
+    <div class="wiki-container">
+        <aside class="wiki-sidebar">
+            <nav class="wiki-nav">
+                <div class="nav-section">
+                    <h3>百科分类</h3>
+                    <ul>
+                        <li><a href="../index.html">首页</a></li>
+                        <li><a href="game-intro.html">游戏介绍</a></li>
+                        <li><a href="world.html">世界观</a></li>
+                        <li><a href="factions.html">势力分布</a></li>
+                        <li><a href="history.html">历史年表</a></li>
+                        <li><a href="price-mechanism.html">价格机制</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>游戏特色</h3>
+                    <ul>
+                        <li><a href="bazaar.html">集市</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>游戏玩法</h3>
+                    <ul>
+                        <li><a href="market.html">摆摊系统</a></li>
+                        <li><a href="achievements.html">成就系统</a></li>
+                        <li><a href="combat.html">战斗系统</a></li>
+                        <li><a href="progression.html">成长系统</a></li>
+                        <li><a href="currency.html">货币系统</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>角色</h3>
+                    <ul>
+                        <li><a href="characters.html">角色总览</a></li>
+                        <li><a href="characters.html?type=playable">主要角色</a></li>
+                        <li><a href="characters.html?type=npc">NPC</a></li>
+                        <li><a href="enemies.html">敌人</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>物品装备</h3>
+                    <ul>
+                        <li><a href="items.html">物品总览</a></li>
+                        <li><a href="weapon.html">武器</a></li>
+                        <li><a href="armor.html">防具</a></li>
+                        <li><a href="accessory.html">饰品</a></li>
+                        <li><a href="treasure.html">法宝</a></li>
+                        <li><a href="consumable.html">消耗品</a></li>
+                        <li><a href="material.html">材料</a></li>
+                        <li><a href="collection.html">收藏品</a></li>
+                        <li><a href="crafting.html" class="active">生活技能</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>世界探索</h3>
+                    <ul>
+                        <li><a href="locations.html">地点总览</a></li>
+                        <li><a href="map.html">游戏地图</a></li>
+                        <li><a href="quests.html">任务剧情</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>关于</h3>
+                    <ul>
+                        <li><a href="dev-thoughts.html">开发者随想</a></li>
+                    </ul>
+                </div>
+            </nav>
+        </aside>
+
+        <main class="wiki-content">
+            <nav class="breadcrumb">
+                <a href="../index.html">首页</a> &gt; <a href="items.html">物品装备</a> &gt; <span class="current">生活技能产物</span>
+            </nav>
+
+            <article class="wiki-article">
+                <h1 class="article-title">生活技能产物</h1>
+                
+                <div class="info-box">
+                    <strong>生活技能系统简介：</strong>生活技能是游戏中重要的经济系统组成部分。玩家可以通过学习生活技能制作各种物品，用于自身使用或在集市摆摊出售。生活技能产物包括烹饪食物、酿造酒水、制作卷轴、工艺品以及最重要的技能书。
+                </div>
+
+                <h2>生活技能种类</h2>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>技能名称</th>
+                            <th>主要产物</th>
+                            <th>用途</th>
+                            <th>说明</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>烹饪</td>
+                            <td>各类食物</td>
+                            <td>恢复生命、增益属性</td>
+                            <td>制作各种菜肴，唐僧最爱</td>
+                        </tr>
+                        <tr>
+                            <td>酿造</td>
+                            <td>各类酒水</td>
+                            <td>恢复法力、特殊效果</td>
+                            <td>花果山特产猴儿酒</td>
+                        </tr>
+                        <tr>
+                            <td>制符</td>
+                            <td>各类卷轴</td>
+                            <td>传送、战斗辅助</td>
+                            <td>飞行符、回城符等</td>
+                        </tr>
+                        <tr>
+                            <td>工艺</td>
+                            <td>各类工艺品</td>
+                            <td>装饰、收藏</td>
+                            <td>佛珠、木鱼等</td>
+                        </tr>
+                        <tr>
+                            <td>炼丹</td>
+                            <td>各类丹药</td>
+                            <td>恢复、增益</td>
+                            <td>需要配合草药和妖丹</td>
+                        </tr>
+                        <tr>
+                            <td>锻造</td>
+                            <td>武器、防具</td>
+                            <td>装备</td>
+                            <td>需要配合矿石和材料</td>
+                        </tr>
+                        <tr>
+                            <td>裁缝</td>
+                            <td>布甲、披风</td>
+                            <td>装备</td>
+                            <td>需要配合布料和皮革</td>
+                        </tr>
+                        <tr>
+                            <td>木工</td>
+                            <td>法器、家具</td>
+                            <td>装备、装饰</td>
+                            <td>需要配合木材和宝石</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h2>技能书系统</h2>
+                <div class="tip-box">
+                    <strong>技能书是生活技能升级的核心道具！</strong>每种生活技能都有对应的技能书，使用技能书可以提升技能等级。技能书分为五个等级，对应不同的技能等级阶段。
+                </div>
+
+                <h3>技能书等级说明</h3>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>技能书等级</th>
+                            <th>适用技能等级</th>
+                            <th>升级消耗</th>
+                            <th>获取方式</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>初级技能书</td>
+                            <td>1-10级</td>
+                            <td>每级消耗10本</td>
+                            <td>新手任务、低级怪物掉落</td>
+                        </tr>
+                        <tr>
+                            <td>中级技能书</td>
+                            <td>11-20级</td>
+                            <td>每级消耗20本</td>
+                            <td>中级任务、中级怪物掉落</td>
+                        </tr>
+                        <tr>
+                            <td>高级技能书</td>
+                            <td>21-30级</td>
+                            <td>每级消耗30本</td>
+                            <td>高级任务、高级怪物掉落</td>
+                        </tr>
+                        <tr>
+                            <td>大师技能书</td>
+                            <td>31-40级</td>
+                            <td>每级消耗40本</td>
+                            <td>大师任务、BOSS掉落</td>
+                        </tr>
+                        <tr>
+                            <td>传说技能书</td>
+                            <td>41-50级</td>
+                            <td>每级消耗50本</td>
+                            <td>传说任务、世界BOSS掉落</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>技能书总需求量</h3>
+                <p>将一项生活技能从1级提升到50级，共需要：</p>
+                <ul>
+                    <li>初级技能书：100本（1-10级，每级10本）</li>
+                    <li>中级技能书：200本（11-20级，每级20本）</li>
+                    <li>高级技能书：300本（21-30级，每级30本）</li>
+                    <li>大师技能书：400本（31-40级，每级40本）</li>
+                    <li>传说技能书：500本（41-50级，每级50本）</li>
+                </ul>
+                <p><strong>总计：1500本技能书</strong></p>
+
+                <h2>生活技能产物列表</h2>
+                <div class="filter-tabs">
+                    <button class="tab-btn active" onclick="filterCrafting('all')">全部</button>
+                    <button class="tab-btn" onclick="filterCrafting('food')">烹饪食物</button>
+                    <button class="tab-btn" onclick="filterCrafting('drink')">酿造酒水</button>
+                    <button class="tab-btn" onclick="filterCrafting('scroll')">制作卷轴</button>
+                    <button class="tab-btn" onclick="filterCrafting('craft')">工艺品</button>
+                    <button class="tab-btn" onclick="filterCrafting('skillbook')">技能书</button>
+                </div>
+                <div class="item-grid" id="craftingGrid"></div>
+
+                <h2>摆摊交易建议</h2>
+                <div class="tip-box">
+                    <p><strong>技能书是摆摊交易的核心商品！</strong></p>
+                    <ul>
+                        <li><strong>初级技能书</strong>：需求量大，适合新手摆摊，建议薄利多销</li>
+                        <li><strong>中级技能书</strong>：中级玩家需求，价格适中，利润稳定</li>
+                        <li><strong>高级技能书</strong>：高级玩家需求，价格较高，适合专业商人</li>
+                        <li><strong>大师/传说技能书</strong>：稀有度高，价格昂贵，适合高端市场</li>
+                    </ul>
+                    <p>建议同时出售多种等级的技能书，满足不同层次玩家的需求。</p>
+                </div>
+
+                <h2>生活技能升级奖励</h2>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>技能等级</th>
+                            <th>解锁内容</th>
+                            <th>额外奖励</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>10级</td>
+                            <td>解锁中级配方</td>
+                            <td>初级工匠称号</td>
+                        </tr>
+                        <tr>
+                            <td>20级</td>
+                            <td>解锁高级配方</td>
+                            <td>中级工匠称号、专属工具</td>
+                        </tr>
+                        <tr>
+                            <td>30级</td>
+                            <td>解锁大师配方</td>
+                            <td>高级工匠称号、专属工作台</td>
+                        </tr>
+                        <tr>
+                            <td>40级</td>
+                            <td>解锁传说配方</td>
+                            <td>大师工匠称号、专属店铺</td>
+                        </tr>
+                        <tr>
+                            <td>50级</td>
+                            <td>解锁终极配方</td>
+                            <td>传说工匠称号、专属坐骑</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="article-footer">
+                    <p>最后更新于：2026-03-21 | 编辑次数：1</p>
+                </div>
+            </article>
+        </main>
+    </div>
+
+    <footer class="wiki-footer">
+        <p>&copy; 2026 《蛙噻！好摊》游戏百科 | 本百科由玩家共同维护</p>
+    </footer>
+
+    <script src="../js/main.js"></script>
+    <script>
+        let craftingItems = [
+            // 烹饪食物
+            { id: 401, name: "馒头", type: "food", rarity: "common", description: "普通的馒头，可以填饱肚子。", effect: "恢复生命值50点" },
+            { id: 402, name: "面条", type: "food", rarity: "common", description: "一碗热腾腾的面条，简单美味。", effect: "恢复生命值80点" },
+            { id: 403, name: "包子", type: "food", rarity: "uncommon", description: "肉馅包子，香气扑鼻。", effect: "恢复生命值150点，增加攻击力5点（持续10分钟）" },
+            { id: 404, name: "饺子", type: "food", rarity: "uncommon", description: "手工饺子，皮薄馅大。", effect: "恢复生命值150点，增加防御力5点（持续10分钟）" },
+            { id: 405, name: "素斋", type: "food", rarity: "rare", description: "唐僧最爱的素食，清淡健康。", effect: "恢复生命值300点，增加法力值100点，唐僧好感度+10" },
+            { id: 406, name: "汤圆", type: "food", rarity: "rare", description: "软糯香甜的汤圆，节日必备。", effect: "恢复生命值300点，增加幸运值5点（持续30分钟）" },
+            { id: 407, name: "仙肴", type: "food", rarity: "epic", description: "神仙享用的菜肴，凡人难得一尝。", effect: "恢复生命值600点，全属性+10（持续30分钟）" },
+            { id: 408, name: "龙肝凤髓", type: "food", rarity: "epic", description: "传说中的珍馐，龙肝凤髓。", effect: "恢复生命值800点，攻击力+20，暴击率+5%（持续30分钟）" },
+            { id: 409, name: "蟠桃宴菜品", type: "food", rarity: "legendary", description: "王母娘娘蟠桃宴上的佳肴，吃一口可延寿千年。", effect: "恢复全部生命值，全属性+30（持续60分钟），永久增加生命值上限50点" },
+            
+            // 酿造酒水
+            { id: 410, name: "米酒", type: "drink", rarity: "common", description: "普通的米酒，度数不高。", effect: "恢复法力值50点" },
+            { id: 411, name: "浊酒", type: "drink", rarity: "common", description: "浑浊的劣酒，但也能解乏。", effect: "恢复法力值80点" },
+            { id: 412, name: "猴儿酒", type: "drink", rarity: "uncommon", description: "花果山特产，猴子们酿造的美酒。", effect: "恢复法力值150点，增加闪避率3%（持续10分钟）" },
+            { id: 413, name: "桂花酒", type: "drink", rarity: "uncommon", description: "用桂花酿制的香酒，香气四溢。", effect: "恢复法力值150点，增加魅力值5点（持续10分钟）" },
+            { id: 414, name: "女儿红", type: "drink", rarity: "rare", description: "陈年老酒，醇厚绵长。", effect: "恢复法力值300点，增加攻击力10点（持续20分钟）" },
+            { id: 415, name: "状元红", type: "drink", rarity: "rare", description: "庆祝科举及第的喜酒，寓意吉祥。", effect: "恢复法力值300点，增加经验获取10%（持续20分钟）" },
+            { id: 416, name: "仙酿", type: "drink", rarity: "epic", description: "仙人酿造的美酒，凡人饮一口便可飘飘欲仙。", effect: "恢复法力值600点，全属性+8（持续30分钟）" },
+            { id: 417, name: "玉液", type: "drink", rarity: "epic", description: "琼浆玉液，天庭贡品。", effect: "恢复法力值800点，法术攻击+20，法术暴击率+5%（持续30分钟）" },
+            { id: 418, name: "琼浆玉液", type: "drink", rarity: "legendary", description: "传说中的仙酒，饮之可脱胎换骨。", effect: "恢复全部法力值，全属性+25（持续60分钟），永久增加法力值上限50点" },
+            { id: 419, name: "天庭御酒", type: "drink", rarity: "legendary", description: "天庭宴会专用御酒，凡人难得一尝。", effect: "恢复全部法力值，技能冷却减少20%（持续60分钟），永久增加法力恢复速度" },
+            
+            // 制作卷轴
+            { id: 420, name: "飞行符", type: "scroll", rarity: "common", description: "可以让人短暂飞行的符咒。", effect: "传送到已激活的飞行点" },
+            { id: 421, name: "回城符", type: "scroll", rarity: "common", description: "可以让人瞬间回到城镇的符咒。", effect: "立即回到绑定的城镇" },
+            { id: 422, name: "定身符", type: "scroll", rarity: "uncommon", description: "可以定住敌人的符咒。", effect: "使目标定身3秒" },
+            { id: 423, name: "火球符", type: "scroll", rarity: "uncommon", description: "释放火球攻击敌人的符咒。", effect: "对目标造成火焰伤害" },
+            { id: 424, name: "治疗符", type: "scroll", rarity: "rare", description: "可以恢复生命的符咒。", effect: "恢复生命值200点" },
+            { id: 425, name: "召唤符", type: "scroll", rarity: "rare", description: "可以召唤帮手协助战斗的符咒。", effect: "召唤一个小妖协助战斗（持续60秒）" },
+            { id: 426, name: "天雷符", type: "scroll", rarity: "epic", description: "召唤天雷攻击敌人的高级符咒。", effect: "对范围内敌人造成大量雷电伤害" },
+            { id: 427, name: "遁地符", type: "scroll", rarity: "epic", description: "可以让人遁地而行的符咒。", effect: "瞬间移动到指定位置（无视障碍）" },
+            { id: 428, name: "呼风唤雨符", type: "scroll", rarity: "legendary", description: "可以呼风唤雨的传说级符咒。", effect: "改变天气，对敌人造成持续伤害，增强己方水系技能" },
+            
+            // 工艺品
+            { id: 429, name: "佛珠", type: "craft", rarity: "common", description: "普通的佛珠，用于念佛诵经。", effect: "增加佛法感悟，唐僧好感度+1" },
+            { id: 430, name: "木鱼", type: "craft", rarity: "common", description: "敲击用的木鱼，寺庙常见。", effect: "增加佛法感悟，静心凝神" },
+            { id: 431, name: "香炉", type: "craft", rarity: "uncommon", description: "用于焚香的香炉，做工精致。", effect: "增加佛法感悟，祈福效果+5%" },
+            { id: 432, name: "佛像", type: "craft", rarity: "uncommon", description: "雕刻精美的佛像，庄严肃穆。", effect: "增加佛法感悟，受到佛光庇佑" },
+            { id: 433, name: "山水画", type: "craft", rarity: "rare", description: "名家山水画作，意境深远。", effect: "装饰房屋，增加房屋舒适度" },
+            { id: 434, name: "书法作品", type: "craft", rarity: "rare", description: "名家书法真迹，笔走龙蛇。", effect: "装饰房屋，增加房屋文化气息" },
+            { id: 435, name: "玉如意", type: "craft", rarity: "epic", description: "用美玉雕刻的如意，寓意吉祥如意。", effect: "增加幸运值，每日可许愿一次" },
+            { id: 436, name: "金元宝", type: "craft", rarity: "epic", description: "纯金打造的元宝，象征财富。", effect: "增加财运，摆摊收益+5%" },
+            { id: 437, name: "九龙玉璧", type: "craft", rarity: "legendary", description: "雕刻九条龙的玉璧，皇家御用。", effect: "增加全属性，彰显尊贵身份" },
+            { id: 438, name: "凤冠霞帔", type: "craft", rarity: "legendary", description: "皇后大婚时穿戴的礼服，华丽无比。", effect: "增加魅力值，获得特殊时装外观" },
+            
+            // 技能书 - 初级（8种）
+            { id: 439, name: "初级烹饪手册", type: "skillbook", rarity: "common", description: "记载基础烹饪技巧的入门书籍。", effect: "用于烹饪技能1-10级升级，每级消耗10本" },
+            { id: 440, name: "初级酿造指南", type: "skillbook", rarity: "common", description: "介绍基础酿造方法的入门书籍。", effect: "用于酿造技能1-10级升级，每级消耗10本" },
+            { id: 441, name: "初级制符术", type: "skillbook", rarity: "common", description: "教授基础画符技巧的入门书籍。", effect: "用于制符技能1-10级升级，每级消耗10本" },
+            { id: 442, name: "初级工艺入门", type: "skillbook", rarity: "common", description: "介绍基础工艺制作的入门书籍。", effect: "用于工艺技能1-10级升级，每级消耗10本" },
+            { id: 443, name: "初级炼丹术", type: "skillbook", rarity: "common", description: "记载基础炼丹方法的入门书籍。", effect: "用于炼丹技能1-10级升级，每级消耗10本" },
+            { id: 444, name: "初级锻造术", type: "skillbook", rarity: "common", description: "教授基础锻造技巧的入门书籍。", effect: "用于锻造技能1-10级升级，每级消耗10本" },
+            { id: 445, name: "初级裁缝术", type: "skillbook", rarity: "common", description: "介绍基础裁缝技艺的入门书籍。", effect: "用于裁缝技能1-10级升级，每级消耗10本" },
+            { id: 446, name: "初级木工术", type: "skillbook", rarity: "common", description: "教授基础木工技巧的入门书籍。", effect: "用于木工技能1-10级升级，每级消耗10本" },
+            
+            // 技能书 - 中级（8种）
+            { id: 447, name: "中级烹饪秘籍", type: "skillbook", rarity: "uncommon", description: "记载进阶烹饪技巧的秘籍。", effect: "用于烹饪技能11-20级升级，每级消耗20本" },
+            { id: 448, name: "中级酿造秘方", type: "skillbook", rarity: "uncommon", description: "介绍进阶酿造方法的秘方。", effect: "用于酿造技能11-20级升级，每级消耗20本" },
+            { id: 449, name: "中级制符秘籍", type: "skillbook", rarity: "uncommon", description: "教授进阶画符技巧的秘籍。", effect: "用于制符技能11-20级升级，每级消耗20本" },
+            { id: 450, name: "中级工艺精要", type: "skillbook", rarity: "uncommon", description: "介绍进阶工艺制作的精要。", effect: "用于工艺技能11-20级升级，每级消耗20本" },
+            { id: 451, name: "中级炼丹秘籍", type: "skillbook", rarity: "uncommon", description: "记载进阶炼丹方法的秘籍。", effect: "用于炼丹技能11-20级升级，每级消耗20本" },
+            { id: 452, name: "中级锻造精要", type: "skillbook", rarity: "uncommon", description: "教授进阶锻造技巧的精要。", effect: "用于锻造技能11-20级升级，每级消耗20本" },
+            { id: 453, name: "中级裁缝秘籍", type: "skillbook", rarity: "uncommon", description: "介绍进阶裁缝技艺的秘籍。", effect: "用于裁缝技能11-20级升级，每级消耗20本" },
+            { id: 454, name: "中级木工精要", type: "skillbook", rarity: "uncommon", description: "教授进阶木工技巧的精要。", effect: "用于木工技能11-20级升级，每级消耗20本" },
+            
+            // 技能书 - 高级（8种）
+            { id: 455, name: "高级烹饪宝典", type: "skillbook", rarity: "rare", description: "记载高级烹饪技巧的宝典。", effect: "用于烹饪技能21-30级升级，每级消耗30本" },
+            { id: 456, name: "高级酿造宝典", type: "skillbook", rarity: "rare", description: "介绍高级酿造方法的宝典。", effect: "用于酿造技能21-30级升级，每级消耗30本" },
+            { id: 457, name: "高级制符宝典", type: "skillbook", rarity: "rare", description: "教授高级画符技巧的宝典。", effect: "用于制符技能21-30级升级，每级消耗30本" },
+            { id: 458, name: "高级工艺宝典", type: "skillbook", rarity: "rare", description: "介绍高级工艺制作的宝典。", effect: "用于工艺技能21-30级升级，每级消耗30本" },
+            { id: 459, name: "高级炼丹宝典", type: "skillbook", rarity: "rare", description: "记载高级炼丹方法的宝典。", effect: "用于炼丹技能21-30级升级，每级消耗30本" },
+            { id: 460, name: "高级锻造宝典", type: "skillbook", rarity: "rare", description: "教授高级锻造技巧的宝典。", effect: "用于锻造技能21-30级升级，每级消耗30本" },
+            { id: 461, name: "高级裁缝宝典", type: "skillbook", rarity: "rare", description: "介绍高级裁缝技艺的宝典。", effect: "用于裁缝技能21-30级升级，每级消耗30本" },
+            { id: 462, name: "高级木工宝典", type: "skillbook", rarity: "rare", description: "教授高级木工技巧的宝典。", effect: "用于木工技能21-30级升级，每级消耗30本" },
+            
+            // 技能书 - 大师（8种）
+            { id: 463, name: "大师烹饪心得", type: "skillbook", rarity: "epic", description: "大师级烹饪家的心得体会。", effect: "用于烹饪技能31-40级升级，每级消耗40本" },
+            { id: 464, name: "大师酿造心得", type: "skillbook", rarity: "epic", description: "大师级酿造师的心得体会。", effect: "用于酿造技能31-40级升级，每级消耗40本" },
+            { id: 465, name: "大师制符真解", type: "skillbook", rarity: "epic", description: "大师级制符师的真传秘诀。", effect: "用于制符技能31-40级升级，每级消耗40本" },
+            { id: 466, name: "大师工艺真解", type: "skillbook", rarity: "epic", description: "大师级工艺师的真传秘诀。", effect: "用于工艺技能31-40级升级，每级消耗40本" },
+            { id: 467, name: "大师炼丹真解", type: "skillbook", rarity: "epic", description: "大师级炼丹师的真传秘诀。", effect: "用于炼丹技能31-40级升级，每级消耗40本" },
+            { id: 468, name: "大师锻造真解", type: "skillbook", rarity: "epic", description: "大师级锻造师的真传秘诀。", effect: "用于锻造技能31-40级升级，每级消耗40本" },
+            { id: 469, name: "大师裁缝真解", type: "skillbook", rarity: "epic", description: "大师级裁缝师的真传秘诀。", effect: "用于裁缝技能31-40级升级，每级消耗40本" },
+            { id: 470, name: "大师木工真解", type: "skillbook", rarity: "epic", description: "大师级木工师的真传秘诀。", effect: "用于木工技能31-40级升级，每级消耗40本" },
+            
+            // 技能书 - 传说（8种）
+            { id: 471, name: "传说烹饪神典", type: "skillbook", rarity: "legendary", description: "传说中的烹饪神典，记载着神级烹饪技艺。", effect: "用于烹饪技能41-50级升级，每级消耗50本" },
+            { id: 472, name: "传说酿造神典", type: "skillbook", rarity: "legendary", description: "传说中的酿造神典，记载着神级酿造技艺。", effect: "用于酿造技能41-50级升级，每级消耗50本" },
+            { id: 473, name: "传说制符神典", type: "skillbook", rarity: "legendary", description: "传说中的制符神典，记载着神级制符技艺。", effect: "用于制符技能41-50级升级，每级消耗50本" },
+            { id: 474, name: "传说工艺神典", type: "skillbook", rarity: "legendary", description: "传说中的工艺神典，记载着神级工艺技艺。", effect: "用于工艺技能41-50级升级，每级消耗50本" },
+            { id: 475, name: "传说炼丹神典", type: "skillbook", rarity: "legendary", description: "传说中的炼丹神典，记载着神级炼丹技艺。", effect: "用于炼丹技能41-50级升级，每级消耗50本" },
+            { id: 476, name: "传说锻造神典", type: "skillbook", rarity: "legendary", description: "传说中的锻造神典，记载着神级锻造技艺。", effect: "用于锻造技能41-50级升级，每级消耗50本" },
+            { id: 477, name: "传说裁缝神典", type: "skillbook", rarity: "legendary", description: "传说中的裁缝神典，记载着神级裁缝技艺。", effect: "用于裁缝技能41-50级升级，每级消耗50本" },
+            { id: 478, name: "传说木工神典", type: "skillbook", rarity: "legendary", description: "传说中的木工神典，记载着神级木工技艺。", effect: "用于木工技能41-50级升级，每级消耗50本" }
+        ];
+
+        function getRarityLabel(r) { 
+            const l = {common:'普通',uncommon:'优秀',rare:'稀有',epic:'史诗',legendary:'传说'}; 
+            return l[r] || r; 
+        }
+        
+        function getTypeLabel(t) { 
+            const l = {food:'烹饪食物',drink:'酿造酒水',scroll:'制作卷轴',craft:'工艺品',skillbook:'技能书'}; 
+            return l[t] || t; 
+        }
+
+        function renderCrafting(filter = 'all') {
+            const grid = document.getElementById('craftingGrid');
+            let filtered = craftingItems;
+            if (filter !== 'all') filtered = craftingItems.filter(c => c.type === filter);
+            
+            if (filtered.length === 0) { 
+                grid.innerHTML = '<p style="color:var(--wiki-text-secondary);padding:20px;">暂无该类型的物品</p>'; 
+                return; 
+            }
+            
+            grid.innerHTML = filtered.map(item => `
+                <div class="item-card" data-type="${item.type}">
+                    <h4>${item.name}</h4>
+                    <div class="meta">
+                        <span class="type-badge crafting">${getTypeLabel(item.type)}</span>
+                        <span class="rarity-badge ${item.rarity}">${getRarityLabel(item.rarity)}</span>
+                    </div>
+                    <p class="description">${item.description}</p>
+                    <div class="effect-box"><strong>效果：</strong>${item.effect}</div>
+                </div>
+            `).join('');
+        }
+
+        function filterCrafting(type) {
+            document.querySelectorAll('.filter-tabs .tab-btn').forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+            renderCrafting(type);
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            renderCrafting();
+        });
+    </script>
+</body>
+</html>

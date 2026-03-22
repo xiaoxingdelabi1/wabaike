@@ -1,0 +1,1186 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>势力分布 - 蛙噻！好摊</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        /* 势力系统样式 */
+        .faction-hierarchy {
+            margin-bottom: 30px;
+        }
+
+        .faction-tier {
+            margin-bottom: 24px;
+            border: 1px solid #a2a9b1;
+            background: #fafafa;
+        }
+
+        .faction-tier-header {
+            padding: 12px 16px;
+            background: #f0f0f0;
+            border-bottom: 1px solid #a2a9b1;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .faction-tier-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #000;
+        }
+
+        .faction-tier-badge {
+            padding: 2px 8px;
+            font-size: 11px;
+            border-radius: 3px;
+            font-weight: 600;
+        }
+
+        .faction-tier-badge.tier1 {
+            background: #ffd700;
+            color: #8b6914;
+        }
+
+        .faction-tier-badge.tier2 {
+            background: #c0c0c0;
+            color: #4a4a4a;
+        }
+
+        .faction-tier-badge.tier3 {
+            background: #cd7f32;
+            color: #fff;
+        }
+
+        .faction-tier-content {
+            padding: 16px;
+        }
+
+        .faction-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 16px;
+        }
+
+        .faction-card {
+            background: #fff;
+            border: 1px solid #a2a9b1;
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .faction-card:hover {
+            border-color: #3366cc;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .faction-card-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .faction-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+
+        .faction-icon.celestial {
+            background: linear-gradient(135deg, #ffd700, #ffed4e);
+        }
+
+        .faction-icon.buddhist {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a5a);
+        }
+
+        .faction-icon.demon {
+            background: linear-gradient(135deg, #8b4513, #654321);
+        }
+
+        .faction-icon.neutral {
+            background: linear-gradient(135deg, #87ceeb, #5f9ea0);
+        }
+
+        .faction-info {
+            flex: 1;
+        }
+
+        .faction-name {
+            font-size: 16px;
+            font-weight: bold;
+            color: #000;
+            margin-bottom: 4px;
+        }
+
+        .faction-type {
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 3px;
+            display: inline-block;
+        }
+
+        .faction-type.celestial {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .faction-type.buddhist {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .faction-type.demon {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .faction-type.neutral {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .faction-description {
+            font-size: 13px;
+            color: #333;
+            line-height: 1.5;
+            margin-bottom: 12px;
+        }
+
+        .faction-meta {
+            display: flex;
+            gap: 16px;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .faction-meta-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .faction-reputation {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .reputation-bar {
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 4px;
+        }
+
+        .reputation-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.3s;
+        }
+
+        .reputation-fill.hatred { background: #dc3545; }
+        .reputation-fill.hostile { background: #fd7e14; }
+        .reputation-fill.cold { background: #6c757d; }
+        .reputation-fill.friendly { background: #28a745; }
+        .reputation-fill.respected { background: #17a2b8; }
+        .reputation-fill.revered { background: #007bff; }
+        .reputation-fill.exalted { background: #9c27b0; }
+
+        .reputation-text {
+            font-size: 12px;
+            color: #666;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        /* 势力详情弹窗 */
+        .faction-modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90%;
+            max-width: 700px;
+            max-height: 85vh;
+            background: #fff;
+            border: 2px solid #a2a9b1;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            z-index: 1000;
+            overflow-y: auto;
+        }
+
+        .faction-modal.active {
+            display: block;
+        }
+
+        .faction-modal-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #a2a9b1;
+        }
+
+        .faction-modal-icon {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+        }
+
+        .faction-modal-title {
+            flex: 1;
+        }
+
+        .faction-modal-title h3 {
+            margin: 0 0 8px 0;
+            font-size: 20px;
+        }
+
+        .faction-modal-close {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #fff;
+            border: 1px solid #a2a9b1;
+            cursor: pointer;
+            font-size: 20px;
+        }
+
+        .faction-modal-content {
+            padding: 20px;
+        }
+
+        .faction-section {
+            margin-bottom: 20px;
+        }
+
+        .faction-section-title {
+            font-size: 14px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .faction-relationships {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        .relationship-group {
+            padding: 12px;
+            border-radius: 4px;
+        }
+
+        .relationship-group.allies {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+        }
+
+        .relationship-group.enemies {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+        }
+
+        .relationship-group.trade {
+            background: #d1ecf1;
+            border: 1px solid #bee5eb;
+        }
+
+        .relationship-title {
+            font-size: 12px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .relationship-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .relationship-item {
+            font-size: 11px;
+            padding: 2px 8px;
+            background: rgba(255,255,255,0.8);
+            border-radius: 3px;
+        }
+
+        .faction-shop-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 12px;
+        }
+
+        .shop-item {
+            padding: 12px;
+            background: #f8f9fa;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+        }
+
+        .shop-item-name {
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+
+        .shop-item-price {
+            color: #28a745;
+            font-size: 12px;
+            margin-bottom: 4px;
+        }
+
+        .shop-item-desc {
+            font-size: 11px;
+            color: #666;
+        }
+
+        .faction-quests-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .quest-item {
+            padding: 12px;
+            background: #f8f9fa;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+        }
+
+        .quest-item-name {
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+
+        .quest-item-desc {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 4px;
+        }
+
+        .quest-item-reward {
+            font-size: 11px;
+            color: #28a745;
+        }
+
+        /* 势力关系图 */
+        .faction-network {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border: 1px solid #a2a9b1;
+        }
+
+        .network-legend {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+        }
+
+        .legend-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .legend-dot.allies { background: #28a745; }
+        .legend-dot.enemies { background: #dc3545; }
+        .legend-dot.trade { background: #17a2b8; }
+
+        /* 地方势力列表 */
+        .local-factions-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 10px;
+        }
+
+        .local-faction-item {
+            padding: 10px;
+            background: #fff;
+            border: 1px solid #d0d0d0;
+            font-size: 13px;
+        }
+
+        .local-faction-name {
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+
+        .local-faction-leader {
+            font-size: 11px;
+            color: #666;
+        }
+
+        /* 筛选器 */
+        .faction-filters {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+            padding: 16px;
+            background: #f8f9fa;
+            border: 1px solid #a2a9b1;
+            flex-wrap: wrap;
+        }
+
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .filter-group label {
+            font-size: 13px;
+            color: #333;
+        }
+
+        .filter-group select {
+            padding: 6px 10px;
+            border: 1px solid #a2a9b1;
+            font-size: 13px;
+            background: #fff;
+        }
+
+        /* 遮罩层 */
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+        }
+
+        .overlay.active {
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            .faction-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .faction-relationships {
+                grid-template-columns: 1fr;
+            }
+
+            .faction-shop-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .local-factions-list {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body class="wiki-layout">
+    <header class="wiki-topbar">
+        <div class="wiki-logo">
+            <a href="../index.html">蛙噻！好摊</a>
+        </div>
+        <div class="wiki-search">
+            <input type="text" placeholder="搜索百科..." id="searchInput">
+            <button onclick="searchFactions()">搜索</button>
+        </div>
+        <div class="wiki-user">
+            <span>欢迎访问</span>
+        </div>
+    </header>
+
+    <div class="wiki-container">
+        <aside class="wiki-sidebar">
+            <nav class="wiki-nav">
+                <div class="nav-section">
+                    <h3>百科分类</h3>
+                    <ul>
+                        <li><a href="../index.html">首页</a></li>
+                        <li><a href="game-intro.html">游戏介绍</a></li>
+                        <li><a href="world.html">世界观</a></li>
+                        <li><a href="factions.html" class="active">势力分布</a></li>
+                        <li><a href="history.html">历史年表</a></li>
+                        <li><a href="price-mechanism.html">价格机制</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>游戏特色</h3>
+                    <ul>
+                        <li><a href="bazaar.html">集市</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>游戏玩法</h3>
+                    <ul>
+                        <li><a href="market.html">摆摊系统</a></li>
+                        <li><a href="achievements.html">成就系统</a></li>
+                        <li><a href="combat.html">战斗系统</a></li>
+                        <li><a href="progression.html">成长系统</a></li>
+                        <li><a href="currency.html">货币系统</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>角色</h3>
+                    <ul>
+                        <li><a href="characters.html">角色总览</a></li>
+                        <li><a href="characters.html?type=playable">主要角色</a></li>
+                        <li><a href="characters.html?type=npc">NPC</a></li>
+                        <li><a href="enemies.html">敌人</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>物品装备</h3>
+                    <ul>
+                        <li><a href="items.html">物品总览</a></li>
+                        <li><a href="weapon.html">武器</a></li>
+                        <li><a href="armor.html">防具</a></li>
+                        <li><a href="accessory.html">饰品</a></li>
+                        <li><a href="treasure.html">法宝</a></li>
+                        <li><a href="consumable.html">消耗品</a></li>
+                        <li><a href="material.html">材料</a></li>
+                        <li><a href="collection.html">收藏品</a></li>
+                        <li><a href="crafting.html">生活技能</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>世界探索</h3>
+                    <ul>
+                        <li><a href="factions.html" class="active">势力分布</a></li>
+                        <li><a href="locations.html">地点总览</a></li>
+                        <li><a href="map.html">游戏地图</a></li>
+                        <li><a href="quests.html">任务剧情</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>关于</h3>
+                    <ul>
+                        <li><a href="dev-thoughts.html">开发者随想</a></li>
+                    </ul>
+                </div>
+            </nav>
+        </aside>
+
+        <main class="wiki-content">
+            <nav class="breadcrumb">
+                <a href="../index.html">首页</a> &gt; <a href="world.html">世界观</a> &gt; <span class="current">势力分布</span>
+            </nav>
+
+            <article class="wiki-article">
+                <h1 class="article-title">势力分布</h1>
+                
+                <div class="article-intro">
+                    <p>本文介绍《蛙噻！好摊》中的势力系统，包括<strong>天庭系</strong>、<strong>佛门系</strong>、<strong>妖族系</strong>和中立势力。玩家可以选择加入不同势力，通过完成任务提升声望，解锁专属商店和技能。</p>
+                </div>
+
+                <div class="infobox">
+                    <div class="infobox-header">势力统计</div>
+                    <div class="infobox-row">
+                        <div class="infobox-label">顶级势力</div>
+                        <div class="infobox-value">3个</div>
+                    </div>
+                    <div class="infobox-row">
+                        <div class="infobox-label">主要势力</div>
+                        <div class="infobox-value">13个</div>
+                    </div>
+                    <div class="infobox-row">
+                        <div class="infobox-label">地方势力</div>
+                        <div class="infobox-value">20个</div>
+                    </div>
+                    <div class="infobox-row">
+                        <div class="infobox-label">势力类型</div>
+                        <div class="infobox-value">天庭/佛门/妖族/中立</div>
+                    </div>
+                </div>
+
+                <div class="wiki-toc">
+                    <h3>目录</h3>
+                    <ul>
+                        <li><a href="#factions">势力列表</a></li>
+                        <li><a href="#relations">势力关系</a></li>
+                        <li><a href="#events">势力动态</a></li>
+                    </ul>
+                </div>
+
+                <h2 id="factions">势力列表</h2>
+                
+                <!-- 势力筛选器 -->
+                <div class="faction-filters">
+                    <div class="filter-group">
+                        <label>势力等级:</label>
+                        <select id="filterTier" onchange="filterFactions()">
+                            <option value="">全部</option>
+                            <option value="1">顶级势力</option>
+                            <option value="2">主要势力</option>
+                            <option value="3">地方势力</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>势力类型:</label>
+                        <select id="filterType" onchange="filterFactions()">
+                            <option value="">全部</option>
+                            <option value="celestial">天庭系</option>
+                            <option value="buddhist">佛门系</option>
+                            <option value="demon">妖族系</option>
+                            <option value="neutral">中立</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>关系筛选:</label>
+                        <select id="filterRelation" onchange="filterFactions()">
+                            <option value="">全部</option>
+                            <option value="allies">同盟势力</option>
+                            <option value="enemies">敌对势力</option>
+                            <option value="trade">贸易伙伴</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- 势力层级展示 -->
+                <div class="faction-hierarchy" id="factionHierarchy">
+                    <!-- 动态生成 -->
+                </div>
+
+                <!-- 势力关系图例 -->
+                <div class="faction-network" id="relations">
+                    <h3>势力关系说明</h3>
+                    <div class="network-legend">
+                        <div class="legend-item">
+                            <div class="legend-dot allies"></div>
+                            <span>同盟关系 - 互相支持，共同进退</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-dot enemies"></div>
+                            <span>敌对关系 - 互相攻击，势不两立</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-dot trade"></div>
+                            <span>贸易关系 - 商业往来，互利互惠</span>
+                        </div>
+                    </div>
+                    <p style="font-size: 13px; color: #666; margin-top: 12px;">
+                        三界势力错综复杂，天庭与佛门联手维护秩序，妖族联盟则与之对抗。女儿国保持中立，与各方都有贸易往来。
+                        玩家可以选择加入不同势力，通过完成任务提升声望，解锁专属商店和技能。
+                    </p>
+                </div>
+
+                <!-- 势力事件 -->
+                <div class="faction-network" style="margin-top: 20px;" id="events">
+                    <h3>势力动态事件</h3>
+                    <div id="factionEvents">
+                        <p style="font-size: 13px; color: #666;">加载中...</p>
+                    </div>
+                    <div style="margin-top: 12px; padding: 12px; background: #f8f9fa; border-radius: 4px;">
+                        <p style="font-size: 12px; color: #666; margin: 0;">
+                            <strong>事件类型说明：</strong><br>
+                            ⚔️ <strong>冲突事件</strong>：势力之间发生战斗，参与可获得大量声望<br>
+                            🤝 <strong>合作事件</strong>：势力联合行动，参与可获得声望和奖励<br>
+                            🆘 <strong>危机事件</strong>：势力遭遇危机，援助可获得额外奖励<br>
+                            🎉 <strong>庆典事件</strong>：势力举办庆典，参与可获得特殊物品
+                        </p>
+                    </div>
+                </div>
+
+                <div class="article-footer">
+                    <p>最后更新于：2026-03-20 | 编辑次数：1</p>
+                </div>
+            </article>
+        </main>
+    </div>
+
+    <!-- 遮罩层 -->
+    <div class="overlay" id="overlay" onclick="closeFactionModal()"></div>
+
+    <!-- 势力详情弹窗 -->
+    <div class="faction-modal" id="factionModal">
+        <div class="faction-modal-header">
+            <div class="faction-modal-icon" id="modalIcon">🏛️</div>
+            <div class="faction-modal-title">
+                <h3 id="modalName">势力名称</h3>
+                <span class="faction-type" id="modalType">类型</span>
+            </div>
+            <button class="faction-modal-close" onclick="closeFactionModal()">&times;</button>
+        </div>
+        <div class="faction-modal-content" id="modalContent">
+            <!-- 动态生成 -->
+        </div>
+    </div>
+
+    <footer class="wiki-footer">
+        <p>&copy; 2026 《蛙噻！好摊》游戏百科 | 本百科由玩家共同维护</p>
+    </footer>
+
+    <script src="../js/main.js"></script>
+    <script>
+        // 势力数据
+        let factionsData = null;
+        let playerReputations = {};
+
+        // 势力类型标签
+        const typeLabels = {
+            celestial: '天庭系',
+            buddhist: '佛门系',
+            demon: '妖族系',
+            neutral: '中立'
+        };
+
+        const typeIcons = {
+            celestial: '☁️',
+            buddhist: '☸️',
+            demon: '👹',
+            neutral: '⚖️'
+        };
+
+        // 声望等级
+        function getReputationLevel(value) {
+            if (value <= -5000) return { name: '仇恨', class: 'hatred' };
+            if (value <= -1000) return { name: '敌对', class: 'hostile' };
+            if (value <= 0) return { name: '冷淡', class: 'cold' };
+            if (value <= 1000) return { name: '友善', class: 'friendly' };
+            if (value <= 5000) return { name: '尊敬', class: 'respected' };
+            if (value <= 10000) return { name: '崇敬', class: 'revered' };
+            return { name: '崇拜', class: 'exalted' };
+        }
+
+        // 势力数据（内联，避免CORS问题）
+        const inlineFactionsData = {
+            factions: [
+                {id: "tianting", name: "天庭", tier: 1, type: "celestial", description: "道教最高统治机构，掌控天界秩序。", leader: "玉皇大帝", strength: 100000, headquarters: "天宫", relationships: {allies: ["tianting_shanghui", "datangguo"], enemies: ["yaozu", "jileishan"], trade: ["nverguo"]}, shop: [{id: "s1", name: "九转金丹", price: 10000, reputationRequired: 5000, description: "天庭秘制的仙丹"}], quests: [{id: "q1", name: "剿灭妖邪", description: "消灭作乱的妖怪", reward: 500, reputation: 200}], skills: [{id: "sk1", name: "天罡护体", description: "防御力+20%", reputationRequired: 5000}], reputation: 0},
+                {id: "fomen", name: "佛门", tier: 1, type: "buddhist", description: "佛教最高统治机构，掌控西天取经大业。", leader: "如来佛祖", strength: 95000, headquarters: "雷音寺", relationships: {allies: ["leiyinsi", "tianzhuguo"], enemies: ["yaozu", "shituoling"], trade: ["nverguo"]}, shop: [{id: "s2", name: "佛珠", price: 3000, reputationRequired: 2000, description: "加持过的佛珠"}], quests: [{id: "q2", name: "降妖伏魔", description: "用佛法感化或降伏妖怪", reward: 600, reputation: 250}], skills: [{id: "sk2", name: "佛光普照", description: "对妖族伤害+30%", reputationRequired: 5000}], reputation: 0},
+                {id: "yaozu", name: "妖族联盟", tier: 1, type: "demon", description: "妖族最高统治机构，代表天下妖族利益。", leader: "七大圣议会", strength: 80000, headquarters: "积雷山", relationships: {allies: ["jileishan", "shituoling"], enemies: ["tianting", "fomen"], trade: ["nverguo"]}, shop: [{id: "s3", name: "妖丹", price: 2500, reputationRequired: 1500, description: "妖族修炼凝结的内丹"}], quests: [{id: "q3", name: "猎杀天兵", description: "击败巡逻的天兵天将", reward: 700, reputation: 300}], skills: [{id: "sk3", name: "妖气冲天", description: "攻击力+20%", reputationRequired: 5000}], reputation: 0},
+                {id: "tianting_shanghui", name: "天庭商会", tier: 2, type: "celestial", description: "天庭直属商业组织，掌控四大部洲主要贸易通道。", leader: "太白金星", strength: 30000, headquarters: "天宫商业街", relationships: {allies: ["tianting"], enemies: ["yaozu"], trade: ["nverguo"]}, shop: [{id: "ts1", name: "灵石", price: 500, reputationRequired: 100, description: "蕴含灵气的石头"}], quests: [{id: "tsq1", name: "运送货物", description: "将商会的货物安全运送到指定地点", reward: 600, reputation: 250}], skills: [{id: "tss1", name: "商贾之道", description: "交易时价格优惠15%", reputationRequired: 3000}], reputation: 0},
+                {id: "leiyinsi", name: "雷音寺", tier: 2, type: "buddhist", description: "佛门核心圣地，如来佛祖讲法之处。", leader: "如来佛祖", strength: 50000, headquarters: "西天灵山", relationships: {allies: ["fomen"], enemies: ["yaozu"], trade: ["nverguo"]}, shop: [{id: "lys1", name: "真经抄本", price: 2000, reputationRequired: 1000, description: "雷音寺珍藏的佛经抄本"}], quests: [{id: "lyq1", name: "护法卫道", description: "保护寺庙免受妖邪侵扰", reward: 800, reputation: 350}], skills: [{id: "lysk1", name: "佛法精深", description: "对妖族伤害+20%", reputationRequired: 4000}], reputation: 0},
+                {id: "donghai_longgong", name: "东海龙宫", tier: 2, type: "celestial", description: "四海龙王之首，掌控东海及水族。", leader: "东海龙王", strength: 35000, headquarters: "东海龙宫", relationships: {allies: ["tianting"], enemies: ["yaozu"], trade: ["nverguo"]}, shop: [{id: "dh1", name: "避水珠", price: 3000, reputationRequired: 1500, description: "可在水中自由呼吸的宝珠"}], quests: [{id: "dhq1", name: "镇压海妖", description: "击败作乱的海妖", reward: 700, reputation: 300}], skills: [{id: "dhs1", name: "御水之术", description: "在水中移动速度+30%", reputationRequired: 3000}], reputation: 0},
+                {id: "difu", name: "地府", tier: 2, type: "neutral", description: "幽冥之主，掌控生死轮回。", leader: "十殿阎罗", strength: 40000, headquarters: "幽冥地府", relationships: {allies: ["tianting", "fomen"], enemies: ["yaozu"], trade: ["nverguo"]}, shop: [{id: "df1", name: "还魂丹", price: 8000, reputationRequired: 4000, description: "可让濒死之人恢复生机的丹药"}], quests: [{id: "dfq1", name: "引渡亡魂", description: "帮助迷路的亡魂前往地府", reward: 600, reputation: 250}], skills: [{id: "dfs1", name: "阴阳眼", description: "可以看到隐藏的灵体", reputationRequired: 4000}], reputation: 0},
+                {id: "wuzhuangguan", name: "五庄观", tier: 2, type: "neutral", description: "镇元大仙的道场，地仙之祖。", leader: "镇元大仙", strength: 45000, headquarters: "万寿山五庄观", relationships: {allies: ["tianting", "fomen"], enemies: [], trade: ["nverguo"]}, shop: [{id: "wzg1", name: "人参果", price: 10000, reputationRequired: 5000, description: "闻一闻活三百六十岁"}], quests: [{id: "wzgq1", name: "照料果树", description: "帮助照料人参果树", reward: 500, reputation: 200}], skills: [{id: "wzgs1", name: "地仙之体", description: "生命值和法力值+15%", reputationRequired: 4000}], reputation: 0},
+                {id: "huaguoshan_zongzu", name: "花果山宗族", tier: 2, type: "demon", description: "孙悟空旧部，妖族中的正义派。", leader: "四健将", strength: 25000, headquarters: "花果山", relationships: {allies: ["yaozu"], enemies: ["tianting"], trade: ["nverguo"]}, shop: [{id: "hgs1", name: "猴儿酒", price: 500, reputationRequired: 200, description: "花果山特产的美酒"}], quests: [{id: "hgsq1", name: "守护花果山", description: "击退入侵花果山的敌人", reward: 600, reputation: 250}], skills: [{id: "hgss1", name: "猴王之势", description: "攻击力+15%", reputationRequired: 3000}], reputation: 0},
+                {id: "jileishan", name: "积雷山", tier: 2, type: "demon", description: "牛魔王势力，妖族中的实力派。", leader: "牛魔王", strength: 40000, headquarters: "积雷山摩云洞", relationships: {allies: ["yaozu"], enemies: ["tianting", "fomen"], trade: ["nverguo"]}, shop: [{id: "jls1", name: "牛魔之角", price: 3000, reputationRequired: 1500, description: "牛魔王的角制成的饰品"}], quests: [{id: "jlsq1", name: "挑战牛魔王", description: "接受牛魔王的挑战", reward: 1000, reputation: 400}], skills: [{id: "jlss1", name: "牛魔之力", description: "攻击力+25%", reputationRequired: 4000}], reputation: 0},
+                {id: "shituoling", name: "狮驼岭", tier: 2, type: "demon", description: "三魔势力，妖族中的激进派。", leader: "狮驼岭三魔", strength: 45000, headquarters: "狮驼岭", relationships: {allies: ["yaozu"], enemies: ["tianting", "fomen"], trade: []}, shop: [{id: "stl1", name: "狮鬃", price: 2000, reputationRequired: 1000, description: "青狮的鬃毛"}], quests: [{id: "stlq1", name: "猎杀取经人", description: "袭击路过的取经人", reward: 900, reputation: 400}], skills: [{id: "stls1", name: "三魔附体", description: "全属性+15%", reputationRequired: 5000}], reputation: 0},
+                {id: "nverguo", name: "女儿国", tier: 2, type: "neutral", description: "神秘的女子国度，三界重要的贸易枢纽。", leader: "女儿国国王", strength: 20000, headquarters: "女儿国", relationships: {allies: [], enemies: [], trade: ["tianting", "fomen", "yaozu"]}, shop: [{id: "nvg1", name: "女儿红", price: 600, reputationRequired: 300, description: "女儿国特产的美酒"}], quests: [{id: "nvgq1", name: "护送商队", description: "护送女儿国的商队", reward: 500, reputation: 200}], skills: [{id: "nvgs1", name: "商贾精通", description: "交易价格优惠20%", reputationRequired: 3000}], reputation: 0},
+                {id: "datangguo", name: "大唐国", tier: 2, type: "celestial", description: "人间最强国度，南赡部洲霸主。", leader: "唐太宗", strength: 50000, headquarters: "长安城", relationships: {allies: ["tianting"], enemies: ["yaozu"], trade: ["nverguo"]}, shop: [{id: "dt1", name: "唐三彩", price: 800, reputationRequired: 400, description: "大唐特产的艺术品"}], quests: [{id: "dtq1", name: "护送唐僧", description: "护送唐僧西天取经", reward: 1000, reputation: 400}], skills: [{id: "dts1", name: "大唐威严", description: "对人形敌人伤害+20%", reputationRequired: 4000}], reputation: 0},
+                {id: "chechiguo", name: "车迟国", tier: 2, type: "celestial", description: "信奉道教的国家，与天庭关系密切。", leader: "车迟国国王", strength: 25000, headquarters: "车迟国", relationships: {allies: ["tianting"], enemies: ["fomen", "yaozu"], trade: ["datangguo"]}, shop: [{id: "cc1", name: "道袍", price: 500, reputationRequired: 250, description: "道士穿的袍子"}], quests: [{id: "ccq1", name: "弘扬道教", description: "传播道教教义", reward: 500, reputation: 200}], skills: [{id: "ccs1", name: "道法自然", description: "法力值+20%", reputationRequired: 3000}], reputation: 0},
+                {id: "tianzhuguo", name: "天竺国", tier: 2, type: "buddhist", description: "西方极乐世界附近的国度，佛法昌盛。", leader: "天竺国国王", strength: 30000, headquarters: "天竺国", relationships: {allies: ["fomen", "leiyinsi"], enemies: ["yaozu"], trade: ["nverguo"]}, shop: [{id: "tz1", name: "天竺丝绸", price: 700, reputationRequired: 350, description: "天竺特产的丝绸"}], quests: [{id: "tzq1", name: "保护佛法", description: "保护天竺国的佛法传播", reward: 600, reputation: 250}], skills: [{id: "tzs1", name: "佛法无边", description: "对妖族伤害+25%", reputationRequired: 4000}], reputation: 0}
+            ],
+            localFactions: [
+                {id: "heifengshan", name: "黑风山", tier: 3, type: "demon", leader: "黑熊精"},
+                {id: "huangfengling", name: "黄风岭", tier: 3, type: "demon", leader: "黄风怪"},
+                {id: "baihuling", name: "白虎岭", tier: 3, type: "demon", leader: "白骨精"},
+                {id: "pingdingshan", name: "平顶山", tier: 3, type: "demon", leader: "金角银角"},
+                {id: "haoshan", name: "号山", tier: 3, type: "demon", leader: "红孩儿"},
+                {id: "jindoushan", name: "金兜山", tier: 3, type: "demon", leader: "独角兕"},
+                {id: "dudishan", name: "毒敌山", tier: 3, type: "demon", leader: "蝎子精"},
+                {id: "pansiling", name: "盘丝岭", tier: 3, type: "demon", leader: "蜘蛛精"},
+                {id: "biqiuguo", name: "比丘国", tier: 3, type: "neutral", leader: "比丘国国王"},
+                {id: "xiankongshan", name: "陷空山", tier: 3, type: "demon", leader: "地涌夫人"},
+                {id: "zhujieshan", name: "竹节山", tier: 3, type: "demon", leader: "九灵元圣"},
+                {id: "qinglongshan", name: "青龙山", tier: 3, type: "demon", leader: "三犀牛"},
+                {id: "jingjiling", name: "荆棘岭", tier: 3, type: "demon", leader: "树精"},
+                {id: "zhuziguo", name: "朱紫国", tier: 3, type: "neutral", leader: "朱紫国国王"},
+                {id: "jisaiguo", name: "祭赛国", tier: 3, type: "buddhist", leader: "祭赛国国王"},
+                {id: "fangcunshan", name: "方寸山", tier: 3, type: "neutral", leader: "菩提祖师"},
+                {id: "guanyin", name: "观音禅院", tier: 3, type: "buddhist", leader: "观音菩萨"},
+                {id: "yaoshi", name: "妖市", tier: 3, type: "demon", leader: "妖市之主"},
+                {id: "penglai", name: "蓬莱仙岛", tier: 3, type: "celestial", leader: "八仙"},
+                {id: "doushuai", name: "兜率宫", tier: 3, type: "celestial", leader: "太上老君"}
+            ],
+            events: [
+                {id: "evt_1", type: "conflict", name: "天庭围剿积雷山", description: "天庭派遣天兵天将围剿积雷山，牛魔王召集妖族抵抗。", factions: ["tianting", "jileishan"], duration: 72},
+                {id: "evt_2", type: "cooperation", name: "佛门法会", description: "雷音寺举办盛大法会，邀请各方势力参加。", factions: ["fomen", "leiyinsi"], duration: 48},
+                {id: "evt_3", type: "crisis", name: "东海龙宫危机", description: "东海龙宫遭到不明势力袭击，龙王请求援助。", factions: ["donghai_longgong"], duration: 24},
+                {id: "evt_4", type: "celebration", name: "蟠桃盛会", description: "王母娘娘举办蟠桃盛会，邀请各路神仙参加。", factions: ["tianting"], duration: 12},
+                {id: "evt_5", type: "conflict", name: "妖族联盟进攻车迟国", description: "妖族联盟发动对车迟国的进攻，道教国家面临危机。", factions: ["yaozu", "chechiguo"], duration: 60},
+                {id: "evt_6", type: "trade", name: "女儿国贸易节", description: "女儿国举办盛大贸易节，各方商人云集。", factions: ["nverguo"], duration: 36},
+                {id: "evt_7", type: "conflict", name: "狮驼岭伏击取经人", description: "狮驼岭三魔设下埋伏，准备伏击取经队伍。", factions: ["shituoling", "fomen"], duration: 48},
+                {id: "evt_8", type: "cooperation", name: "五庄观论道大会", description: "镇元大仙邀请各方修道者参加论道大会。", factions: ["wuzhuangguan", "tianting", "fomen"], duration: 24}
+            ]
+        };
+
+        // 加载势力数据
+        async function loadFactionsData() {
+            try {
+                const response = await fetch('../data/factions.json');
+                if (!response.ok) throw new Error('Network response was not ok');
+                factionsData = await response.json();
+            } catch (error) {
+                console.warn('无法从文件加载势力数据，使用内联数据:', error.message);
+                factionsData = inlineFactionsData;
+            }
+            loadPlayerReputations();
+            renderFactions();
+        }
+
+        // 加载玩家声望数据
+        function loadPlayerReputations() {
+            const saved = localStorage.getItem('faction_reputations');
+            if (saved) {
+                playerReputations = JSON.parse(saved);
+            }
+        }
+
+        // 保存玩家声望数据
+        function savePlayerReputations() {
+            localStorage.setItem('faction_reputations', JSON.stringify(playerReputations));
+        }
+
+        // 获取声望值
+        function getReputation(factionId) {
+            return playerReputations[factionId] || 0;
+        }
+
+        // 渲染势力列表
+        function renderFactions() {
+            const container = document.getElementById('factionHierarchy');
+            const filterTier = document.getElementById('filterTier').value;
+            const filterType = document.getElementById('filterType').value;
+            const filterRelation = document.getElementById('filterRelation').value;
+
+            let html = '';
+
+            // 渲染顶级势力
+            if (!filterTier || filterTier === '1') {
+                const tier1Factions = factionsData.factions.filter(f => f.tier === 1);
+                if (tier1Factions.length > 0) {
+                    html += renderFactionTier('顶级势力', 'tier1', tier1Factions, filterType, filterRelation);
+                }
+            }
+
+            // 渲染主要势力
+            if (!filterTier || filterTier === '2') {
+                const tier2Factions = factionsData.factions.filter(f => f.tier === 2);
+                if (tier2Factions.length > 0) {
+                    html += renderFactionTier('主要势力', 'tier2', tier2Factions, filterType, filterRelation);
+                }
+            }
+
+            // 渲染地方势力
+            if (!filterTier || filterTier === '3') {
+                const tier3Factions = factionsData.localFactions;
+                if (tier3Factions.length > 0) {
+                    html += renderLocalFactionsTier(tier3Factions, filterType);
+                }
+            }
+
+            container.innerHTML = html;
+        }
+
+        // 渲染势力层级
+        function renderFactionTier(title, tierClass, factions, filterType, filterRelation) {
+            let filteredFactions = factions;
+
+            if (filterType) {
+                filteredFactions = filteredFactions.filter(f => f.type === filterType);
+            }
+
+            if (filteredFactions.length === 0) return '';
+
+            return `
+                <div class="faction-tier">
+                    <div class="faction-tier-header">
+                        <span class="faction-tier-title">${title}</span>
+                        <span class="faction-tier-badge ${tierClass}">${factions.length}个</span>
+                    </div>
+                    <div class="faction-tier-content">
+                        <div class="faction-grid">
+                            ${filteredFactions.map(faction => renderFactionCard(faction)).join('')}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 渲染地方势力层级
+        function renderLocalFactionsTier(factions, filterType) {
+            let filteredFactions = factions;
+
+            if (filterType) {
+                filteredFactions = filteredFactions.filter(f => f.type === filterType);
+            }
+
+            if (filteredFactions.length === 0) return '';
+
+            return `
+                <div class="faction-tier">
+                    <div class="faction-tier-header">
+                        <span class="faction-tier-title">地方势力</span>
+                        <span class="faction-tier-badge tier3">${factions.length}个</span>
+                    </div>
+                    <div class="faction-tier-content">
+                        <div class="local-factions-list">
+                            ${filteredFactions.map(f => `
+                                <div class="local-faction-item">
+                                    <div class="local-faction-name">${f.name}</div>
+                                    <div class="local-faction-leader">首领: ${f.leader}</div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 渲染势力卡片
+        function renderFactionCard(faction) {
+            const reputation = getReputation(faction.id);
+            const repLevel = getReputationLevel(reputation);
+            const icon = typeIcons[faction.type] || '⚪';
+
+            return `
+                <div class="faction-card" onclick="showFactionDetail('${faction.id}')">
+                    <div class="faction-card-header">
+                        <div class="faction-icon ${faction.type}">${icon}</div>
+                        <div class="faction-info">
+                            <div class="faction-name">${faction.name}</div>
+                            <span class="faction-type ${faction.type}">${typeLabels[faction.type]}</span>
+                        </div>
+                    </div>
+                    <div class="faction-description">${faction.description.substring(0, 80)}...</div>
+                    <div class="faction-meta">
+                        <div class="faction-meta-item">
+                            <span>👤</span> ${faction.leader}
+                        </div>
+                        <div class="faction-meta-item">
+                            <span>⚔️</span> ${faction.strength.toLocaleString()}
+                        </div>
+                    </div>
+                    <div class="faction-reputation">
+                        <div class="reputation-bar">
+                            <div class="reputation-fill ${repLevel.class}" style="width: ${Math.min(Math.abs(reputation) / 100, 100)}%"></div>
+                        </div>
+                        <div class="reputation-text">
+                            <span>声望: ${repLevel.name}</span>
+                            <span>${reputation}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 显示势力详情
+        function showFactionDetail(factionId) {
+            const faction = factionsData.factions.find(f => f.id === factionId);
+            if (!faction) return;
+
+            const icon = typeIcons[faction.type] || '⚪';
+            document.getElementById('modalIcon').textContent = icon;
+            document.getElementById('modalIcon').className = `faction-modal-icon ${faction.type}`;
+            document.getElementById('modalName').textContent = faction.name;
+            document.getElementById('modalType').textContent = typeLabels[faction.type];
+            document.getElementById('modalType').className = `faction-type ${faction.type}`;
+
+            const reputation = getReputation(faction.id);
+            const repLevel = getReputationLevel(reputation);
+
+            // 获取关系名称
+            const getFactionNames = (ids) => {
+                return ids.map(id => {
+                    const f = factionsData.factions.find(f => f.id === id);
+                    return f ? f.name : id;
+                });
+            };
+
+            document.getElementById('modalContent').innerHTML = `
+                <div class="faction-section">
+                    <div class="faction-section-title">势力介绍</div>
+                    <p style="font-size: 14px; line-height: 1.6; color: #333;">${faction.description}</p>
+                    <div style="margin-top: 12px; font-size: 13px; color: #666;">
+                        <div><strong>首领:</strong> ${faction.leader}</div>
+                        <div><strong>总部:</strong> ${faction.headquarters}</div>
+                        <div><strong>实力:</strong> ${faction.strength.toLocaleString()}</div>
+                    </div>
+                </div>
+
+                <div class="faction-section">
+                    <div class="faction-section-title">势力关系</div>
+                    <div class="faction-relationships">
+                        <div class="relationship-group allies">
+                            <div class="relationship-title">🤝 同盟</div>
+                            <div class="relationship-list">
+                                ${getFactionNames(faction.relationships.allies).map(name => `
+                                    <span class="relationship-item">${name}</span>
+                                `).join('') || '<span style="font-size: 11px; color: #666;">无</span>'}
+                            </div>
+                        </div>
+                        <div class="relationship-group enemies">
+                            <div class="relationship-title">⚔️ 敌对</div>
+                            <div class="relationship-list">
+                                ${getFactionNames(faction.relationships.enemies).map(name => `
+                                    <span class="relationship-item">${name}</span>
+                                `).join('') || '<span style="font-size: 11px; color: #666;">无</span>'}
+                            </div>
+                        </div>
+                        <div class="relationship-group trade">
+                            <div class="relationship-title">💰 贸易</div>
+                            <div class="relationship-list">
+                                ${getFactionNames(faction.relationships.trade).map(name => `
+                                    <span class="relationship-item">${name}</span>
+                                `).join('') || '<span style="font-size: 11px; color: #666;">无</span>'}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="faction-section">
+                    <div class="faction-section-title">声望状态</div>
+                    <div class="reputation-bar" style="height: 12px;">
+                        <div class="reputation-fill ${repLevel.class}" style="width: ${Math.min(Math.abs(reputation) / 100, 100)}%"></div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-top: 8px; font-size: 13px;">
+                        <span>当前声望: <strong>${repLevel.name}</strong></span>
+                        <span>数值: ${reputation}</span>
+                    </div>
+                </div>
+
+                <div class="faction-section">
+                    <div class="faction-section-title">势力商店</div>
+                    <div class="faction-shop-grid">
+                        ${faction.shop.map(item => `
+                            <div class="shop-item">
+                                <div class="shop-item-name">${item.name}</div>
+                                <div class="shop-item-price">💰 ${item.price}</div>
+                                <div class="shop-item-desc">${item.description}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+
+                <div class="faction-section">
+                    <div class="faction-section-title">势力任务</div>
+                    <div class="faction-quests-list">
+                        ${faction.quests.map(quest => `
+                            <div class="quest-item">
+                                <div class="quest-item-name">${quest.name}</div>
+                                <div class="quest-item-desc">${quest.description}</div>
+                                <div class="quest-item-reward">奖励: 💰 ${quest.reward} | 声望 +${quest.reputation}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+
+                <div class="faction-section">
+                    <div class="faction-section-title">势力技能</div>
+                    <div class="faction-quests-list">
+                        ${faction.skills.map(skill => `
+                            <div class="quest-item">
+                                <div class="quest-item-name">${skill.name}</div>
+                                <div class="quest-item-desc">${skill.description}</div>
+                                <div class="quest-item-reward">需要声望: ${skill.reputationRequired}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('overlay').classList.add('active');
+            document.getElementById('factionModal').classList.add('active');
+        }
+
+        // 关闭势力详情弹窗
+        function closeFactionModal() {
+            document.getElementById('overlay').classList.remove('active');
+            document.getElementById('factionModal').classList.remove('active');
+        }
+
+        // 筛选势力
+        function filterFactions() {
+            renderFactions();
+        }
+
+        // 搜索功能
+        function searchFactions() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            if (!query) return;
+            const content = document.querySelector('.wiki-content');
+            const text = content.innerText.toLowerCase();
+            if (text.includes(query)) { 
+                alert('找到相关内容，请手动查找'); 
+            } else { 
+                alert('未找到相关内容'); 
+            }
+        }
+
+        // 渲染势力事件
+        function renderFactionEvents() {
+            const container = document.getElementById('factionEvents');
+            if (!factionsData || !factionsData.events) {
+                container.innerHTML = '<p style="font-size: 13px; color: #666;">暂无事件数据</p>';
+                return;
+            }
+
+            const eventTypeIcons = {
+                conflict: '⚔️',
+                cooperation: '🤝',
+                crisis: '🆘',
+                celebration: '🎉',
+                trade: '💰'
+            };
+
+            const eventTypeNames = {
+                conflict: '冲突',
+                cooperation: '合作',
+                crisis: '危机',
+                celebration: '庆典',
+                trade: '贸易'
+            };
+
+            const eventsHtml = factionsData.events.map(event => {
+                const factionNames = event.factions.map(fid => {
+                    const f = factionsData.factions.find(f => f.id === fid);
+                    return f ? f.name : fid;
+                }).join('、');
+
+                return `
+                    <div style="padding: 12px; background: #f8f9fa; border: 1px solid #e0e0e0; border-radius: 4px; margin-bottom: 10px;">
+                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+                            <span style="font-size: 18px;">${eventTypeIcons[event.type] || '📌'}</span>
+                            <span style="font-weight: bold; font-size: 14px;">${event.name}</span>
+                            <span style="font-size: 11px; padding: 2px 8px; background: #e9ecef; border-radius: 3px; color: #495057;">${eventTypeNames[event.type] || event.type}</span>
+                        </div>
+                        <p style="font-size: 13px; color: #333; margin: 0 0 8px 0; line-height: 1.5;">${event.description}</p>
+                        <div style="font-size: 12px; color: #666;">
+                            <span>涉及势力: ${factionNames}</span>
+                            <span style="margin-left: 16px;">持续时间: ${event.duration}小时</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            container.innerHTML = eventsHtml || '<p style="font-size: 13px; color: #666;">暂无事件</p>';
+        }
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', async () => {
+            await loadFactionsData();
+            renderFactionEvents();
+        });
+    </script>
+</body>
+</html>

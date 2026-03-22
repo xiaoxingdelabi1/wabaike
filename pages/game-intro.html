@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>游戏介绍 - 蛙噻！好摊</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        /* 游戏类型标签 - 使用wiki风格 */
+        .game-type-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 20px 0;
+            padding: 12px;
+            background: var(--wiki-box-bg);
+            border: 1px solid var(--wiki-border);
+        }
+
+        .game-type-tags .tag {
+            padding: 4px 12px;
+            border: 1px solid var(--wiki-border);
+            font-weight: 600;
+            font-size: 13px;
+            background: var(--wiki-content-bg);
+        }
+
+        .tag.idle { background: #e8eaf6; color: #3f51b5; border-color: #c5cae9; }
+        .tag.loot { background: #fce4ec; color: #c2185b; border-color: #f8bbd9; }
+        .tag.manage { background: #e3f2fd; color: #1976d2; border-color: #bbdefb; }
+        .tag.market { background: #e8f5e9; color: #388e3c; border-color: #c8e6c9; }
+        .tag.grow { background: #fff3e0; color: #f57c00; border-color: #ffe0b2; }
+
+        /* 游戏类型区域 */
+        .game-type-section {
+            margin: 20px 0;
+        }
+
+        .game-type-intro {
+            font-size: 14px;
+            margin-bottom: 15px;
+            padding: 12px 15px;
+            background: var(--wiki-box-bg);
+            border: 1px solid var(--wiki-border);
+            border-left: 3px solid var(--wiki-accent);
+        }
+
+        .game-type-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+        }
+
+        .game-type-card {
+            padding: 15px;
+            background: var(--wiki-content-bg);
+            border: 1px solid var(--wiki-border);
+            border-top: 3px solid;
+        }
+
+        .game-type-card.idle { border-top-color: #3f51b5; }
+        .game-type-card.loot { border-top-color: #c2185b; }
+        .game-type-card.manage { border-top-color: #1976d2; }
+        .game-type-card.market { border-top-color: #388e3c; }
+        .game-type-card.grow { border-top-color: #f57c00; }
+
+        .game-type-card h4 {
+            margin: 0 0 8px 0;
+            color: var(--wiki-text);
+            font-size: 15px;
+        }
+
+        .game-type-card p {
+            margin: 0;
+            color: var(--wiki-text-secondary);
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        /* 核心玩法高亮 */
+        .core-gameplay-highlight {
+            margin: 20px 0;
+        }
+
+        .highlight-banner {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 15px 20px;
+            background: #e8f5e9;
+            border: 1px solid #c8e6c9;
+            border-left: 4px solid #4caf50;
+        }
+
+        .highlight-text {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .highlight-text strong {
+            font-size: 16px;
+            color: #2e7d32;
+            margin-bottom: 2px;
+        }
+
+        .highlight-text span {
+            font-size: 13px;
+            color: #558b2f;
+        }
+
+        /* 核心循环区域 */
+        .core-loop-section {
+            margin: 20px 0;
+            padding: 20px;
+            background: var(--wiki-box-bg);
+            border: 1px solid var(--wiki-border);
+        }
+
+        .loop-intro {
+            font-size: 14px;
+            margin-bottom: 20px;
+            text-align: center;
+            color: var(--wiki-text);
+        }
+
+        .loop-flow {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            margin-bottom: 15px;
+        }
+
+        .loop-step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 12px 10px;
+            background: var(--wiki-content-bg);
+            border: 1px solid var(--wiki-border);
+            min-width: 90px;
+            text-align: center;
+        }
+
+        .loop-step.highlight {
+            background: #e8eaf6;
+            border-color: #c5cae9;
+        }
+
+        .step-number {
+            width: 20px;
+            height: 20px;
+            background: var(--wiki-text-secondary);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .loop-step.highlight .step-number {
+            background: #3f51b5;
+        }
+
+        .step-title {
+            font-weight: 600;
+            font-size: 13px;
+            color: var(--wiki-text);
+            margin-bottom: 4px;
+        }
+
+        .step-desc {
+            font-size: 11px;
+            color: var(--wiki-text-secondary);
+        }
+
+        .loop-arrow {
+            font-size: 18px;
+            color: var(--wiki-text-secondary);
+            font-weight: bold;
+        }
+
+        .loop-back {
+            text-align: center;
+            font-size: 14px;
+            color: var(--wiki-text-secondary);
+            margin: 15px 0;
+            padding: 10px;
+            background: var(--wiki-content-bg);
+            border: 1px dashed var(--wiki-border);
+        }
+
+        .idle-feature {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 15px;
+            background: #e8eaf6;
+            border: 1px solid #c5cae9;
+            border-left: 4px solid #3f51b5;
+            margin-top: 15px;
+        }
+
+        .idle-text {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .idle-text strong {
+            font-size: 14px;
+            color: #3f51b5;
+            margin-bottom: 2px;
+        }
+
+        .idle-text span {
+            font-size: 13px;
+            color: var(--wiki-text-secondary);
+        }
+
+        /* 玩法对比区域 */
+        .comparison-section {
+            margin: 20px 0;
+        }
+
+        .comparison-intro {
+            font-size: 14px;
+            margin-bottom: 15px;
+            color: var(--wiki-text);
+        }
+
+        .comparison-table-wrapper {
+            overflow-x: auto;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+            font-size: 13px;
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+            padding: 12px;
+            text-align: center;
+            border: 1px solid var(--wiki-border);
+        }
+
+        .comparison-table th {
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .comparison-table th.traditional {
+            background: var(--wiki-box-bg);
+            color: var(--wiki-text);
+        }
+
+        .comparison-table th.vs {
+            background: #e9ecef;
+            color: var(--wiki-text-secondary);
+            width: 50px;
+        }
+
+        .comparison-table th.innovation {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .comparison-table td.traditional {
+            background: var(--wiki-box-bg);
+        }
+
+        .comparison-table td.vs {
+            background: #f8f9fa;
+            font-weight: bold;
+            color: var(--wiki-text-secondary);
+        }
+
+        .comparison-table td.innovation {
+            background: #f1f8e9;
+        }
+
+        .comparison-summary {
+            margin-top: 15px;
+        }
+
+        .summary-box {
+            padding: 15px;
+            background: #fff8e1;
+            border: 1px solid #ffe082;
+            border-left: 4px solid #ffc107;
+        }
+
+        .summary-box strong {
+            display: block;
+            margin-bottom: 8px;
+            color: #f57f17;
+        }
+
+        .summary-box p {
+            margin: 0;
+            color: var(--wiki-text);
+            line-height: 1.6;
+            font-size: 13px;
+        }
+
+        /* 游戏目标区域 */
+        .goals-section {
+            margin: 20px 0;
+        }
+
+        .goals-intro {
+            font-size: 14px;
+            margin-bottom: 15px;
+            color: var(--wiki-text);
+        }
+
+        .goals-timeline {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .goal-item {
+            display: flex;
+            gap: 12px;
+            padding: 15px;
+            background: var(--wiki-content-bg);
+            border: 1px solid var(--wiki-border);
+            border-left: 3px solid;
+        }
+
+        .goal-item.short { border-left-color: #4caf50; }
+        .goal-item.medium { border-left-color: #2196f3; }
+        .goal-item.long { border-left-color: #9c27b0; }
+        .goal-item.ultimate { border-left-color: #f44336; }
+
+        .goal-content {
+            flex: 1;
+        }
+
+        .goal-phase {
+            font-size: 11px;
+            color: var(--wiki-text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+
+        .goal-title {
+            font-size: 15px;
+            font-weight: bold;
+            color: var(--wiki-text);
+            margin-bottom: 6px;
+        }
+
+        .goal-desc {
+            font-size: 13px;
+            color: var(--wiki-text-secondary);
+            line-height: 1.6;
+        }
+
+        /* 响应式适配 */
+        @media (max-width: 768px) {
+            .game-type-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .highlight-banner {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .loop-flow {
+                flex-direction: column;
+            }
+
+            .loop-arrow {
+                transform: rotate(90deg);
+            }
+
+            .comparison-table th,
+            .comparison-table td {
+                padding: 8px;
+                font-size: 12px;
+            }
+
+            .goal-item {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body class="wiki-layout">
+    <header class="wiki-topbar">
+        <div class="wiki-logo">
+            <a href="../index.html">蛙噻！好摊</a>
+        </div>
+        <div class="wiki-search">
+            <input type="text" placeholder="搜索百科..." id="searchInput">
+            <button onclick="search()">搜索</button>
+        </div>
+        <div class="wiki-user">
+            <span>欢迎访问</span>
+        </div>
+    </header>
+
+    <div class="wiki-container">
+        <aside class="wiki-sidebar">
+            <nav class="wiki-nav">
+                <div class="nav-section">
+                    <h3>百科分类</h3>
+                    <ul>
+                        <li><a href="../index.html">首页</a></li>
+                        <li><a href="game-intro.html" class="active">游戏介绍</a></li>
+                        <li><a href="world.html">世界观</a></li>
+                        <li><a href="factions.html">势力分布</a></li>
+                        <li><a href="history.html">历史年表</a></li>
+                        <li><a href="price-mechanism.html">价格机制</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>游戏特色</h3>
+                    <ul>
+                        <li><a href="bazaar.html">集市</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>游戏玩法</h3>
+                    <ul>
+                        <li><a href="market.html">摆摊系统</a></li>
+                        <li><a href="achievements.html">成就系统</a></li>
+                        <li><a href="combat.html">战斗系统</a></li>
+                        <li><a href="progression.html">成长系统</a></li>
+                        <li><a href="currency.html">货币系统</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>角色</h3>
+                    <ul>
+                        <li><a href="characters.html">角色总览</a></li>
+                        <li><a href="characters.html?type=playable">主要角色</a></li>
+                        <li><a href="characters.html?type=npc">NPC</a></li>
+                        <li><a href="enemies.html">敌人</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>物品装备</h3>
+                    <ul>
+                        <li><a href="items.html">物品总览</a></li>
+                        <li><a href="weapon.html">武器</a></li>
+                        <li><a href="armor.html">防具</a></li>
+                        <li><a href="accessory.html">饰品</a></li>
+                        <li><a href="treasure.html">法宝</a></li>
+                        <li><a href="consumable.html">消耗品</a></li>
+                        <li><a href="material.html">材料</a></li>
+                        <li><a href="collection.html">收藏品</a></li>
+                        <li><a href="crafting.html">生活技能</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>世界探索</h3>
+                    <ul>
+                        <li><a href="locations.html">地点总览</a></li>
+                        <li><a href="map.html">游戏地图</a></li>
+                        <li><a href="quests.html">任务剧情</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>关于</h3>
+                    <ul>
+                        <li><a href="dev-thoughts.html">开发者随想</a></li>
+                    </ul>
+                </div>
+            </nav>
+        </aside>
+
+        <main class="wiki-content">
+            <nav class="breadcrumb">
+                <a href="../index.html">首页</a> &gt; <span class="current">游戏介绍</span>
+            </nav>
+
+            <article class="wiki-article">
+                <h1 class="article-title">游戏介绍</h1>
+
+                <div class="article-intro">
+                    <p>《蛙噻！好摊》是一款融合了<strong>放置类、刷宝、经营、摆摊、成长</strong>等多种游戏类型的长线游戏。本作最大的特色是将传统RPG的"刷怪升级"转变为"<strong>摆摊为主、刷怪为辅</strong>"的创新玩法。</p>
+                </div>
+
+                <div class="wiki-toc">
+                    <h3>目录</h3>
+                    <ul>
+                        <li><a href="#gametype">游戏类型</a></li>
+                        <li><a href="#overview">游戏简介</a></li>
+                        <li><a href="#core-loop">核心玩法循环</a></li>
+                        <li><a href="#comparison">玩法对比</a></li>
+                        <li><a href="#goals">游戏目标</a></li>
+                    </ul>
+                </div>
+
+                <h2 id="gametype">游戏类型</h2>
+                <div class="game-type-section">
+                    <p class="game-type-intro">《蛙噻！好摊》是一款融合了多种游戏类型的<strong>放置类长线游戏</strong>，既有RPG MMO的刷宝成长乐趣，又有经营模拟的商业策略深度。</p>
+                    <div class="game-type-tags">
+                        <span class="tag idle">放置类</span>
+                        <span class="tag loot">刷宝</span>
+                        <span class="tag manage">经营</span>
+                        <span class="tag market">摆摊</span>
+                        <span class="tag grow">成长</span>
+                    </div>
+                    <div class="game-type-grid">
+                        <div class="game-type-card idle">
+                            <h4>放置类</h4>
+                            <p>离线也能获得收益，轻松休闲的游戏节奏。上线即可收获成果，适合忙碌玩家的碎片化时间。</p>
+                        </div>
+                        <div class="game-type-card loot">
+                            <h4>刷宝</h4>
+                            <p>通过击败敌人获取稀有装备和材料。丰富的掉落系统，每次战斗都有惊喜。</p>
+                        </div>
+                        <div class="game-type-card manage">
+                            <h4>经营</h4>
+                            <p>管理摊位、库存，制定商业策略。低买高卖，把握市场脉搏，体验真实的商业经营乐趣。</p>
+                        </div>
+                        <div class="game-type-card market">
+                            <h4>摆摊</h4>
+                            <p><strong>核心玩法</strong>，低买高卖赚取利润。从路边小摊到商业帝国，一步步建立你的商业版图。</p>
+                        </div>
+                        <div class="game-type-card grow">
+                            <h4>成长</h4>
+                            <p>角色等级、装备、商业技能全方位提升。200级上限，长期追求，成为服务器中的强者。</p>
+                        </div>
+                    </div>
+                </div>
+
+                <h2 id="overview">游戏简介</h2>
+                <div class="core-gameplay-highlight">
+                    <div class="highlight-banner">
+                        <div class="highlight-text">
+                            <strong>摆摊为主 · 刷怪为辅</strong>
+                            <span>创新玩法，颠覆传统RPG体验</span>
+                        </div>
+                    </div>
+                </div>
+                <p>在遥远的<strong>东胜神洲傲来国</strong>，有一座闻名遐迩的<strong>花果山</strong>。山顶仙石吸收天地精华，孕育出无数灵物。在仙石旁，一只小青蛙沾染仙气开启灵智，立志要像传说中的大圣一样踏上<strong>取经之旅</strong>。</p>
+                <p>然而，取经之路漫长艰险，需要大量盘缠。于是，这只灵蛙学会了<strong>摆摊经商</strong>积攒路费；为了自保，它练就了<strong>战斗本领</strong>对抗妖魔鬼怪。渐渐地，它成为了一名独特的<strong>商战者</strong>——既能精明地低买高卖，又能勇敢地保护货物。</p>
+                <p>从花果山的水帘洞集市出发，穿越两界山、路过高老庄、闯过火焰山，一路向西直至雷音寺。这就是<strong>《蛙噻！好摊》</strong>的故事，一只青蛙的传奇取经摆摊之路！</p>
+
+                <div class="info-box">
+                    <h4>游戏核心理念</h4>
+                    <ul>
+                        <li><strong>摆摊</strong>：购买低价商品，高价卖出，赚取差价</li>
+                        <li><strong>战斗</strong>：探索危险区域，击败怪物获取稀有材料</li>
+                        <li><strong>成长</strong>：提升等级，扩大商业版图</li>
+                    </ul>
+                </div>
+
+                <h2 id="core-loop">核心玩法循环</h2>
+                <div class="core-loop-section">
+                    <p class="loop-intro">本作采用独特的<strong>"商战循环"</strong>机制，战斗是手段，经商才是目的：</p>
+                    <div class="loop-flow">
+                        <div class="loop-step">
+                            <div class="step-number">1</div>
+                            <div class="step-title">摆摊交易</div>
+                            <div class="step-desc">低买高卖，积累启动资金</div>
+                        </div>
+                        <div class="loop-arrow">→</div>
+                        <div class="loop-step">
+                            <div class="step-number">2</div>
+                            <div class="step-title">积累资金</div>
+                            <div class="step-desc">扩大库存，提升摊位等级</div>
+                        </div>
+                        <div class="loop-arrow">→</div>
+                        <div class="loop-step">
+                            <div class="step-number">3</div>
+                            <div class="step-title">探索刷怪</div>
+                            <div class="step-desc">进入危险区域获取珍稀物品</div>
+                        </div>
+                        <div class="loop-arrow">→</div>
+                        <div class="loop-step">
+                            <div class="step-number">4</div>
+                            <div class="step-title">获取珍品</div>
+                            <div class="step-desc">击败BOSS，获得稀有材料</div>
+                        </div>
+                        <div class="loop-arrow">→</div>
+                        <div class="loop-step">
+                            <div class="step-number">5</div>
+                            <div class="step-title">高价出售</div>
+                            <div class="step-desc">珍稀物品卖出高价，利润翻倍</div>
+                        </div>
+                        <div class="loop-arrow">→</div>
+                        <div class="loop-step highlight">
+                            <div class="step-number">6</div>
+                            <div class="step-title">扩大规模</div>
+                            <div class="step-desc">解锁新区域，发现新商机</div>
+                        </div>
+                    </div>
+                    <div class="loop-back">循环往复，商业帝国不断壮大</div>
+                    <div class="idle-feature">
+                        <div class="idle-text">
+                            <strong>放置收益</strong>
+                            <span>离线期间摊位自动运营，上线即可收获丰厚成果</span>
+                        </div>
+                    </div>
+                </div>
+
+                <h2 id="comparison">玩法对比</h2>
+                <div class="comparison-section">
+                    <p class="comparison-intro">与传统RPG游戏不同，《蛙噻！好摊》将核心体验从"刷怪升级"转变为"经商致富"：</p>
+                    <div class="comparison-table-wrapper">
+                        <table class="comparison-table">
+                            <thead>
+                                <tr>
+                                    <th class="traditional">传统RPG游戏</th>
+                                    <th class="vs">VS</th>
+                                    <th class="innovation">《蛙噻！好摊》创新</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="traditional">
+                                        <div class="comp-item">
+                                            <span>刷怪获取经验</span>
+                                        </div>
+                                    </td>
+                                    <td class="vs">→</td>
+                                    <td class="innovation">
+                                        <div class="comp-item">
+                                            <span><strong>摆摊赚取资金</strong></span>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="traditional">
+                                        <div class="comp-item">
+                                            <span>升级变强打更强的怪</span>
+                                        </div>
+                                    </td>
+                                    <td class="vs">→</td>
+                                    <td class="innovation">
+                                        <div class="comp-item">
+                                            <span><strong>赚钱购买装备/材料</strong></span>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="traditional">
+                                        <div class="comp-item">
+                                            <span>无限循环刷怪</span>
+                                        </div>
+                                    </td>
+                                    <td class="vs">→</td>
+                                    <td class="innovation">
+                                        <div class="comp-item">
+                                            <span><strong>探索获取珍稀物品高价出售</strong></span>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="traditional">
+                                        <div class="comp-item">
+                                            <span>目标是成为最强战士</span>
+                                        </div>
+                                    </td>
+                                    <td class="vs">→</td>
+                                    <td class="innovation">
+                                        <div class="comp-item">
+                                            <span><strong>目标是建立商业帝国</strong></span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="comparison-summary">
+                        <div class="summary-box">
+                            <strong>核心差异</strong>
+                            <p>在传统游戏中，<strong>战斗是目的</strong>；在本作中，<strong>战斗是手段，经商才是目的</strong>。刷怪是为了获取珍稀物品，而珍稀物品是为了卖个好价钱！</p>
+                        </div>
+                    </div>
+                </div>
+
+                <h2 id="goals">游戏目标</h2>
+                <div class="goals-section">
+                    <p class="goals-intro">从一只普通的小青蛙成长为横跨四大部洲的商业传奇：</p>
+                    <div class="goals-timeline">
+                        <div class="goal-item short">
+                            <div class="goal-content">
+                                <div class="goal-phase">短期目标</div>
+                                <div class="goal-title">立足本地</div>
+                                <div class="goal-desc">在花果山水帘洞集市站稳脚跟，积累第一桶金，学会基础的交易技巧</div>
+                            </div>
+                        </div>
+                        <div class="goal-item medium">
+                            <div class="goal-content">
+                                <div class="goal-phase">中期目标</div>
+                                <div class="goal-title">跨域贸易</div>
+                                <div class="goal-desc">跨城镇贸易，建立商业网络。从东胜神洲到西牛贺洲，打通丝绸之路</div>
+                            </div>
+                        </div>
+                        <div class="goal-item long">
+                            <div class="goal-content">
+                                <div class="goal-phase">长期目标</div>
+                                <div class="goal-title">商业传奇</div>
+                                <div class="goal-desc">成为横跨四大部洲的商业传奇，完成取经之旅，名震天下</div>
+                            </div>
+                        </div>
+                        <div class="goal-item ultimate">
+                            <div class="goal-content">
+                                <div class="goal-phase">终极愿景</div>
+                                <div class="goal-title">一代巨擘</div>
+                                <div class="goal-desc">从一只普通小青蛙成长为一代商业巨擘，建立属于你的商业帝国</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="article-footer">
+                    <p>最后更新于：2026-03-20 | 编辑次数：1</p>
+                </div>
+            </article>
+        </main>
+    </div>
+
+    <footer class="wiki-footer">
+        <p>&copy; 2026 《蛙噻！好摊》游戏百科 | 本百科由玩家共同维护</p>
+    </footer>
+
+    <script src="../js/main.js"></script>
+</body>
+</html>

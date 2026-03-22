@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>开发流程指南 - 蛙噻！好摊</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        .page-tabs { margin-bottom: 20px; }
+        .page-tab-nav {
+            display: flex;
+            border-bottom: 1px solid var(--wiki-border);
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .page-tab-btn {
+            padding: 8px 16px;
+            background: var(--wiki-header-bg);
+            border: 1px solid var(--wiki-border);
+            border-bottom: none;
+            cursor: pointer;
+            font-size: 14px;
+            color: var(--wiki-link);
+            margin-right: 4px;
+            margin-bottom: 4px;
+        }
+        .page-tab-btn:hover { background: var(--wiki-content-bg); }
+        .page-tab-btn.active {
+            background: var(--wiki-content-bg);
+            border-bottom: 1px solid var(--wiki-content-bg);
+            margin-bottom: -1px;
+            font-weight: bold;
+            color: var(--wiki-text);
+        }
+        .page-tab-panel { display: none; }
+        .page-tab-panel.active { display: block; }
+        .phase-card {
+            background: var(--wiki-box-bg);
+            border: 1px solid var(--wiki-border);
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+        .phase-card h3 {
+            margin-top: 0;
+            color: var(--wiki-link);
+            border-bottom: 1px solid var(--wiki-border);
+            padding-bottom: 8px;
+        }
+        .phase-card .phase-meta {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 12px;
+            font-size: 13px;
+            color: var(--wiki-text-secondary);
+        }
+        .checklist {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .checklist li {
+            padding: 8px 0;
+            border-bottom: 1px dashed var(--wiki-border);
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+        }
+        .checklist li:last-child { border-bottom: none; }
+        .checklist .checkbox {
+            width: 16px;
+            height: 16px;
+            border: 1px solid var(--wiki-border);
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+        .checklist .checkbox.done { background: #4caf50; border-color: #4caf50; }
+        .tech-stack {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 12px;
+            margin: 16px 0;
+        }
+        .tech-item {
+            background: var(--wiki-box-bg);
+            border: 1px solid var(--wiki-border);
+            padding: 12px;
+        }
+        .tech-item h4 {
+            margin: 0 0 4px 0;
+            font-size: 14px;
+            color: var(--wiki-link);
+        }
+        .tech-item p {
+            margin: 0;
+            font-size: 12px;
+            color: var(--wiki-text-secondary);
+        }
+        .code-block {
+            background: #f6f8fa;
+            padding: 12px;
+            overflow-x: auto;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 12px;
+            line-height: 1.5;
+            white-space: pre;
+            margin: 12px 0;
+        }
+        .folder-tree {
+            background: var(--wiki-box-bg);
+            border: 1px solid var(--wiki-border);
+            padding: 16px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        .folder-tree .folder { color: var(--wiki-link); }
+        .folder-tree .file { color: var(--wiki-text); }
+    </style>
+</head>
+<body class="wiki-layout">
+    <header class="wiki-topbar">
+        <div class="wiki-logo">
+            <a href="../index.html">蛙噻！好摊</a>
+        </div>
+        <div class="wiki-search">
+            <input type="text" placeholder="搜索百科..." id="searchInput">
+            <button onclick="search()">搜索</button>
+        </div>
+        <div class="wiki-user">
+            <span>欢迎访问</span>
+        </div>
+    </header>
+
+    <div class="wiki-container">
+        <aside class="wiki-sidebar">
+            <nav class="wiki-nav">
+                <div class="nav-section">
+                    <h3>百科分类</h3>
+                    <ul>
+                        <li><a href="../index.html">首页</a></li>
+                        <li><a href="game-intro.html">游戏介绍</a></li>
+                        <li><a href="world.html">世界观</a></li>
+                        <li><a href="factions.html">势力分布</a></li>
+                        <li><a href="history.html">历史年表</a></li>
+                        <li><a href="price-mechanism.html">价格机制</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>游戏特色</h3>
+                    <ul>
+                        <li><a href="bazaar.html">集市</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>游戏机制</h3>
+                    <ul>
+                        <li><a href="game-time.html">游戏时间</a></li>
+                        <li><a href="market.html">摆摊系统</a></li>
+                        <li><a href="achievements.html">成就系统</a></li>
+                        <li><a href="combat.html">战斗系统</a></li>
+                        <li><a href="progression.html">成长系统</a></li>
+                        <li><a href="currency.html">货币系统</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>开发文档</h3>
+                    <ul>
+                        <li><a href="dev-guide.html" class="active">开发流程指南</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>角色</h3>
+                    <ul>
+                        <li><a href="characters.html">角色总览</a></li>
+                        <li><a href="characters.html?type=playable">主要角色</a></li>
+                        <li><a href="characters.html?type=npc">NPC</a></li>
+                        <li><a href="enemies.html">敌人</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>物品装备</h3>
+                    <ul>
+                        <li><a href="items.html">物品总览</a></li>
+                        <li><a href="weapon.html">武器</a></li>
+                        <li><a href="armor.html">防具</a></li>
+                        <li><a href="accessory.html">饰品</a></li>
+                        <li><a href="treasure.html">法宝</a></li>
+                        <li><a href="consumable.html">消耗品</a></li>
+                        <li><a href="material.html">材料</a></li>
+                        <li><a href="collection.html">收藏品</a></li>
+                        <li><a href="crafting.html">生活技能</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>世界探索</h3>
+                    <ul>
+                        <li><a href="locations.html">地点总览</a></li>
+                        <li><a href="map.html">游戏地图</a></li>
+                        <li><a href="quests.html">任务剧情</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>关于</h3>
+                    <ul>
+                        <li><a href="dev-thoughts.html">开发者随想</a></li>
+                    </ul>
+                </div>
+            </nav>
+        </aside>
+
+        <main class="wiki-content">
+            <nav class="breadcrumb">
+                <a href="../index.html">首页</a> &gt; <span class="current">开发流程指南</span>
+            </nav>
+
+            <article class="wiki-article">
+                <h1 class="article-title">开发流程指南</h1>
+                <p style="color: #666; font-size: 13px;">《蛙噻！好摊》开发流程文档 | 版本：v1.0</p>
+
+                <div class="page-tabs">
+                    <div class="page-tab-nav" id="pageTabNav">
+                        <button class="page-tab-btn active" data-tab="overview">开发概述</button>
+                        <button class="page-tab-btn" data-tab="structure">项目结构</button>
+                        <button class="page-tab-btn" data-tab="phases">开发阶段</button>
+                        <button class="page-tab-btn" data-tab="checklist">开发清单</button>
+                    </div>
+
+                    <!-- 开发概述 -->
+                    <div id="panel-overview" class="page-tab-panel active">
+                        <h2>项目概述</h2>
+                        <p>《蛙噻！好摊》是一款以西游记为背景的放置类经营游戏，采用纯前端技术栈开发。玩家扮演取经路上的行者，通过摆摊经营积累财富。</p>
+
+                        <h2>技术栈</h2>
+                        <div class="tech-stack">
+                            <div class="tech-item">
+                                <h4>HTML5</h4>
+                                <p>页面结构与语义化标签</p>
+                            </div>
+                            <div class="tech-item">
+                                <h4>CSS3</h4>
+                                <p>样式、动画、响应式布局</p>
+                            </div>
+                            <div class="tech-item">
+                                <h4>JavaScript ES6+</h4>
+                                <p>游戏逻辑、数据处理</p>
+                            </div>
+                            <div class="tech-item">
+                                <h4>LocalStorage</h4>
+                                <p>本地数据存储</p>
+                            </div>
+                        </div>
+
+                        <h2>开发原则</h2>
+                        <ul>
+                            <li><strong>轻量化</strong>：纯前端实现，无需后端服务器</li>
+                            <li><strong>渐进增强</strong>：核心功能优先，逐步添加高级特性</li>
+                            <li><strong>模块化</strong>：功能模块独立，便于维护和扩展</li>
+                            <li><strong>数据驱动</strong>：游戏数据与UI分离，便于调整平衡</li>
+                        </ul>
+
+                        <h2>核心系统模块</h2>
+                        <table class="wiki-table">
+                            <thead>
+                                <tr><th>模块</th><th>功能</th><th>优先级</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>时间系统</td><td>游戏时间、日夜循环、季节</td><td>高</td></tr>
+                                <tr><td>摆摊系统</td><td>摊位管理、商品交易</td><td>高</td></tr>
+                                <tr><td>价格系统</td><td>市场价格、定价反馈</td><td>高</td></tr>
+                                <tr><td>货币系统</td><td>金币、凭证、交易</td><td>高</td></tr>
+                                <tr><td>装饰系统</td><td>摊位装饰、称号加成</td><td>中</td></tr>
+                                <tr><td>成就系统</td><td>成就解锁、奖励</td><td>中</td></tr>
+                                <tr><td>战斗系统</td><td>PVE战斗、副本</td><td>中</td></tr>
+                                <tr><td>成长系统</td><td>等级、技能、属性</td><td>中</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- 项目结构 -->
+                    <div id="panel-structure" class="page-tab-panel">
+                        <h2>目录结构</h2>
+                        <div class="folder-tree">
+<span class="folder">wabaike/</span>
+├── <span class="folder">css/</span>
+│   └── <span class="file">style.css</span>          # 主样式文件
+├── <span class="folder">js/</span>
+│   ├── <span class="file">main.js</span>           # 主逻辑文件
+│   ├── <span class="file">data.js</span>           # 游戏数据
+│   └── <span class="file">utils.js</span>          # 工具函数
+├── <span class="folder">pages/</span>
+│   ├── <span class="file">index.html</span>        # 首页
+│   ├── <span class="file">market.html</span>       # 摆摊系统
+│   ├── <span class="file">game-time.html</span>    # 游戏时间
+│   └── <span class="file">...</span>               # 其他页面
+├── <span class="folder">data/</span>
+│   ├── <span class="file">items.json</span>        # 物品数据
+│   ├── <span class="file">npcs.json</span>         # NPC数据
+│   └── <span class="file">locations.json</span>    # 地点数据
+└── <span class="file">index.html</span>            # 入口页面
+                        </div>
+
+                        <h2>核心文件说明</h2>
+
+                        <h3>style.css</h3>
+                        <p>主样式文件，包含所有页面的样式定义。使用CSS变量实现主题统一：</p>
+                        <div class="code-block">:root {
+    --wiki-primary: #1a73e8;
+    --wiki-link: #1a73e8;
+    --wiki-text: #202124;
+    --wiki-text-secondary: #5f6368;
+    --wiki-border: #dadce0;
+    --wiki-box-bg: #f8f9fa;
+    --wiki-content-bg: #ffffff;
+    --wiki-header-bg: #f1f3f4;
+}</div>
+
+                        <h3>main.js</h3>
+                        <p>主逻辑文件，包含通用功能和页面初始化：</p>
+                        <div class="code-block">// 页面初始化
+document.addEventListener('DOMContentLoaded', function() {
+    initSearch();
+    initNavigation();
+    loadGameData();
+});
+
+// 搜索功能
+function initSearch() { ... }
+
+// 导航高亮
+function initNavigation() { ... }
+
+// 加载游戏数据
+function loadGameData() { ... }</div>
+
+                        <h3>data.js</h3>
+                        <p>游戏数据定义，包含所有静态数据：</p>
+                        <div class="code-block">// 商品数据
+const ITEMS = {
+    item_001: { name: "精铁剑", type: "weapon", basePrice: 1000 },
+    item_002: { name: "布衣", type: "armor", basePrice: 200 },
+    // ...
+};
+
+// NPC数据
+const NPCS = {
+    npc_001: { name: "货郎张", location: "长安城", type: "merchant" },
+    // ...
+};
+
+// 地点数据
+const LOCATIONS = {
+    loc_001: { name: "长安城", type: "city", markets: ["东街", "南街", "西街", "北街"] },
+    // ...
+};</div>
+                    </div>
+
+                    <!-- 开发阶段 -->
+                    <div id="panel-phases" class="page-tab-panel">
+                        <h2>开发阶段规划</h2>
+
+                        <div class="phase-card">
+                            <h3>第一阶段：基础框架</h3>
+                            <div class="phase-meta">
+                                <span>优先级：高</span>
+                                <span>预计工期：1-2周</span>
+                            </div>
+                            <p>搭建项目基础框架，实现核心页面和基础功能。</p>
+                            <ul>
+                                <li>项目目录结构搭建</li>
+                                <li>基础CSS样式框架</li>
+                                <li>首页和导航系统</li>
+                                <li>Wiki页面模板</li>
+                                <li>基础JavaScript框架</li>
+                            </ul>
+                        </div>
+
+                        <div class="phase-card">
+                            <h3>第二阶段：核心玩法</h3>
+                            <div class="phase-meta">
+                                <span>优先级：高</span>
+                                <span>预计工期：2-3周</span>
+                            </div>
+                            <p>实现游戏核心玩法系统。</p>
+                            <ul>
+                                <li>时间系统（日夜循环、季节）</li>
+                                <li>摆摊系统（摊位、上架、交易）</li>
+                                <li>价格系统（市场价、定价反馈）</li>
+                                <li>货币系统（金币、凭证）</li>
+                                <li>数据存储（LocalStorage）</li>
+                            </ul>
+                        </div>
+
+                        <div class="phase-card">
+                            <h3>第三阶段：内容填充</h3>
+                            <div class="phase-meta">
+                                <span>优先级：中</span>
+                                <span>预计工期：2-3周</span>
+                            </div>
+                            <p>填充游戏内容，完善游戏体验。</p>
+                            <ul>
+                                <li>商品数据（各类物品）</li>
+                                <li>NPC数据（商人、顾客）</li>
+                                <li>地点数据（城镇、集市）</li>
+                                <li>装饰系统（36种装饰）</li>
+                                <li>成就系统</li>
+                            </ul>
+                        </div>
+
+                        <div class="phase-card">
+                            <h3>第四阶段：扩展功能</h3>
+                            <div class="phase-meta">
+                                <span>优先级：中</span>
+                                <span>预计工期：2-3周</span>
+                            </div>
+                            <p>添加扩展功能，丰富游戏内容。</p>
+                            <ul>
+                                <li>战斗系统（PVE）</li>
+                                <li>副本系统</li>
+                                <li>任务系统</li>
+                                <li>成长系统（等级、技能）</li>
+                                <li>社交功能（商会）</li>
+                            </ul>
+                        </div>
+
+                        <div class="phase-card">
+                            <h3>第五阶段：优化发布</h3>
+                            <div class="phase-meta">
+                                <span>优先级：低</span>
+                                <span>预计工期：1-2周</span>
+                            </div>
+                            <p>优化性能，准备发布。</p>
+                            <ul>
+                                <li>性能优化</li>
+                                <li>兼容性测试</li>
+                                <li>Bug修复</li>
+                                <li>文档完善</li>
+                                <li>发布部署</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- 开发清单 -->
+                    <div id="panel-checklist" class="page-tab-panel">
+                        <h2>开发清单</h2>
+                        <p>以下是当前开发进度的详细清单：</p>
+
+                        <h3>基础框架</h3>
+                        <ul class="checklist">
+                            <li><span class="checkbox done"></span><span>项目目录结构</span></li>
+                            <li><span class="checkbox done"></span><span>CSS样式框架</span></li>
+                            <li><span class="checkbox done"></span><span>首页布局</span></li>
+                            <li><span class="checkbox done"></span><span>侧边栏导航</span></li>
+                            <li><span class="checkbox done"></span><span>顶部导航栏</span></li>
+                            <li><span class="checkbox done"></span><span>页脚组件</span></li>
+                        </ul>
+
+                        <h3>Wiki页面</h3>
+                        <ul class="checklist">
+                            <li><span class="checkbox done"></span><span>游戏介绍页</span></li>
+                            <li><span class="checkbox done"></span><span>世界观页</span></li>
+                            <li><span class="checkbox done"></span><span>集市页</span></li>
+                            <li><span class="checkbox done"></span><span>摆摊系统页</span></li>
+                            <li><span class="checkbox done"></span><span>价格机制页</span></li>
+                            <li><span class="checkbox done"></span><span>游戏时间页</span></li>
+                            <li><span class="checkbox"></span><span>成就系统页</span></li>
+                            <li><span class="checkbox"></span><span>战斗系统页</span></li>
+                            <li><span class="checkbox"></span><span>成长系统页</span></li>
+                            <li><span class="checkbox"></span><span>货币系统页</span></li>
+                        </ul>
+
+                        <h3>游戏功能</h3>
+                        <ul class="checklist">
+                            <li><span class="checkbox"></span><span>时间系统实现</span></li>
+                            <li><span class="checkbox"></span><span>摆摊核心逻辑</span></li>
+                            <li><span class="checkbox"></span><span>价格计算算法</span></li>
+                            <li><span class="checkbox"></span><span>数据存储模块</span></li>
+                            <li><span class="checkbox"></span><span>离线收益计算</span></li>
+                            <li><span class="checkbox"></span><span>装饰系统</span></li>
+                            <li><span class="checkbox"></span><span>成就系统</span></li>
+                        </ul>
+
+                        <h3>数据内容</h3>
+                        <ul class="checklist">
+                            <li><span class="checkbox"></span><span>商品数据</span></li>
+                            <li><span class="checkbox"></span><span>NPC数据</span></li>
+                            <li><span class="checkbox"></span><span>地点数据</span></li>
+                            <li><span class="checkbox"></span><span>装饰数据</span></li>
+                            <li><span class="checkbox"></span><span>成就数据</span></li>
+                        </ul>
+
+                        <h3>优化测试</h3>
+                        <ul class="checklist">
+                            <li><span class="checkbox"></span><span>响应式适配</span></li>
+                            <li><span class="checkbox"></span><span>性能优化</span></li>
+                            <li><span class="checkbox"></span><span>浏览器兼容</span></li>
+                            <li><span class="checkbox"></span><span>Bug修复</span></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="article-footer">
+                    <p>最后更新于：2026-03-22 | 编辑次数：1</p>
+                </div>
+            </article>
+        </main>
+    </div>
+
+    <footer class="wiki-footer">
+        <p>&copy; 2026 《蛙噻！好摊》游戏百科 | 本百科由玩家共同维护</p>
+    </footer>
+
+    <script src="../js/main.js"></script>
+    <script>
+        (function() {
+            var nav = document.getElementById('pageTabNav');
+            if (nav) {
+                nav.addEventListener('click', function(e) {
+                    var btn = e.target;
+                    if (!btn.classList.contains('page-tab-btn')) return;
+                    var tab = btn.getAttribute('data-tab');
+                    
+                    document.querySelectorAll('.page-tab-btn').forEach(function(b) {
+                        b.classList.remove('active');
+                    });
+                    document.querySelectorAll('.page-tab-panel').forEach(function(p) {
+                        p.classList.remove('active');
+                    });
+                    
+                    btn.classList.add('active');
+                    document.getElementById('panel-' + tab).classList.add('active');
+                });
+            }
+        })();
+    </script>
+</body>
+</html>

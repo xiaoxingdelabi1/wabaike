@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>集市 - 蛙噻！好摊</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body class="wiki-layout">
+    <header class="wiki-topbar">
+        <div class="wiki-logo">
+            <a href="../index.html">蛙噻！好摊</a>
+        </div>
+        <div class="wiki-search">
+            <input type="text" placeholder="搜索百科..." id="searchInput">
+            <button onclick="search()">搜索</button>
+        </div>
+        <div class="wiki-user">
+            <span>欢迎访问</span>
+        </div>
+    </header>
+
+    <div class="wiki-container">
+        <aside class="wiki-sidebar">
+            <nav class="wiki-nav">
+                <div class="nav-section">
+                    <h3>百科分类</h3>
+                    <ul>
+                        <li><a href="../index.html">首页</a></li>
+                        <li><a href="game-intro.html">游戏介绍</a></li>
+                        <li><a href="world.html">世界观</a></li>
+                        <li><a href="factions.html">势力分布</a></li>
+                        <li><a href="history.html">历史年表</a></li>
+                        <li><a href="price-mechanism.html">价格机制</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>游戏特色</h3>
+                    <ul>
+                        <li><a href="bazaar.html" class="active">集市</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>游戏玩法</h3>
+                    <ul>
+                        <li><a href="market.html">摆摊系统</a></li>
+                        <li><a href="achievements.html">成就系统</a></li>
+                        <li><a href="combat.html">战斗系统</a></li>
+                        <li><a href="progression.html">成长系统</a></li>
+                        <li><a href="currency.html">货币系统</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>角色</h3>
+                    <ul>
+                        <li><a href="characters.html">角色总览</a></li>
+                        <li><a href="characters.html?type=playable">主要角色</a></li>
+                        <li><a href="characters.html?type=npc">NPC</a></li>
+                        <li><a href="enemies.html">敌人</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>物品装备</h3>
+                    <ul>
+                        <li><a href="items.html">物品总览</a></li>
+                        <li><a href="weapon.html">武器</a></li>
+                        <li><a href="armor.html">防具</a></li>
+                        <li><a href="accessory.html">饰品</a></li>
+                        <li><a href="treasure.html">法宝</a></li>
+                        <li><a href="consumable.html">消耗品</a></li>
+                        <li><a href="material.html">材料</a></li>
+                        <li><a href="collection.html">收藏品</a></li>
+                        <li><a href="crafting.html">生活技能</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>世界探索</h3>
+                    <ul>
+                        <li><a href="locations.html">地点总览</a></li>
+                        <li><a href="map.html">游戏地图</a></li>
+                        <li><a href="quests.html">任务剧情</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>关于</h3>
+                    <ul>
+                        <li><a href="dev-thoughts.html">开发者随想</a></li>
+                    </ul>
+                </div>
+            </nav>
+        </aside>
+
+        <main class="wiki-content">
+            <nav class="breadcrumb">
+                <a href="../index.html">首页</a> &gt; <span class="current">集市</span>
+            </nav>
+
+            <article class="wiki-article">
+                <h1 class="article-title">集市</h1>
+
+                <div class="article-intro">
+                    <p>集市是《蛙噻！好摊》的<strong>核心玩法</strong>。整个集市由四条街道组成，每条街道拥有200多个摊位，商品琳琅满目。玩家需要把握市场动向，在动态变化的市场中低买高卖，积累财富。</p>
+                </div>
+
+                <div class="wiki-toc">
+                    <h3>目录</h3>
+                    <ul>
+                        <li><a href="#overview">集市概述</a></li>
+                        <li><a href="#streets">四条街道</a></li>
+                        <li><a href="#stalls">摊位系统</a></li>
+                        <li><a href="#goods">商品种类</a></li>
+                        <li><a href="#dynamic">动态市场</a></li>
+                        <li><a href="#price">价格系统</a></li>
+                        <li><a href="#strategy">经营策略</a></li>
+                    </ul>
+                </div>
+
+                <h2 id="overview">集市概述</h2>
+                <p>集市是游戏中最重要的商业活动场所，也是玩家获取财富的主要途径。</p>
+
+                <table class="wiki-table">
+                    <tr>
+                        <th>属性</th>
+                        <th>数值</th>
+                    </tr>
+                    <tr>
+                        <td>总摊位数量</td>
+                        <td>800+</td>
+                    </tr>
+                    <tr>
+                        <td>街道数量</td>
+                        <td>4条</td>
+                    </tr>
+                    <tr>
+                        <td>每街摊位</td>
+                        <td>200+</td>
+                    </tr>
+                    <tr>
+                        <td>商品种类</td>
+                        <td>道具、工具、装备等</td>
+                    </tr>
+                </table>
+
+                <h2 id="streets">四条街道</h2>
+                <p>集市由四条主要街道组成，每条街道都有其独特的经营特色：</p>
+
+                <table class="wiki-table">
+                    <thead>
+                        <tr>
+                            <th>街道</th>
+                            <th>摊位数量</th>
+                            <th>主营商品</th>
+                            <th>特点</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>东街</td>
+                            <td>200+</td>
+                            <td>工具</td>
+                            <td>工匠和冒险者的聚集地</td>
+                        </tr>
+                        <tr>
+                            <td>南街</td>
+                            <td>200+</td>
+                            <td>综合商品</td>
+                            <td>最大的综合市场，人流量最大</td>
+                        </tr>
+                        <tr>
+                            <td>西街</td>
+                            <td>200+</td>
+                            <td>道具</td>
+                            <td>炼金师和工匠的必去之地</td>
+                        </tr>
+                        <tr>
+                            <td>北街</td>
+                            <td>200+</td>
+                            <td>装备</td>
+                            <td>战士和冒险者的天堂</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>中心区域</h3>
+                <p>每条街道靠近中心区域的摊位最值钱，出售效率最高。中心区域摊位的特点：</p>
+                <ul>
+                    <li>人流量最大</li>
+                    <li>出售效率+50%</li>
+                    <li>租金/购买价格昂贵</li>
+                    <li>竞争激烈</li>
+                </ul>
+
+                <h2 id="stalls">摊位系统</h2>
+                <p>摊位是玩家在集市中经营的根基。整个集市共有800多个摊位，分布在四条街道上。</p>
+
+                <h3>摊位类型</h3>
+                <table class="wiki-table">
+                    <thead>
+                        <tr>
+                            <th>类型</th>
+                            <th>说明</th>
+                            <th>适合人群</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>空白摊位</td>
+                            <td>无人经营的空摊位，可直接租用出摊</td>
+                            <td>资金有限的新手商人</td>
+                        </tr>
+                        <tr>
+                            <td>已有摊位</td>
+                            <td>正在经营的摊位，可购买获得</td>
+                            <td>有一定资金基础的商人</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>摊位位置价值</h3>
+                <table class="wiki-table">
+                    <thead>
+                        <tr>
+                            <th>位置</th>
+                            <th>人流量</th>
+                            <th>出售效率</th>
+                            <th>成本</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>中心区域</td>
+                            <td>★★★★★</td>
+                            <td>+50%</td>
+                            <td>昂贵</td>
+                        </tr>
+                        <tr>
+                            <td>街道中段</td>
+                            <td>★★★★☆</td>
+                            <td>+25%</td>
+                            <td>中等</td>
+                        </tr>
+                        <tr>
+                            <td>街道边缘</td>
+                            <td>★★★☆☆</td>
+                            <td>标准</td>
+                            <td>便宜</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>摊位自动前移机制</h3>
+                <p>集市采用独特的<strong>摊位自动左对齐</strong>机制，为长期经营的商人提供晋升机会：</p>
+                <ul>
+                    <li><strong>机制说明</strong>：当某个摊位收摊后，该摊位后方的所有摊位会自动向前移动，填补空位</li>
+                    <li><strong>左对齐规则</strong>：摊位始终向街道中心方向（左侧）靠拢，保持紧凑排列</li>
+                    <li><strong>长期收益</strong>：只要你持续经营的时间够久，你的摊位会慢慢移动到更靠前的位置</li>
+                    <li><strong>位置提升</strong>：从后排逐步移动到前排，享受更高的人流量和出售效率</li>
+                </ul>
+                <p>这个机制鼓励玩家长期经营，即使一开始只能在边缘位置出摊，只要坚持经营，终有机会移动到黄金位置！</p>
+
+                <h3>出摊收摊机制</h3>
+                <p>在集市中经营需要了解出摊和收摊的基本规则：</p>
+
+                <h4>出摊费用</h4>
+                <table class="wiki-table">
+                    <thead>
+                        <tr>
+                            <th>项目</th>
+                            <th>费率</th>
+                            <th>说明</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>出摊手续费</td>
+                            <td>1%</td>
+                            <td>上架商品市场价格的1%</td>
+                        </tr>
+                        <tr>
+                            <td>交易税费</td>
+                            <td>5%</td>
+                            <td>成交金额的5%</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h4>收摊规则</h4>
+                <ul>
+                    <li>收摊<strong>不收取任何费用</strong></li>
+                    <li>收摊后摊位立即消失，需要重新选择摊位</li>
+                    <li>未售出的商品自动返还到背包中</li>
+                </ul>
+
+                <h4>商品更新规则</h4>
+                <p>出摊后<strong>无法更新上架的商品</strong>。如需更换商品或调整价格，必须先收摊再重新出摊。</p>
+                <p>详细机制请参考 <a href="market.html">摆摊系统</a> 页面。</p>
+
+                <h2 id="goods">商品种类</h2>
+                <p>集市上的商品琳琅满目，主要包含以下几类：</p>
+
+                <table class="wiki-table">
+                    <thead>
+                        <tr>
+                            <th>类别</th>
+                            <th>包含商品</th>
+                            <th>特点</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>道具</td>
+                            <td>药水、卷轴、材料、配方</td>
+                            <td>需求量大，周转快</td>
+                        </tr>
+                        <tr>
+                            <td>工具</td>
+                            <td>采矿镐、钓鱼竿、锻造锤、炼金炉</td>
+                            <td>价格稳定，需求持续</td>
+                        </tr>
+                        <tr>
+                            <td>装备</td>
+                            <td>武器、防具、饰品、神器</td>
+                            <td>高风险高回报</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h2 id="dynamic">动态市场</h2>
+                <p>集市是一个充满活力的动态市场，摊位和商品都在不断变化。</p>
+
+                <h3>市场周期</h3>
+                <ol>
+                    <li><strong>收摊阶段</strong>：部分摊位会收摊离开，变为空白状态</li>
+                    <li><strong>出摊阶段</strong>：新商人进入市场，在空白摊位出摊</li>
+                    <li><strong>商品刷新</strong>：出摊商品随机变化，可能带来稀有物品</li>
+                    <li><strong>价格调整</strong>：根据市场供需，商品价格实时波动</li>
+                </ol>
+
+                <h3>把握市场动向</h3>
+                <p>成功的商人需要时刻关注市场动向：</p>
+                <ul>
+                    <li>特定时期某些商品需求激增（如战斗前药水需求增加）</li>
+                    <li>某些商品可能因供应过剩而价格下跌</li>
+                    <li>把握规律，低买高卖，赚取差价</li>
+                </ul>
+
+                <h2 id="price">价格系统</h2>
+                <p>集市的价格是动态变化的，受多种因素影响。</p>
+
+                <h3>价格影响因素</h3>
+                <ul>
+                    <li><strong>供需关系</strong>：供不应求时价格上涨，供过于求时价格下跌</li>
+                    <li><strong>摊位位置</strong>：中心区域摊位商品通常价格更高</li>
+                    <li><strong>商品稀有度</strong>：稀有商品价格波动更大</li>
+                    <li><strong>时段因素</strong>：不同时段人流量不同，影响销售</li>
+                    <li><strong>事件影响</strong>：游戏内事件可能导致某些商品需求激增</li>
+                </ul>
+
+                <h3>价格趋势</h3>
+                <table class="wiki-table">
+                    <thead>
+                        <tr>
+                            <th>趋势</th>
+                            <th>标识</th>
+                            <th>说明</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>上涨</td>
+                            <td>↑</td>
+                            <td>需求增加或供应减少</td>
+                        </tr>
+                        <tr>
+                            <td>下跌</td>
+                            <td>↓</td>
+                            <td>供应过剩或需求减少</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h2 id="strategy">经营策略</h2>
+                <p>在集市中取得成功，需要合理的经营策略。</p>
+
+                <h3>空白摊位策略</h3>
+                <p><strong>适合：</strong>资金有限的新手商人</p>
+                <ul>
+                    <li>优点：成本低，风险小</li>
+                    <li>缺点：位置偏，人流量少</li>
+                    <li>建议：选择有特色的商品，以差异化竞争</li>
+                </ul>
+
+                <h3>购买摊位策略</h3>
+                <p><strong>适合：</strong>有一定资金基础的商人</p>
+                <ul>
+                    <li>优点：位置好，人流量大</li>
+                    <li>缺点：成本高，需要大量资金</li>
+                    <li>建议：优先购买中心区域或街道中段的摊位</li>
+                </ul>
+
+                <h3>低买高卖策略</h3>
+                <p><strong>适合：</strong>善于把握时机的商人</p>
+                <ul>
+                    <li>密切关注市场价格波动</li>
+                    <li>在价格低点买入商品</li>
+                    <li>在价格高点卖出商品</li>
+                    <li>资金周转快，利润可观</li>
+                </ul>
+
+                <h3>成功秘诀</h3>
+                <ul>
+                    <li><strong>耐心观察</strong>：先观察市场，了解规律再出手</li>
+                    <li><strong>分散投资</strong>：不要把所有资金都投入一种商品</li>
+                    <li><strong>把握时机</strong>：市场波动时往往是最好的机会</li>
+                    <li><strong>建立人脉</strong>：与其他商人建立良好关系，获取信息</li>
+                    <li><strong>持续学习</strong>：市场在不断变化，策略也需要调整</li>
+                </ul>
+
+                <div class="article-footer">
+                    <p>最后更新于：2026-03-20 | 编辑次数：2</p>
+                </div>
+            </article>
+        </main>
+    </div>
+
+    <footer class="wiki-footer">
+        <p>&copy; 2026 《蛙噻！好摊》游戏百科 | 本百科由玩家共同维护</p>
+    </footer>
+
+    <script src="../js/main.js"></script>
+</body>
+</html>

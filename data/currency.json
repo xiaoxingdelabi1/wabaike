@@ -1,0 +1,128 @@
+{
+  "tiers": [
+    {
+      "id": "wen",
+      "name": "文",
+      "symbol": "文",
+      "value": 1,
+      "color": "#8d6e63",
+      "description": "最基础的货币单位，相当于铜钱",
+      "icon": "💰"
+    },
+    {
+      "id": "tong",
+      "name": "铜",
+      "symbol": "铜",
+      "value": 1000,
+      "color": "#b87333",
+      "description": "1000文 = 1铜，铜质货币",
+      "icon": "🥉"
+    },
+    {
+      "id": "yin",
+      "name": "银",
+      "symbol": "银",
+      "value": 1000000,
+      "color": "#c0c0c0",
+      "description": "1000铜 = 1银，银质货币",
+      "icon": "🥈"
+    },
+    {
+      "id": "jin",
+      "name": "金",
+      "symbol": "金",
+      "value": 1000000000,
+      "color": "#ffd700",
+      "description": "1000银 = 1金，金质货币",
+      "icon": "🥇"
+    },
+    {
+      "id": "bing",
+      "name": "饼",
+      "symbol": "饼",
+      "value": 1000000000000,
+      "color": "#ff6b6b",
+      "description": "1000金 = 1饼，最高级货币单位",
+      "icon": "💎"
+    }
+  ],
+  "conversionRate": 1000,
+  "sources": [
+    {
+      "name": "摆摊交易",
+      "description": "通过摆摊出售物品获得货币",
+      "currency": ["文", "铜", "银"]
+    },
+    {
+      "name": "完成任务",
+      "description": "完成主线和支线任务获得奖励",
+      "currency": ["文", "铜", "银", "金"]
+    },
+    {
+      "name": "击败敌人",
+      "description": "战斗胜利后敌人掉落货币",
+      "currency": ["文", "铜"]
+    },
+    {
+      "name": "探索宝箱",
+      "description": "在世界地图中发现隐藏宝箱",
+      "currency": ["铜", "银", "金"]
+    },
+    {
+      "name": "成就奖励",
+      "description": "完成成就系统目标获得奖励",
+      "currency": ["银", "金", "饼"]
+    },
+    {
+      "name": "每日签到",
+      "description": "每日登录游戏领取奖励",
+      "currency": ["文", "铜", "银"]
+    }
+  ],
+  "uses": [
+    {
+      "name": "购买物品",
+      "description": "在商店或摆摊系统购买装备、材料、消耗品",
+      "currency": ["文", "铜", "银", "金"]
+    },
+    {
+      "name": "装备强化",
+      "description": "强化武器和防具提升属性",
+      "currency": ["铜", "银", "金"]
+    },
+    {
+      "name": "技能学习",
+      "description": "学习新技能或升级现有技能",
+      "currency": ["银", "金"]
+    },
+    {
+      "name": "传送费用",
+      "description": "使用传送功能快速移动",
+      "currency": ["文", "铜"]
+    },
+    {
+      "name": "复活费用",
+      "description": "战斗失败后的复活消耗",
+      "currency": ["铜", "银"]
+    },
+    {
+      "name": "特殊道具",
+      "description": "购买稀有道具和限定物品",
+      "currency": ["金", "饼"]
+    }
+  ],
+  "examples": [
+    {
+      "wen": 5000000,
+      "display": "5铜"
+    },
+    {
+      "wen": 2500000000,
+      "display": "2银500铜"
+    },
+    {
+      "wen": 1500000000000,
+      "display": "1饼500金"
+    }
+  ]
+}

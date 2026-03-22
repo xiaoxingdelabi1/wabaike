@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>消耗品 - 蛙噻！好摊</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        /* 物品卡片样式 */
+        .item-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+            margin: 16px 0;
+        }
+        .item-card {
+            background: var(--wiki-box-bg);
+            border: 1px solid var(--wiki-border);
+            padding: 12px;
+        }
+        .item-card h4 {
+            margin: 0 0 8px 0;
+            color: var(--wiki-text);
+            font-size: 15px;
+        }
+        .item-card .meta {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+        .item-card .description {
+            font-size: 13px;
+            color: var(--wiki-text-secondary);
+            margin: 0 0 8px 0;
+        }
+        .item-card .effect-box {
+            background: var(--wiki-content-bg);
+            padding: 8px;
+            font-size: 12px;
+            border-left: 3px solid var(--wiki-link);
+        }
+
+        /* 类型标签 */
+        .type-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            font-size: 11px;
+            border-radius: 2px;
+        }
+        .type-badge.consumable {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        /* 稀有度标签 */
+        .rarity-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            font-size: 11px;
+            border-radius: 2px;
+        }
+        .rarity-badge.common {
+            background: #f5f5f5;
+            color: #616161;
+        }
+        .rarity-badge.uncommon {
+            background: #e8f5e9;
+            color: #388e3c;
+        }
+        .rarity-badge.rare {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+        .rarity-badge.epic {
+            background: #f3e5f5;
+            color: #7b1fa2;
+        }
+        .rarity-badge.legendary {
+            background: #fff8e1;
+            color: #f57f17;
+        }
+
+        /* 信息框 - Wiki风格 */
+        .info-box {
+            background: var(--wiki-box-bg);
+            border: 1px solid var(--wiki-border);
+            border-left: 4px solid var(--wiki-link);
+            padding: 12px;
+            margin: 12px 0;
+        }
+        .tip-box {
+            background: #e3f2fd;
+            border: 1px solid #90caf9;
+            border-left: 4px solid #2196f3;
+            padding: 12px;
+            margin: 12px 0;
+        }
+
+        /* 筛选标签 */
+        .filter-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 16px 0;
+        }
+        .filter-tabs .tab-btn {
+            padding: 6px 12px;
+            background: var(--wiki-box-bg);
+            border: 1px solid var(--wiki-border);
+            cursor: pointer;
+            font-size: 13px;
+            margin-right: 0;
+        }
+        .filter-tabs .tab-btn:hover {
+            background: var(--wiki-header-bg);
+        }
+        .filter-tabs .tab-btn.active {
+            background: var(--wiki-content-bg);
+            font-weight: bold;
+            color: var(--wiki-text);
+        }
+    </style>
+</head>
+<body class="wiki-layout">
+    <header class="wiki-topbar">
+        <div class="wiki-logo">
+            <a href="../index.html">蛙噻！好摊</a>
+        </div>
+        <div class="wiki-search">
+            <input type="text" placeholder="搜索百科..." id="searchInput">
+            <button onclick="search()">搜索</button>
+        </div>
+        <div class="wiki-user">
+            <span>欢迎访问</span>
+        </div>
+    </header>
+
+    <div class="wiki-container">
+        <aside class="wiki-sidebar">
+            <nav class="wiki-nav">
+                <div class="nav-section">
+                    <h3>百科分类</h3>
+                    <ul>
+                        <li><a href="../index.html">首页</a></li>
+                        <li><a href="game-intro.html">游戏介绍</a></li>
+                        <li><a href="world.html">世界观</a></li>
+                        <li><a href="factions.html">势力分布</a></li>
+                        <li><a href="history.html">历史年表</a></li>
+                        <li><a href="price-mechanism.html">价格机制</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>游戏特色</h3>
+                    <ul>
+                        <li><a href="bazaar.html">集市</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>游戏玩法</h3>
+                    <ul>
+                        <li><a href="market.html">摆摊系统</a></li>
+                        <li><a href="achievements.html">成就系统</a></li>
+                        <li><a href="combat.html">战斗系统</a></li>
+                        <li><a href="progression.html">成长系统</a></li>
+                        <li><a href="currency.html">货币系统</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>角色</h3>
+                    <ul>
+                        <li><a href="characters.html">角色总览</a></li>
+                        <li><a href="characters.html?type=playable">主要角色</a></li>
+                        <li><a href="characters.html?type=npc">NPC</a></li>
+                        <li><a href="enemies.html">敌人</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>物品装备</h3>
+                    <ul>
+                        <li><a href="items.html">物品总览</a></li>
+                        <li><a href="weapon.html">武器</a></li>
+                        <li><a href="armor.html">防具</a></li>
+                        <li><a href="accessory.html">饰品</a></li>
+                        <li><a href="treasure.html">法宝</a></li>
+                        <li><a href="consumable.html" class="active">消耗品</a></li>
+                        <li><a href="material.html">材料</a></li>
+                        <li><a href="collection.html">收藏品</a></li>
+                        <li><a href="crafting.html">生活技能</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>世界探索</h3>
+                    <ul>
+                        <li><a href="locations.html">地点总览</a></li>
+                        <li><a href="map.html">游戏地图</a></li>
+                        <li><a href="quests.html">任务剧情</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>关于</h3>
+                    <ul>
+                        <li><a href="dev-thoughts.html">开发者随想</a></li>
+                    </ul>
+                </div>
+            </nav>
+        </aside>
+
+        <main class="wiki-content">
+            <nav class="breadcrumb">
+                <a href="../index.html">首页</a> &gt; <a href="items.html">物品装备</a> &gt; <span class="current">消耗品</span>
+            </nav>
+
+            <article class="wiki-article">
+                <h1 class="article-title">消耗品</h1>
+                
+                <div class="info-box">
+                    <strong>消耗品系统简介：</strong>消耗品是一次性使用的物品，主要用于恢复生命值、提供临时增益效果或解除负面状态。合理使用消耗品是战斗胜利的关键。
+                </div>
+
+                <h2>消耗品类型</h2>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>消耗品类型</th>
+                            <th>主要效果</th>
+                            <th>使用场景</th>
+                            <th>说明</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>回血丹药</td>
+                            <td>恢复生命值</td>
+                            <td>战斗中或战后恢复</td>
+                            <td>最基础的恢复类消耗品</td>
+                        </tr>
+                        <tr>
+                            <td>回蓝丹药</td>
+                            <td>恢复法力值</td>
+                            <td>技能释放后恢复</td>
+                            <td>配合技能系统使用</td>
+                        </tr>
+                        <tr>
+                            <td>状态恢复</td>
+                            <td>解除负面状态</td>
+                            <td>受到异常状态时</td>
+                            <td>解毒、清醒、驱寒等</td>
+                        </tr>
+                        <tr>
+                            <td>攻击增益</td>
+                            <td>临时提升攻击属性</td>
+                            <td>战斗前使用</td>
+                            <td>攻击力、暴击率等</td>
+                        </tr>
+                        <tr>
+                            <td>防御增益</td>
+                            <td>临时提升防御属性</td>
+                            <td>战斗前使用</td>
+                            <td>防御力、抗性等</td>
+                        </tr>
+                        <tr>
+                            <td>特殊道具</td>
+                            <td>各种特殊效果</td>
+                            <td>特定场景使用</td>
+                            <td>复活、经验加成等</td>
+                        </tr>
+                        <tr>
+                            <td>属性点药丸</td>
+                            <td>永久增加基础属性</td>
+                            <td>角色培养</td>
+                            <td>力量、敏捷、体质、智力、精神</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h2>属性点药丸使用规则</h2>
+                <div class="tip-box">
+                    <strong>核心机制：逐级解锁</strong>
+                    <p>属性点药丸分为5个等级，每个等级有使用次数限制。当低等级药丸使用达到上限后，必须使用更高等级的药丸。</p>
+                    <table class="data-table" style="margin-top:10px;">
+                        <thead>
+                            <tr>
+                                <th>等级</th>
+                                <th>名称示例</th>
+                                <th>增加点数</th>
+                                <th>使用次数上限</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>初级</td><td>小力量丹</td><td>+1</td><td>1000次</td></tr>
+                            <tr><td>中级</td><td>力量丹</td><td>+2</td><td>500次</td></tr>
+                            <tr><td>高级</td><td>大力量丹</td><td>+3</td><td>200次</td></tr>
+                            <tr><td>大师</td><td>力量灵丹</td><td>+5</td><td>50次</td></tr>
+                            <tr><td>传说</td><td>力量神丹</td><td>+10</td><td>1次</td></tr>
+                        </tbody>
+                    </table>
+                    <p style="margin-top:10px;"><strong>示例：</strong>小力量丹用了1000次后，无法再使用，必须使用力量丹及以上等级的药丸。</p>
+                </div>
+
+                <h2>消耗品列表</h2>
+                <div class="filter-tabs">
+                    <button class="tab-btn active" onclick="filterConsumables('all')">全部</button>
+                    <button class="tab-btn" onclick="filterConsumables('healing')">回血类</button>
+                    <button class="tab-btn" onclick="filterConsumables('mana')">回蓝类</button>
+                    <button class="tab-btn" onclick="filterConsumables('cure')">状态恢复</button>
+                    <button class="tab-btn" onclick="filterConsumables('buff')">增益类</button>
+                    <button class="tab-btn" onclick="filterConsumables('special')">特殊类</button>
+                    <button class="tab-btn" onclick="filterConsumables('attribute')">属性点</button>
+                </div>
+                <div class="item-grid" id="consumableGrid"></div>
+
+                <h2>消耗品获取途径</h2>
+                <div class="tip-box">
+                    <ul>
+                        <li><strong>商店购买</strong>：药店和杂货店出售各种消耗品</li>
+                        <li><strong>炼丹制作</strong>：收集材料后在炼丹炉制作丹药</li>
+                        <li><strong>任务奖励</strong>：完成任务可获得消耗品奖励</li>
+                        <li><strong>探索采集</strong>：地图上的草药可以直接采集使用</li>
+                        <li><strong>击败敌人</strong>：部分敌人会掉落消耗品</li>
+                    </ul>
+                </div>
+
+                <h2>使用技巧</h2>
+                <p>合理使用消耗品可以大幅提升战斗效率：</p>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>场景</th>
+                            <th>推荐消耗品</th>
+                            <th>使用时机</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>低血量</td>
+                            <td>小还丹/大还丹</td>
+                            <td>生命值低于30%时立即使用</td>
+                        </tr>
+                        <tr>
+                            <td>BOSS战前</td>
+                            <td>增益食物</td>
+                            <td>进入战斗前30秒使用</td>
+                        </tr>
+                        <tr>
+                            <td>中毒/眩晕</td>
+                            <td>解毒丹/清醒丹</td>
+                            <td>受到负面状态时立即使用</td>
+                        </tr>
+                        <tr>
+                            <td>持久战</td>
+                            <td>九转金丹</td>
+                            <td>生命值危急且有多重负面状态时使用</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="article-footer">
+                    <p>最后更新于：2026-03-21 | 编辑次数：1</p>
+                </div>
+            </article>
+        </main>
+    </div>
+
+    <footer class="wiki-footer">
+        <p>&copy; 2026 《蛙噻！好摊》游戏百科 | 本百科由玩家共同维护</p>
+    </footer>
+
+    <script src="../js/main.js"></script>
+    <script>
+        let consumables = [
+            // 回血类
+            { id: 4, name: "小还丹", type: "healing", rarity: "common", description: "用花果山灵草炼制的初级回血丹药，适合新手使用。", effect: "恢复生命值50点" },
+            { id: 5, name: "大还丹", type: "healing", rarity: "uncommon", description: "比小还丹药效更强的回血丹药，炼制工艺更加复杂。", effect: "恢复生命值150点" },
+            { id: 6, name: "九转金丹", type: "healing", rarity: "epic", description: "太上老君炼丹炉中炼制的仙丹，具有起死回生的功效。", effect: "恢复生命值500点，解除所有负面状态" },
+            { id: 7, name: "灵芝草", type: "healing", rarity: "common", description: "生长在仙山的灵芝，嚼食后可恢复些许体力。", effect: "恢复生命值30点" },
+            { id: 8, name: "人参果", type: "healing", rarity: "rare", description: "五庄观特产，闻一闻可活三百六十岁，吃一个可活四万七千年。", effect: "恢复生命值300点，永久增加生命上限10点" },
+            { id: 9, name: "蟠桃", type: "healing", rarity: "epic", description: "王母娘娘蟠桃园中的仙桃，食之可延年益寿。", effect: "恢复生命值1000点，永久增加生命上限50点" },
+            { id: 55, name: "回血散", type: "healing", rarity: "common", description: "快速止血的散剂，适合紧急情况下使用。", effect: "恢复生命值20点，每秒恢复5点，持续10秒" },
+            { id: 56, name: "金疮药", type: "healing", rarity: "uncommon", description: "治疗外伤的特效药，见效很快。", effect: "恢复生命值100点，每秒恢复10点，持续10秒" },
+            
+            // 回蓝类
+            { id: 57, name: "小法力丹", type: "mana", rarity: "common", description: "恢复少量法力的丹药，适合新手使用。", effect: "恢复法力值30点" },
+            { id: 58, name: "大法力丹", type: "mana", rarity: "uncommon", description: "恢复大量法力的丹药，炼制工艺复杂。", effect: "恢复法力值100点" },
+            { id: 59, name: "九转还魂丹", type: "mana", rarity: "rare", description: "同时恢复生命和法力的珍贵丹药。", effect: "恢复生命值200点，法力值80点" },
+            { id: 60, name: "灵泉水", type: "mana", rarity: "common", description: "蕴含灵气的泉水，可恢复法力。", effect: "恢复法力值20点" },
+            { id: 61, name: "仙露", type: "mana", rarity: "epic", description: "仙界采集的露水，蕴含浓郁灵气。", effect: "恢复法力值300点，法力恢复速度+50%（持续30秒）" },
+            { id: 62, name: "观音甘露", type: "mana", rarity: "legendary", description: "观音菩萨净瓶中的甘露，具有神奇功效。", effect: "恢复全部法力值，技能冷却时间减少30%" },
+            
+            // 状态恢复类
+            { id: 53, name: "解毒丹", type: "cure", rarity: "common", description: "解除中毒状态的丹药。", effect: "解除中毒状态" },
+            { id: 54, name: "清醒丹", type: "cure", rarity: "common", description: "解除眩晕状态的丹药。", effect: "解除眩晕状态" },
+            { id: 63, name: "驱寒丸", type: "cure", rarity: "common", description: "驱除体内寒气的丹药。", effect: "解除冰冻状态，火抗性+20%（持续60秒）" },
+            { id: 64, name: "定神香", type: "cure", rarity: "uncommon", description: "安定心神的香料，可解除混乱。", effect: "解除混乱状态，命中率+10%（持续60秒）" },
+            { id: 65, name: "避火丹", type: "cure", rarity: "common", description: "抵御火焰伤害的丹药。", effect: "解除燃烧状态，火抗性+30%（持续60秒）" },
+            { id: 66, name: "回魂丹", type: "cure", rarity: "epic", description: "起死回生的神丹，可将濒死之人救回。", effect: "复活倒下的队友，恢复其30%生命值" },
+            { id: 67, name: "万灵丹", type: "cure", rarity: "rare", description: "可解除多种负面状态的万能丹药。", effect: "解除所有负面状态，全抗性+10%（持续60秒）" },
+            
+            // 增益类
+            { id: 10, name: "猴儿酒", type: "buff", rarity: "uncommon", description: "花果山猴子们酿造的美酒，喝一口可恢复元气。", effect: "恢复生命值80点，攻击力+10%（持续30秒）" },
+            { id: 50, name: "力量药剂", type: "buff", rarity: "common", description: "临时提升力量的药剂。", effect: "攻击力+20%（持续60秒）" },
+            { id: 51, name: "防御药剂", type: "buff", rarity: "common", description: "临时提升防御的药剂。", effect: "防御力+20%（持续60秒）" },
+            { id: 52, name: "速度药剂", type: "buff", rarity: "uncommon", description: "临时提升移动速度的药剂。", effect: "移动速度+30%（持续30秒）" },
+            { id: 68, name: "狂暴丹", type: "buff", rarity: "uncommon", description: "激发潜能的丹药，大幅提升攻击力。", effect: "攻击力+40%，防御力-20%（持续30秒）" },
+            { id: 69, name: "铁壁丹", type: "buff", rarity: "uncommon", description: "强化肉体的丹药，大幅提升防御力。", effect: "防御力+40%，移动速度-20%（持续30秒）" },
+            { id: 70, name: "暴击药剂", type: "buff", rarity: "rare", description: "提升暴击率的珍贵药剂。", effect: "暴击率+15%，暴击伤害+30%（持续60秒）" },
+            { id: 71, name: "神行符", type: "buff", rarity: "uncommon", description: "贴在腿上可提升速度的符咒。", effect: "移动速度+50%，闪避率+10%（持续30秒）" },
+            { id: 72, name: "避水丹", type: "buff", rarity: "common", description: "可在水中呼吸的丹药。", effect: "水抗性+50%，可在水下呼吸（持续300秒）" },
+            { id: 73, name: "避雷丹", type: "buff", rarity: "common", description: "抵御雷电伤害的丹药。", effect: "雷抗性+50%（持续300秒）" },
+            { id: 74, name: "经验卷轴", type: "buff", rarity: "rare", description: "记载修炼心得的卷轴，阅读可获得经验加成。", effect: "获得经验值+50%（持续1200秒）" },
+            { id: 75, name: "幸运符", type: "buff", rarity: "epic", description: "增加运气的符咒，据说能带来好运。", effect: "幸运值+50，稀有物品掉率+20%（持续600秒）" },
+            
+            // 特殊类
+            { id: 11, name: "唐僧肉", type: "special", rarity: "legendary", description: "传说吃了可以长生不老，但实际上只是唐僧的素斋。", effect: "恢复全部生命值，获得长生buff（持续1小时）" },
+            { id: 76, name: "回城符", type: "special", rarity: "common", description: "可瞬间返回最近城镇的符咒。", effect: "立即传送回最近的城镇" },
+            { id: 77, name: "复活石", type: "special", rarity: "epic", description: "蕴含复活之力的神秘石头。", effect: "死亡时自动复活，恢复50%生命值（被动触发）" },
+            
+            // 属性点药丸 - 力量类
+            { id: 201, name: "小力量丹", type: "attribute", rarity: "common", description: "蕴含微量力量精华的丹药，可永久提升力量。", effect: "永久增加1点力量（最多使用1000次）" },
+            { id: 202, name: "力量丹", type: "attribute", rarity: "uncommon", description: "蕴含力量精华的丹药，可永久提升力量。", effect: "永久增加2点力量（最多使用500次）" },
+            { id: 203, name: "大力量丹", type: "attribute", rarity: "rare", description: "蕴含大量力量精华的丹药，可永久提升力量。", effect: "永久增加3点力量（最多使用200次）" },
+            { id: 204, name: "力量灵丹", type: "attribute", rarity: "epic", description: "蕴含灵级力量精华的丹药，可永久提升力量。", effect: "永久增加5点力量（最多使用50次）" },
+            { id: 205, name: "力量神丹", type: "attribute", rarity: "legendary", description: "蕴含神级力量精华的丹药，可永久提升力量。", effect: "永久增加10点力量（限用1次）" },
+            
+            // 属性点药丸 - 敏捷类
+            { id: 206, name: "小敏捷丹", type: "attribute", rarity: "common", description: "蕴含微量敏捷精华的丹药，可永久提升敏捷。", effect: "永久增加1点敏捷（最多使用1000次）" },
+            { id: 207, name: "敏捷丹", type: "attribute", rarity: "uncommon", description: "蕴含敏捷精华的丹药，可永久提升敏捷。", effect: "永久增加2点敏捷（最多使用500次）" },
+            { id: 208, name: "大敏捷丹", type: "attribute", rarity: "rare", description: "蕴含大量敏捷精华的丹药，可永久提升敏捷。", effect: "永久增加3点敏捷（最多使用200次）" },
+            { id: 209, name: "敏捷灵丹", type: "attribute", rarity: "epic", description: "蕴含灵级敏捷精华的丹药，可永久提升敏捷。", effect: "永久增加5点敏捷（最多使用50次）" },
+            { id: 210, name: "敏捷神丹", type: "attribute", rarity: "legendary", description: "蕴含神级敏捷精华的丹药，可永久提升敏捷。", effect: "永久增加10点敏捷（限用1次）" },
+            
+            // 属性点药丸 - 体质类
+            { id: 211, name: "小体质丹", type: "attribute", rarity: "common", description: "蕴含微量体质精华的丹药，可永久提升体质。", effect: "永久增加1点体质（最多使用1000次）" },
+            { id: 212, name: "体质丹", type: "attribute", rarity: "uncommon", description: "蕴含体质精华的丹药，可永久提升体质。", effect: "永久增加2点体质（最多使用500次）" },
+            { id: 213, name: "大体质丹", type: "attribute", rarity: "rare", description: "蕴含大量体质精华的丹药，可永久提升体质。", effect: "永久增加3点体质（最多使用200次）" },
+            { id: 214, name: "体质灵丹", type: "attribute", rarity: "epic", description: "蕴含灵级体质精华的丹药，可永久提升体质。", effect: "永久增加5点体质（最多使用50次）" },
+            { id: 215, name: "体质神丹", type: "attribute", rarity: "legendary", description: "蕴含神级体质精华的丹药，可永久提升体质。", effect: "永久增加10点体质（限用1次）" },
+            
+            // 属性点药丸 - 智力类
+            { id: 216, name: "小智力丹", type: "attribute", rarity: "common", description: "蕴含微量智力精华的丹药，可永久提升智力。", effect: "永久增加1点智力（最多使用1000次）" },
+            { id: 217, name: "智力丹", type: "attribute", rarity: "uncommon", description: "蕴含智力精华的丹药，可永久提升智力。", effect: "永久增加2点智力（最多使用500次）" },
+            { id: 218, name: "大智力丹", type: "attribute", rarity: "rare", description: "蕴含大量智力精华的丹药，可永久提升智力。", effect: "永久增加3点智力（最多使用200次）" },
+            { id: 219, name: "智力灵丹", type: "attribute", rarity: "epic", description: "蕴含灵级智力精华的丹药，可永久提升智力。", effect: "永久增加5点智力（最多使用50次）" },
+            { id: 220, name: "智力神丹", type: "attribute", rarity: "legendary", description: "蕴含神级智力精华的丹药，可永久提升智力。", effect: "永久增加10点智力（限用1次）" },
+            
+            // 属性点药丸 - 精神类
+            { id: 221, name: "小精神丹", type: "attribute", rarity: "common", description: "蕴含微量精神精华的丹药，可永久提升精神。", effect: "永久增加1点精神（最多使用1000次）" },
+            { id: 222, name: "精神丹", type: "attribute", rarity: "uncommon", description: "蕴含精神精华的丹药，可永久提升精神。", effect: "永久增加2点精神（最多使用500次）" },
+            { id: 223, name: "大精神丹", type: "attribute", rarity: "rare", description: "蕴含大量精神精华的丹药，可永久提升精神。", effect: "永久增加3点精神（最多使用200次）" },
+            { id: 224, name: "精神灵丹", type: "attribute", rarity: "epic", description: "蕴含灵级精神精华的丹药，可永久提升精神。", effect: "永久增加5点精神（最多使用50次）" },
+            { id: 225, name: "精神神丹", type: "attribute", rarity: "legendary", description: "蕴含神级精神精华的丹药，可永久提升精神。", effect: "永久增加10点精神（限用1次）" },
+            
+            // 属性点药丸 - 全属性类
+            { id: 226, name: "小全属性丹", type: "attribute", rarity: "uncommon", description: "蕴含微量全属性精华的丹药，可永久提升所有属性。", effect: "永久增加所有属性1点（最多使用100次）" },
+            { id: 227, name: "全属性丹", type: "attribute", rarity: "rare", description: "蕴含全属性精华的丹药，可永久提升所有属性。", effect: "永久增加所有属性2点（最多使用50次）" },
+            { id: 228, name: "大全属性丹", type: "attribute", rarity: "epic", description: "蕴含大量全属性精华的丹药，可永久提升所有属性。", effect: "永久增加所有属性3点（最多使用20次）" },
+            { id: 229, name: "全属性灵丹", type: "attribute", rarity: "epic", description: "蕴含灵级全属性精华的丹药，可永久提升所有属性。", effect: "永久增加所有属性5点（最多使用10次）" },
+            { id: 230, name: "全属性神丹", type: "attribute", rarity: "legendary", description: "蕴含神级全属性精华的丹药，可永久提升所有属性。", effect: "永久增加所有属性10点（限用1次）" },
+            
+            // 极限突破丹
+            { id: 231, name: "极限突破丹", type: "attribute", rarity: "rare", description: "可突破属性上限的神奇丹药，当某项属性达到当前等级上限时使用。", effect: "突破属性上限，永久增加1点指定属性（最多使用100次）" }
+        ];
+
+        function getRarityLabel(r) { 
+            const l = {common:'普通',uncommon:'优秀',rare:'稀有',epic:'史诗',legendary:'传说'}; 
+            return l[r] || r; 
+        }
+        
+        function getTypeLabel(t) { 
+            const l = {healing:'回血类',mana:'回蓝类',cure:'状态恢复',buff:'增益类',special:'特殊类',attribute:'属性点'}; 
+            return l[t] || t; 
+        }
+
+        function renderConsumables(filter = 'all') {
+            const grid = document.getElementById('consumableGrid');
+            let filtered = consumables;
+            if (filter !== 'all') filtered = consumables.filter(c => c.type === filter);
+            
+            if (filtered.length === 0) { 
+                grid.innerHTML = '<p style="color:var(--wiki-text-secondary);padding:20px;">暂无该类型的消耗品</p>'; 
+                return; 
+            }
+            
+            grid.innerHTML = filtered.map(consumable => `
+                <div class="item-card" data-type="${consumable.type}">
+                    <h4>${consumable.name}</h4>
+                    <div class="meta">
+                        <span class="type-badge consumable">${getTypeLabel(consumable.type)}</span>
+                        <span class="rarity-badge ${consumable.rarity}">${getRarityLabel(consumable.rarity)}</span>
+                    </div>
+                    <p class="description">${consumable.description}</p>
+                    <div class="effect-box"><strong>效果：</strong>${consumable.effect}</div>
+                </div>
+            `).join('');
+        }
+
+        function filterConsumables(type) {
+            document.querySelectorAll('.filter-tabs .tab-btn').forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+            renderConsumables(type);
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            renderConsumables();
+        });
+    </script>
+</body>
+</html>

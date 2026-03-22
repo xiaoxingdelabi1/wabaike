@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>历史年表 - 蛙噻！好摊</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        /* 时间线样式 */
+        .timeline {
+            position: relative;
+            padding: 20px 0;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 120px;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: linear-gradient(to bottom, #3366cc, #5c8ae6, #3366cc);
+            border-radius: 2px;
+        }
+
+        .timeline-item {
+            display: flex;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .timeline-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .timeline-year {
+            width: 100px;
+            text-align: right;
+            padding-right: 30px;
+            font-size: 16px;
+            font-weight: bold;
+            color: #3366cc;
+            flex-shrink: 0;
+        }
+
+        .timeline-content {
+            flex: 1;
+            padding: 20px;
+            background: #f8f9fa;
+            border: 1px solid #a2a9b1;
+            border-left: 4px solid #3366cc;
+            margin-left: 20px;
+            position: relative;
+        }
+
+        .timeline-content::before {
+            content: '';
+            position: absolute;
+            left: -12px;
+            top: 24px;
+            width: 0;
+            height: 0;
+            border-top: 8px solid transparent;
+            border-bottom: 8px solid transparent;
+            border-right: 8px solid #3366cc;
+        }
+
+        .timeline-content h4 {
+            margin: 0 0 10px 0;
+            font-size: 18px;
+            color: #000;
+        }
+
+        .timeline-content p {
+            margin: 0;
+            font-size: 14px;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        .timeline-dot {
+            position: absolute;
+            left: 114px;
+            top: 24px;
+            width: 16px;
+            height: 16px;
+            background: #3366cc;
+            border: 3px solid #fff;
+            border-radius: 50%;
+            box-shadow: 0 0 0 3px #3366cc;
+            z-index: 1;
+        }
+
+        @media (max-width: 768px) {
+            .timeline::before {
+                left: 80px;
+            }
+
+            .timeline-dot {
+                left: 74px;
+            }
+
+            .timeline-year {
+                width: 70px;
+                padding-right: 20px;
+                font-size: 14px;
+            }
+
+            .timeline-content {
+                margin-left: 10px;
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body class="wiki-layout">
+    <header class="wiki-topbar">
+        <div class="wiki-logo">
+            <a href="../index.html">蛙噻！好摊</a>
+        </div>
+        <div class="wiki-search">
+            <input type="text" placeholder="搜索百科..." id="searchInput">
+            <button onclick="searchHistory()">搜索</button>
+        </div>
+        <div class="wiki-user">
+            <span>欢迎访问</span>
+        </div>
+    </header>
+
+    <div class="wiki-container">
+        <aside class="wiki-sidebar">
+            <nav class="wiki-nav">
+                <div class="nav-section">
+                    <h3>百科分类</h3>
+                    <ul>
+                        <li><a href="../index.html">首页</a></li>
+                        <li><a href="game-intro.html">游戏介绍</a></li>
+                        <li><a href="world.html">世界观</a></li>
+                        <li><a href="factions.html">势力分布</a></li>
+                        <li><a href="history.html" class="active">历史年表</a></li>
+                        <li><a href="price-mechanism.html">价格机制</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>游戏特色</h3>
+                    <ul>
+                        <li><a href="bazaar.html">集市</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>游戏玩法</h3>
+                    <ul>
+                        <li><a href="market.html">摆摊系统</a></li>
+                        <li><a href="achievements.html">成就系统</a></li>
+                        <li><a href="combat.html">战斗系统</a></li>
+                        <li><a href="progression.html">成长系统</a></li>
+                        <li><a href="currency.html">货币系统</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>角色</h3>
+                    <ul>
+                        <li><a href="characters.html">角色总览</a></li>
+                        <li><a href="characters.html?type=playable">主要角色</a></li>
+                        <li><a href="characters.html?type=npc">NPC</a></li>
+                        <li><a href="enemies.html">敌人</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>物品装备</h3>
+                    <ul>
+                        <li><a href="items.html">物品总览</a></li>
+                        <li><a href="weapon.html">武器</a></li>
+                        <li><a href="armor.html">防具</a></li>
+                        <li><a href="accessory.html">饰品</a></li>
+                        <li><a href="treasure.html">法宝</a></li>
+                        <li><a href="consumable.html">消耗品</a></li>
+                        <li><a href="material.html">材料</a></li>
+                        <li><a href="collection.html">收藏品</a></li>
+                        <li><a href="crafting.html">生活技能</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>世界探索</h3>
+                    <ul>
+                        <li><a href="locations.html">地点总览</a></li>
+                        <li><a href="map.html">游戏地图</a></li>
+                        <li><a href="quests.html">任务剧情</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>关于</h3>
+                    <ul>
+                        <li><a href="dev-thoughts.html">开发者随想</a></li>
+                    </ul>
+                </div>
+            </nav>
+        </aside>
+
+        <main class="wiki-content">
+            <nav class="breadcrumb">
+                <a href="../index.html">首页</a> &gt; <a href="world.html">世界观</a> &gt; <span class="current">历史年表</span>
+            </nav>
+
+            <article class="wiki-article">
+                <h1 class="article-title">历史年表</h1>
+                
+                <div class="article-intro">
+                    <p>本文介绍《蛙噻！好摊》世界的历史发展脉络，从仙石降世到蛙仙出世的重要历史节点。</p>
+                </div>
+
+                <div class="wiki-toc">
+                    <h3>目录</h3>
+                    <ul>
+                        <li><a href="#ancient">上古时期</a></li>
+                        <li><a href="#great-sage">大圣时代</a></li>
+                        <li><a href="#commerce">商道兴起</a></li>
+                        <li><a href="#present">蛙仙出世</a></li>
+                    </ul>
+                </div>
+
+                <h2 id="timeline">时间线</h2>
+                <div class="timeline">
+                    <div class="timeline-item" id="ancient">
+                        <div class="timeline-year">上古时期</div>
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content">
+                            <h4>仙石降世</h4>
+                            <p>花果山顶仙石吸收天地精华，周围生灵开始开启灵智。这是整个世界的起源，仙石蕴含着无穷的灵气，影响着方圆百里的生灵。</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item" id="great-sage">
+                        <div class="timeline-year">大圣时代</div>
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content">
+                            <h4>美猴王出世</h4>
+                            <p>石猴出世，大闹天宫，后取经成佛，成为传说。大圣的故事激励着无数后来者，包括我们的主角小青蛙。</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item" id="commerce">
+                        <div class="timeline-year">百年前</div>
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content">
+                            <h4>商道兴起</h4>
+                            <p>四大部洲之间的贸易开始繁荣，商战者这个职业应运而生。各地商人穿梭于各部洲之间，带来了前所未有的商业繁荣。</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item" id="present">
+                        <div class="timeline-year">现在</div>
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content">
+                            <h4>蛙仙出世</h4>
+                            <p>仙石旁的灵蛙开启灵智，开始了它的取经摆摊之旅。这是一个新的传奇的开始...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="article-footer">
+                    <p>最后更新于：2026-03-20 | 编辑次数：1</p>
+                </div>
+            </article>
+        </main>
+    </div>
+
+    <footer class="wiki-footer">
+        <p>&copy; 2026 《蛙噻！好摊》游戏百科 | 本百科由玩家共同维护</p>
+    </footer>
+
+    <script src="../js/main.js"></script>
+    <script>
+        function searchHistory() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            if (!query) return;
+            const content = document.querySelector('.wiki-article');
+            const text = content.innerText.toLowerCase();
+            if (text.includes(query)) { 
+                alert('找到相关内容，请手动查找'); 
+            } else { 
+                alert('未找到相关内容'); 
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,1096 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>成就系统 - 蛙噻！好摊</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        .achievement-overview {
+            background: linear-gradient(135deg, #fef9e7 0%, #fcf3cf 100%);
+            border: 1px solid #a2a9b1;
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+
+        .tier-legend {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin: 16px 0;
+            padding: 12px;
+            background: #f8f9fa;
+            border: 1px solid #a2a9b1;
+        }
+
+        .tier-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tier-badge {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .tier-badge.bronze { background: #cd7f32; color: #fff; }
+        .tier-badge.silver { background: #c0c0c0; color: #333; }
+        .tier-badge.gold { background: #ffd700; color: #333; }
+        .tier-badge.legendary { background: linear-gradient(135deg, #ff6b6b, #feca57); color: #fff; }
+
+        .achievement-category {
+            margin: 24px 0;
+            padding: 20px;
+            background: #fff;
+            border: 1px solid #a2a9b1;
+        }
+
+        .achievement-category h3 {
+            margin-top: 0;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #a2a9b1;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .category-icon {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f0f0f0;
+            border: 1px solid #a2a9b1;
+        }
+
+        .achievement-list {
+            display: grid;
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .achievement-item {
+            display: flex;
+            gap: 16px;
+            padding: 16px;
+            background: #f8f9fa;
+            border: 1px solid #e0e0e0;
+            transition: all 0.2s;
+        }
+
+        .achievement-item:hover {
+            border-color: #3366cc;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .achievement-icon {
+            width: 48px;
+            height: 48px;
+            background: #fff;
+            border: 2px solid #a2a9b1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+
+        .achievement-content {
+            flex: 1;
+        }
+
+        .achievement-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 8px;
+        }
+
+        .achievement-name {
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .achievement-tier {
+            padding: 2px 8px;
+            font-size: 11px;
+            font-weight: bold;
+            border-radius: 3px;
+        }
+
+        .achievement-tier.bronze { background: #cd7f32; color: #fff; }
+        .achievement-tier.silver { background: #c0c0c0; color: #333; }
+        .achievement-tier.gold { background: #ffd700; color: #333; }
+        .achievement-tier.legendary { background: linear-gradient(135deg, #ff6b6b, #feca57); color: #fff; }
+
+        .achievement-desc {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .achievement-reward {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .reward-tag {
+            padding: 2px 8px;
+            background: #e8f5e9;
+            border: 1px solid #4caf50;
+            font-size: 12px;
+            color: #2e7d32;
+        }
+
+        .reward-tag.title { background: #e3f2fd; border-color: #2196f3; color: #1565c0; }
+        .reward-tag.item { background: #fff3e0; border-color: #ff9800; color: #e65100; }
+        .reward-tag.stat { background: #f3e5f5; border-color: #9c27b0; color: #6a1b9a; }
+
+        .reward-section {
+            margin: 24px 0;
+            padding: 20px;
+            background: #fff;
+            border: 1px solid #a2a9b1;
+        }
+
+        .reward-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 16px 0;
+        }
+
+        .reward-table th,
+        .reward-table td {
+            border: 1px solid #a2a9b1;
+            padding: 12px;
+            text-align: left;
+        }
+
+        .reward-table th {
+            background: #f0f0f0;
+        }
+
+        .showcase-section {
+            margin: 24px 0;
+            padding: 20px;
+            background: #fff;
+            border: 1px solid #a2a9b1;
+        }
+
+        .achievement-wall {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            gap: 12px;
+            padding: 20px;
+            background: #f8f9fa;
+            border: 1px solid #e0e0e0;
+            margin: 16px 0;
+        }
+
+        .wall-slot {
+            aspect-ratio: 1;
+            background: #fff;
+            border: 2px dashed #ccc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+        }
+
+        .wall-slot.earned {
+            border-style: solid;
+            border-color: #ffd700;
+            background: linear-gradient(135deg, #fff9c4, #fff59d);
+        }
+
+        .progress-overview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin: 16px 0;
+        }
+
+        .progress-card {
+            padding: 16px;
+            background: #f8f9fa;
+            border: 1px solid #a2a9b1;
+            text-align: center;
+        }
+
+        .progress-number {
+            font-size: 32px;
+            font-weight: bold;
+            color: #3366cc;
+        }
+
+        .progress-label {
+            font-size: 14px;
+            color: #666;
+            margin-top: 4px;
+        }
+    </style>
+</head>
+<body class="wiki-layout">
+    <header class="wiki-topbar">
+        <div class="wiki-logo">
+            <a href="../index.html">蛙噻！好摊</a>
+        </div>
+        <div class="wiki-search">
+            <input type="text" placeholder="搜索百科..." id="searchInput">
+            <button onclick="search()">搜索</button>
+        </div>
+        <div class="wiki-user">
+            <span>欢迎访问</span>
+        </div>
+    </header>
+
+    <div class="wiki-container">
+        <aside class="wiki-sidebar">
+            <nav class="wiki-nav">
+                <div class="nav-section">
+                    <h3>百科分类</h3>
+                    <ul>
+                        <li><a href="../index.html">首页</a></li>
+                        <li><a href="game-intro.html">游戏介绍</a></li>
+                        <li><a href="world.html">世界观</a></li>
+                        <li><a href="factions.html">势力分布</a></li>
+                        <li><a href="history.html">历史年表</a></li>
+                        <li><a href="price-mechanism.html">价格机制</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>游戏特色</h3>
+                    <ul>
+                        <li><a href="bazaar.html">集市</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>游戏玩法</h3>
+                    <ul>
+                        <li><a href="market.html">摆摊系统</a></li>
+                        <li><a href="achievements.html" class="active">成就系统</a></li>
+                        <li><a href="combat.html">战斗系统</a></li>
+                        <li><a href="progression.html">成长系统</a></li>
+                        <li><a href="currency.html">货币系统</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>角色</h3>
+                    <ul>
+                        <li><a href="characters.html">角色总览</a></li>
+                        <li><a href="characters.html?type=playable">主要角色</a></li>
+                        <li><a href="characters.html?type=npc">NPC</a></li>
+                        <li><a href="enemies.html">敌人</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>物品装备</h3>
+                    <ul>
+                        <li><a href="items.html">物品总览</a></li>
+                        <li><a href="weapon.html">武器</a></li>
+                        <li><a href="armor.html">防具</a></li>
+                        <li><a href="accessory.html">饰品</a></li>
+                        <li><a href="treasure.html">法宝</a></li>
+                        <li><a href="consumable.html">消耗品</a></li>
+                        <li><a href="material.html">材料</a></li>
+                        <li><a href="collection.html">收藏品</a></li>
+                        <li><a href="crafting.html">生活技能</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>世界探索</h3>
+                    <ul>
+                        <li><a href="locations.html">地点总览</a></li>
+                        <li><a href="map.html">游戏地图</a></li>
+                        <li><a href="quests.html">任务剧情</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>关于</h3>
+                    <ul>
+                        <li><a href="dev-thoughts.html">开发者随想</a></li>
+                    </ul>
+                </div>
+            </nav>
+        </aside>
+
+        <main class="wiki-content">
+            <nav class="breadcrumb">
+                <a href="../index.html">首页</a> &gt; <span class="current">成就系统</span>
+            </nav>
+
+            <article class="wiki-article">
+                <h1 class="article-title">成就系统</h1>
+                
+                <div class="article-intro">
+                    <p>成就系统记录了你在《蛙噻！好摊》世界中的各种<strong>辉煌时刻</strong>。无论是探索未知的地图、击败强大的敌人、完成惊人的交易，还是推动剧情的发展，每一个成就都是你传奇旅程的见证。完成成就可以获得独特的<strong>称号</strong>、珍贵的<strong>道具</strong>以及永久的<strong>属性加成</strong>。</p>
+                </div>
+
+                <div class="wiki-toc">
+                    <h3>目录</h3>
+                    <ul>
+                        <li><a href="#overview">系统概述</a></li>
+                        <li><a href="#tiers">成就等级</a></li>
+                        <li><a href="#exploration">探索成就</a></li>
+                        <li><a href="#combat">战斗成就</a></li>
+                        <li><a href="#business">商业成就</a></li>
+                        <li><a href="#growth">成长成就</a></li>
+                        <li><a href="#story">剧情成就</a></li>
+                        <li><a href="#rewards">成就奖励</a></li>
+                        <li><a href="#showcase">成就展示</a></li>
+                    </ul>
+                </div>
+
+                <div class="achievement-overview" id="overview">
+                    <h2>系统概述</h2>
+                    <p>成就系统包含五大类别，共计超过<strong>100个</strong>成就等待你去解锁：</p>
+                    <div class="progress-overview">
+                        <div class="progress-card">
+                            <div class="progress-number">100+</div>
+                            <div class="progress-label">总成就数</div>
+                        </div>
+                        <div class="progress-card">
+                            <div class="progress-number">5</div>
+                            <div class="progress-label">成就类别</div>
+                        </div>
+                        <div class="progress-card">
+                            <div class="progress-number">4</div>
+                            <div class="progress-label">成就等级</div>
+                        </div>
+                        <div class="progress-card">
+                            <div class="progress-number">∞</div>
+                            <div class="progress-label">奖励种类</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="achievement-category" id="tiers">
+                    <h3>成就等级</h3>
+                    <p>每个成就都有对应的等级，代表其难度和奖励的丰厚程度：</p>
+                    
+                    <div class="tier-legend">
+                        <div class="tier-item">
+                            <div class="tier-badge bronze">铜</div>
+                            <span>铜级 - 基础成就，容易完成</span>
+                        </div>
+                        <div class="tier-item">
+                            <div class="tier-badge silver">银</div>
+                            <span>银级 - 进阶成就，需要一定努力</span>
+                        </div>
+                        <div class="tier-item">
+                            <div class="tier-badge gold">金</div>
+                            <span>金级 - 困难成就，挑战性强</span>
+                        </div>
+                        <div class="tier-item">
+                            <div class="tier-badge legendary">传</div>
+                            <span>传说 - 极限成就，只有极少数玩家能完成</span>
+                        </div>
+                    </div>
+
+                    <table class="wiki-table">
+                        <thead>
+                            <tr>
+                                <th>等级</th>
+                                <th>完成难度</th>
+                                <th>典型奖励</th>
+                                <th>数量占比</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><span class="achievement-tier bronze">铜级</span></td>
+                                <td>简单</td>
+                                <td>小额金币、普通道具</td>
+                                <td>40%</td>
+                            </tr>
+                            <tr>
+                                <td><span class="achievement-tier silver">银级</span></td>
+                                <td>中等</td>
+                                <td>称号、稀有材料</td>
+                                <td>35%</td>
+                            </tr>
+                            <tr>
+                                <td><span class="achievement-tier gold">金级</span></td>
+                                <td>困难</td>
+                                <td>稀有装备、属性加成</td>
+                                <td>20%</td>
+                            </tr>
+                            <tr>
+                                <td><span class="achievement-tier legendary">传说</span></td>
+                                <td>极难</td>
+                                <td>传说装备、独特称号</td>
+                                <td>5%</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="achievement-category" id="exploration">
+                    <h3><span class="category-icon">🗺️</span>探索成就</h3>
+                    <p>探索成就是奖励你发现游戏世界各个角落的成就。从花果山到大雷音寺，每个地点都可能隐藏着独特的探索成就。</p>
+                    
+                    <div class="achievement-list">
+                        <div class="achievement-item">
+                            <div class="achievement-icon">🏔️</div>
+                            <div class="achievement-content">
+                                <div class="achievement-header">
+                                    <span class="achievement-name">初入江湖</span>
+                                    <span class="achievement-tier bronze">铜级</span>
+                                </div>
+                                <div class="achievement-desc">首次离开花果山，踏上取经之路</div>
+                                <div class="achievement-reward">
+                                    <span class="reward-tag">100金币</span>
+                                    <span class="reward-tag title">行者</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="achievement-item">
+                            <div class="achievement-icon">🏙️</div>
+                            <div class="achievement-content">
+                                <div class="achievement-header">
+                                    <span class="achievement-name">长安访客</span>
+                                    <span class="achievement-tier bronze">铜级</span>
+                                </div>
+                                <div class="achievement-desc">首次抵达大唐国都长安城</div>
+                                <div class="achievement-reward">
+                                    <span class="reward-tag">200金币</span>
+                                    <span class="reward-tag item">长安地图</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="achievement-item">
+                            <div class="achievement-icon">🌋</div>
+                            <div class="achievement-content">
+                                <div class="achievement-header">
+                                    <span class="achievement-name">火焰山征服者</span>
+                                    <span class="achievement-tier silver">银级</span>
+                                </div>
+                                <div class="achievement-desc">成功穿越八百里火焰山</div>
+                                <div class="achievement-reward">
+                                    <span class="reward-tag">1000金币</span>
+                                    <span class="reward-tag title">耐热之人</span>
+                                    <span class="reward-tag stat">火抗+5</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="achievement-item">
+                            <div class="achievement-icon">🗺️</div>
+                            <div class="achievement-content">
+                                <div class="achievement-header">
+                                    <span class="achievement-name">地理学家</span>
+                                    <span class="achievement-tier gold">金级</span>
+                                </div>
+                                <div class="achievement-desc">访问游戏中所有主要地点</div>
+                                <div class="achievement-reward">
+                                    <span class="reward-tag">5000金币</span>
+                                    <span class="reward-tag title">行者无疆</span>
+                                    <span class="reward-tag item">世界地图</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="achievement-item">
+                            <div class="achievement-icon">👁️</div>
+                            <div class="achievement-content">
+                                <div class="achievement-header">
+                                    <span class="achievement-name">洞察一切</span>
+                                    <span class="achievement-tier legendary">传说</span>
+                                </div>
+                                <div class="achievement-desc">发现所有隐藏地点和秘密区域</div>
+                                <div class="achievement-reward">
+                                    <span class="reward-tag">20000金币</span>
+                                    <span class="reward-tag title">洞察者</span>
+                                    <span class="reward-tag item">真视之眼</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="achievement-category" id="combat">
+                    <h3><span class="category-icon">⚔️</span>战斗成就</h3>
+                    <p>战斗成就奖励你在战斗中的英勇表现。从击败第一个小妖到战胜强大的BOSS，每一次胜利都值得纪念。</p>
+                    
+                    <div class="achievement-list">
+                        <div class="achievement-item">
+                            <div class="achievement-icon">🗡️</div>
+                            <div class="achievement-content">
+                                <div class="achievement-header">
+                                    <span class="achievement-name">初战告捷</span>
+                                    <span class="achievement-tier bronze">铜级</span>
+                                </div>
+                                <div class="achievement-desc">赢得第一场战斗</div>
+                                <div class="achievement-reward">
+                                    <span class="reward-tag">50金币</span>
+                                    <span class="reward-tag item">新手护符</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="achievement-item">
+                            <div class="achievement-icon">💀</div>
+                            <div class="achievement-content">
+                                <div class="achievement-header">
+                                    <span class="achievement-name">除妖师</span>
+                                    <span class="achievement-tier silver">银级</span>
+                                </div>
+                                <div class="achievement-desc">累计击败100只妖怪</div>
+                                <div class="achievement-reward">
+                                    <span class="reward-tag">500金币</span>
+                                    <span class="reward-tag title">除妖师</span>
+                                    <span class="reward-tag stat">攻击+3</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="achievement-item">
+                            <div class="achievement-icon">👹</div>
+                            <div class="achievement-content">
+                                <div class="achievement-header">
+                                    <span class="achievement-name">BOSS克星</span>
+                                    <span class="achievement-tier gold">金级</span>
+                                </div>
+                                <div class="achievement-desc">击败所有主线BOSS</div>
+                                <div class="achievement-reward">
+                                    <span class="reward-tag">3000金币</span>
+                                    <span class="reward-tag title">降魔者</span>
+                                    <span class="reward-tag item">BOSS图鉴</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="achievement-item">
+                            <div class="achievement-icon">⚡</div>
+                            <div class="achievement-content">
+                                <div class="achievement-header">
+                                    <span class="achievement-name">无伤通关</span>
+                                    <span class="achievement-tier gold">金级</span>
+                                </div>
+                                <div class="achievement-desc">在不受伤的情况下击败一个BOSS</div>
+                                <div class="achievement-reward">
+                                    <span class="reward-tag">5000金币</span>
+                                    <span class="reward-tag title">完美战士</span>
+                                    <span class="reward-tag stat">暴击+5%</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="achievement-item">
+                            <div class="achievement-icon">🏆</div>
+                            <div class="achievement-content">
+                                <div class="achievement-header">
+                                    <span class="achievement-name">战神</span>
+                                    <span class="achievement-tier legendary">传说</span>
+                                </div>
+                                <div class="achievement-desc">击败所有精英怪和隐藏BOSS</div>
+                                <div class="achievement-reward">
+                                    <span class="reward-tag">30000金币</span>
+                                    <span class="reward-tag title">战神</span>
+                                    <span class="reward-tag item">战神之证</span>
+                                    <span class="reward-tag stat">全属性+10</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="achievement-category" id="business">
+                    <h3><span class="category-icon">💰</span>商业成就</h3>
+                    <p>商业成就奖励你在经商道路上的成功。从小本经营到富可敌国，每一个商业里程碑都值得庆祝。商业成就与摊位装饰的称号系统紧密关联，解锁装饰称号的同时也能完成相应的商业成就。</p>
+
+                    <div class="achievement-list">
+                        <div class="achievement-item">
+                            <div class="achievement-icon">💵</div>
+                            <div class="achievement-content">
+                                <div class="achievement-header">
+                                    <span class="achievement-name">第一桶金</span>
+                                    <span class="achievement-tier bronze">铜级</span>
+                                </div>
+                                <div class="achievement-desc">累计赚取1000金币</div>
+                                <div class="achievement-reward">
+                                    <span class="reward-tag">100金币</span>
+                                    <span class="reward-tag">500草创凭证</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="achievement-item">
+                            <div class="achievement-icon">📈</div>
+                            <div class="achievement-content">
+                                <div class="achievement-header">
+                                    <span class="achievement-name">低买高卖</span>
+                                    <span class="achievement-tier bronze">铜级</span>
+                                </div>
+                                <div class="achievement-desc">单笔交易利润超过100%</div>
+                                <div class="achievement-reward">
+                                    <span class="reward-tag">200金币</span>
+                                    <span class="reward-tag item">算盘</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="achievement-item">
+                            <div class="achievement-icon">🏪</div>
+                            <div class="achievement-content">
+                                <div class="achievement-header">
+                                    <span class="achievement-name">草创起步</span>
+                                    <span class="achievement-tier bronze">铜级</span>
+                                </div>
+                                <div class="achievement-desc">获得"小商贩"称号，解锁草创期装饰</div>
+                                <div class="achievement-reward">
+                                    <span class="reward-tag">300金币</span>
+                                    <span class="reward-tag">装饰折扣券x3</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="achievement-item">
+                            <div class="achievement-icon">🚶</div>
+                            <div class="achievement-content">
+                                <div class="achievement-header">
+                                    <span class="achievement-name">行商天下</span>
+                                    <span class="achievement-tier silver">银级</span>
+                                </div>
+                                <div class="achievement-desc">获得"行商"称号，解锁立业期装饰</div>
+                                <div class="achievement-reward">
+                                    <span class="reward-tag">800金币</span>
+                                    <span class="reward-tag">装饰折扣券x5</span>
+                                    <span class="reward-tag stat">移动速度+5%</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="achievement-item">
+                            <div class="achievement-icon">🏪</div>
+                            <div class="achievement-content">
+                                <div class="achievement-header">
+                                    <span class="achievement-name">装饰收藏家</span>
+                                    <span class="achievement-tier silver">银级</span>
+                                </div>
+                                <div class="achievement-desc">购买10个摊位装饰</div>
+                                <div class="achievement-reward">
+                                    <span class="reward-tag">1500金币</span>
+                                    <span class="reward-tag">装饰折扣券x10</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="achievement-item">
+                            <div class="achievement-icon">📊</div>
+                            <div class="achievement-content">
+                                <div class="achievement-header">
+                                    <span class="achievement-name">交易达人</span>
+                                    <span class="achievement-tier silver">银级</span>
+                                </div>
+                                <div class="achievement-desc">累计完成1000笔交易</div>
+                                <div class="achievement-reward">
+                                    <span class="reward-tag">2000金币</span>
+                                    <span class="reward-tag title">交易专家</span>
+                                    <span class="reward-tag stat">成交率+2%</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="achievement-item">
+                            <div class="achievement-icon">💎</div>
+                            <div class="achievement-content">
+                                <div class="achievement-header">
+                                    <span class="achievement-name">富甲一方</span>
+                                    <span class="achievement-tier gold">金级</span>
+                                </div>
+                                <div class="achievement-desc">获得"富商"称号，解锁兴业期装饰</div>
+                                <div class="achievement-reward">
+                                    <span class="reward-tag">3000金币</span>
+                                    <span class="reward-tag">装饰折扣券x10</span>
+                                    <span class="reward-tag stat">离线收益+5%</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="achievement-item">
+                            <div class="achievement-icon">🏆</div>
+                            <div class="achievement-content">
+                                <div class="achievement-header">
+                                    <span class="achievement-name">巨贾名流</span>
+                                    <span class="achievement-tier gold">金级</span>
+                                </div>
+                                <div class="achievement-desc">获得"巨贾"称号，解锁旺业期装饰</div>
+                                <div class="achievement-reward">
+                                    <span class="reward-tag">5000金币</span>
+                                    <span class="reward-tag">装饰折扣券x15</span>
+                                    <span class="reward-tag stat">税费减免+2%</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="achievement-item">
+                            <div class="achievement-icon">🎨</div>
+                            <div class="achievement-content">
+                                <div class="achievement-header">
+                                    <span class="achievement-name">装饰大师</span>
+                                    <span class="achievement-tier gold">金级</span>
+                                </div>
+                                <div class="achievement-desc">购买20个摊位装饰</div>
+                                <div class="achievement-reward">
+                                    <span class="reward-tag">6000金币</span>
+                                    <span class="reward-tag">装饰折扣券x20</span>
+                                    <span class="reward-tag stat">装饰效果+10%</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="achievement-item">
+                            <div class="achievement-icon">🗺️</div>
+                            <div class="achievement-content">
+                                <div class="achievement-header">
+                                    <span class="achievement-name">跨区域贸易</span>
+                                    <span class="achievement-tier gold">金级</span>
+                                </div>
+                                <div class="achievement-desc">在5个不同城镇完成交易</div>
+                                <div class="achievement-reward">
+                                    <span class="reward-tag">4000金币</span>
+                                    <span class="reward-tag title">贸易商</span>
+                                    <span class="reward-tag stat">跨区域交易收益+10%</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="achievement-item">
+                            <div class="achievement-icon">🌙</div>
+                            <div class="achievement-content">
+                                <div class="achievement-header">
+                                    <span class="achievement-name">夜猫子</span>
+                                    <span class="achievement-tier gold">金级</span>
+                                </div>
+                                <div class="achievement-desc">夜间交易收益累计达到10000金币</div>
+                                <div class="achievement-reward">
+                                    <span class="reward-tag">3500金币</span>
+                                    <span class="reward-tag stat">夜间成交率+5%</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="achievement-item">
+                            <div class="achievement-icon">👑</div>
+                            <div class="achievement-content">
+                                <div class="achievement-header">
+                                    <span class="achievement-name">商业大亨</span>
+                                    <span class="achievement-tier legendary">传说</span>
+                                </div>
+                                <div class="achievement-desc">获得"商业大亨"称号，解锁鸿业期装饰</div>
+                                <div class="achievement-reward">
+                                    <span class="reward-tag">15000金币</span>
+                                    <span class="reward-tag">装饰折扣券x30</span>
+                                    <span class="reward-tag stat">成交率+5%</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="achievement-item">
+                            <div class="achievement-icon">💰</div>
+                            <div class="achievement-content">
+                                <div class="achievement-header">
+                                    <span class="achievement-name">大富翁</span>
+                                    <span class="achievement-tier legendary">传说</span>
+                                </div>
+                                <div class="achievement-desc">获得"大富翁"称号，解锁传世期装饰</div>
+                                <div class="achievement-reward">
+                                    <span class="reward-tag">50000金币</span>
+                                    <span class="reward-tag title">商业传奇</span>
+                                    <span class="reward-tag stat">全商业属性+10%</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="achievement-item">
+                            <div class="achievement-icon">🏛️</div>
+                            <div class="achievement-content">
+                                <div class="achievement-header">
+                                    <span class="achievement-name">装饰传奇</span>
+                                    <span class="achievement-tier legendary">传说</span>
+                                </div>
+                                <div class="achievement-desc">购买全部36个摊位装饰</div>
+                                <div class="achievement-reward">
+                                    <span class="reward-tag">30000金币</span>
+                                    <span class="reward-tag title">装饰之王</span>
+                                    <span class="reward-tag item">至尊装饰盒</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="achievement-item">
+                            <div class="achievement-icon">📜</div>
+                            <div class="achievement-content">
+                                <div class="achievement-header">
+                                    <span class="achievement-name">凭证收集者</span>
+                                    <span class="achievement-tier legendary">传说</span>
+                                </div>
+                                <div class="achievement-desc">累计获得10000个商人凭证</div>
+                                <div class="achievement-reward">
+                                    <span class="reward-tag">20000金币</span>
+                                    <span class="reward-tag title">凭证大师</span>
+                                    <span class="reward-tag stat">凭证获取+20%</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="achievement-item">
+                            <div class="achievement-icon">💸</div>
+                            <div class="achievement-content">
+                                <div class="achievement-header">
+                                    <span class="achievement-name">税费减免专家</span>
+                                    <span class="achievement-tier gold">金级</span>
+                                </div>
+                                <div class="achievement-desc">通过装饰和称号累计减免税费1000金币</div>
+                                <div class="achievement-reward">
+                                    <span class="reward-tag">5000金币</span>
+                                    <span class="reward-tag stat">税费减免+3%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="achievement-category" id="growth">
+                    <h3><span class="category-icon">📊</span>成长成就</h3>
+                    <p>成长成就记录了你的角色从一只普通的小青蛙成长为一代传奇的全过程。</p>
+                    
+                    <div class="achievement-list">
+                        <div class="achievement-item">
+                            <div class="achievement-icon">📈</div>
+                            <div class="achievement-content">
+                                <div class="achievement-header">
+                                    <span class="achievement-name">初露锋芒</span>
+                                    <span class="achievement-tier bronze">铜级</span>
+                                </div>
+                                <div class="achievement-desc">角色等级达到10级</div>
+                                <div class="achievement-reward">
+                                    <span class="reward-tag">100金币</span>
+                                    <span class="reward-tag item">经验药水</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="achievement-item">
+                            <div class="achievement-icon">⭐</div>
+                            <div class="achievement-content">
+                                <div class="achievement-header">
+                                    <span class="achievement-name">技能大师</span>
+                                    <span class="achievement-tier silver">银级</span>
+                                </div>
+                                <div class="achievement-desc">学会10种不同的技能</div>
+                                <div class="achievement-reward">
+                                    <span class="reward-tag">800金币</span>
+                                    <span class="reward-tag title">学徒</span>
+                                    <span class="reward-tag item">技能书</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="achievement-item">
+                            <div class="achievement-icon">🎯</div>
+                            <div class="achievement-content">
+                                <div class="achievement-header">
+                                    <span class="achievement-name">登峰造极</span>
+                                    <span class="achievement-tier gold">金级</span>
+                                </div>
+                                <div class="achievement-desc">角色等级达到满级（100级）</div>
+                                <div class="achievement-reward">
+                                    <span class="reward-tag">5000金币</span>
+                                    <span class="reward-tag title">一代宗师</span>
+                                    <span class="reward-tag stat">经验获取+10%</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="achievement-item">
+                            <div class="achievement-icon">🌟</div>
+                            <div class="achievement-content">
+                                <div class="achievement-header">
+                                    <span class="achievement-name">全能战士</span>
+                                    <span class="achievement-tier gold">金级</span>
+                                </div>
+                                <div class="achievement-desc">所有属性达到最大值</div>
+                                <div class="achievement-reward">
+                                    <span class="reward-tag">8000金币</span>
+                                    <span class="reward-tag title">完美存在</span>
+                                    <span class="reward-tag item">属性重置石</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="achievement-item">
+                            <div class="achievement-icon">✨</div>
+                            <div class="achievement-content">
+                                <div class="achievement-header">
+                                    <span class="achievement-name">传奇之路</span>
+                                    <span class="achievement-tier legendary">传说</span>
+                                </div>
+                                <div class="achievement-desc">解锁所有技能和天赋</div>
+                                <div class="achievement-reward">
+                                    <span class="reward-tag">50000金币</span>
+                                    <span class="reward-tag title">传奇</span>
+                                    <span class="reward-tag item">传奇徽章</span>
+                                    <span class="reward-tag stat">全属性+20</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="achievement-category" id="story">
+                    <h3><span class="category-icon">📖</span>剧情成就</h3>
+                    <p>剧情成就奖励你推进游戏主线和支线任务的进度。每一个重要的剧情节点都有对应的成就。</p>
+                    
+                    <div class="achievement-list">
+                        <div class="achievement-item">
+                            <div class="achievement-icon">🐸</div>
+                            <div class="achievement-content">
+                                <div class="achievement-header">
+                                    <span class="achievement-name">启程</span>
+                                    <span class="achievement-tier bronze">铜级</span>
+                                </div>
+                                <div class="achievement-desc">完成新手教程，正式踏上取经之路</div>
+                                <div class="achievement-reward">
+                                    <span class="reward-tag">100金币</span>
+                                    <span class="reward-tag item">新手礼包</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="achievement-item">
+                            <div class="achievement-icon">🐵</div>
+                            <div class="achievement-content">
+                                <div class="achievement-header">
+                                    <span class="achievement-name">猴王传说</span>
+                                    <span class="achievement-tier silver">银级</span>
+                                </div>
+                                <div class="achievement-desc">完成花果山相关剧情</div>
+                                <div class="achievement-reward">
+                                    <span class="reward-tag">500金币</span>
+                                    <span class="reward-tag title">猴王传人</span>
+                                    <span class="reward-tag item">金箍棒模型</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="achievement-item">
+                            <div class="achievement-icon">🐷</div>
+                            <div class="achievement-content">
+                                <div class="achievement-header">
+                                    <span class="achievement-name">高老庄的访客</span>
+                                    <span class="achievement-tier silver">银级</span>
+                                </div>
+                                <div class="achievement-desc">完成高老庄剧情，结识猪八戒</div>
+                                <div class="achievement-reward">
+                                    <span class="reward-tag">600金币</span>
+                                    <span class="reward-tag title">高老庄之友</span>
+                                    <span class="reward-tag item">九齿钉耙模型</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="achievement-item">
+                            <div class="achievement-icon">📜</div>
+                            <div class="achievement-content">
+                                <div class="achievement-header">
+                                    <span class="achievement-name">取经人</span>
+                                    <span class="achievement-tier gold">金级</span>
+                                </div>
+                                <div class="achievement-desc">完成所有主线任务</div>
+                                <div class="achievement-reward">
+                                    <span class="reward-tag">10000金币</span>
+                                    <span class="reward-tag title">取经人</span>
+                                    <span class="reward-tag item">真经残卷</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="achievement-item">
+                            <div class="achievement-icon">🎭</div>
+                            <div class="achievement-content">
+                                <div class="achievement-header">
+                                    <span class="achievement-name">故事收藏家</span>
+                                    <span class="achievement-tier legendary">传说</span>
+                                </div>
+                                <div class="achievement-desc">完成所有主线和支线任务</div>
+                                <div class="achievement-reward">
+                                    <span class="reward-tag">50000金币</span>
+                                    <span class="reward-tag title">故事大师</span>
+                                    <span class="reward-tag item">完整真经</span>
+                                    <span class="reward-tag stat">魅力+50</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="reward-section" id="rewards">
+                    <h3>成就奖励</h3>
+                    <p>完成成就可以获得多种类型的奖励：</p>
+                    
+                    <table class="reward-table">
+                        <thead>
+                            <tr>
+                                <th>奖励类型</th>
+                                <th>说明</th>
+                                <th>获取方式</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><span class="reward-tag">金币</span></td>
+                                <td>游戏内货币，用于购买物品和升级</td>
+                                <td>几乎所有成就</td>
+                            </tr>
+                            <tr>
+                                <td><span class="reward-tag title">称号</span></td>
+                                <td>显示在角色名前的特殊标识</td>
+                                <td>中高级成就</td>
+                            </tr>
+                            <tr>
+                                <td><span class="reward-tag item">道具</span></td>
+                                <td>装备、材料、消耗品等</td>
+                                <td>特定成就</td>
+                            </tr>
+                            <tr>
+                                <td><span class="reward-tag stat">属性加成</span></td>
+                                <td>永久的属性提升</td>
+                                <td>高级和传说成就</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="info-box">
+                        <h4>称号系统</h4>
+                        <p>称号不仅是荣誉的象征，部分称号还会提供属性加成。你可以随时在角色界面切换已解锁的称号。一些特殊称号还有独特的外观效果。</p>
+                    </div>
+                </div>
+
+                <div class="showcase-section" id="showcase">
+                    <h3>成就展示</h3>
+                    <p>你的成就会以以下方式展示：</p>
+                    
+                    <h4>成就墙</h4>
+                    <p>在角色界面可以查看你的成就墙，每个已解锁的成就都会显示在这里：</p>
+                    <div class="achievement-wall">
+                        <div class="wall-slot earned">🏔️</div>
+                        <div class="wall-slot earned">🏙️</div>
+                        <div class="wall-slot earned">🗡️</div>
+                        <div class="wall-slot earned">💵</div>
+                        <div class="wall-slot earned">📈</div>
+                        <div class="wall-slot">?</div>
+                        <div class="wall-slot">?</div>
+                        <div class="wall-slot">?</div>
+                        <div class="wall-slot">?</div>
+                        <div class="wall-slot">?</div>
+                    </div>
+
+                    <h4>完成度统计</h4>
+                    <p>游戏会统计你的成就完成度：</p>
+                    <ul>
+                        <li><strong>总完成度</strong>：已解锁成就数 / 总成就数</li>
+                        <li><strong>分类完成度</strong>：每个类别的单独完成度</li>
+                        <li><strong>等级分布</strong>：各等级成就的解锁数量</li>
+                        <li><strong>最近获得</strong>：最近解锁的成就列表</li>
+                    </ul>
+
+                    <h4>分享功能</h4>
+                    <p>你可以将自己的成就分享到社交平台，与其他玩家比拼成就进度。某些特殊成就还会解锁独特的分享边框和特效。</p>
+                </div>
+
+                <div class="article-footer">
+                    <p>最后更新于：2026-03-20 | 编辑次数：1</p>
+                </div>
+            </article>
+        </main>
+    </div>
+
+    <footer class="wiki-footer">
+        <p>&copy; 2026 《蛙噻！好摊》游戏百科 | 本百科由玩家共同维护</p>
+    </footer>
+
+    <script src="../js/main.js"></script>
+</body>
+</html>

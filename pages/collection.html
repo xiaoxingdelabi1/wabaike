@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>收藏品 - 蛙噻！好摊</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        /* 物品卡片样式 */
+        .item-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+            margin: 16px 0;
+        }
+        .item-card {
+            background: var(--wiki-box-bg);
+            border: 1px solid var(--wiki-border);
+            padding: 12px;
+        }
+        .item-card h4 {
+            margin: 0 0 8px 0;
+            color: var(--wiki-text);
+            font-size: 15px;
+        }
+        .item-card .meta {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+        .item-card .description {
+            font-size: 13px;
+            color: var(--wiki-text-secondary);
+            margin: 0 0 8px 0;
+        }
+        .item-card .effect-box {
+            background: var(--wiki-content-bg);
+            padding: 8px;
+            font-size: 12px;
+            border-left: 3px solid var(--wiki-link);
+        }
+
+        /* 类型标签 */
+        .type-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            font-size: 11px;
+            border-radius: 2px;
+        }
+        .type-badge.collection {
+            background: #fce4ec;
+            color: #c2185b;
+        }
+
+        /* 稀有度标签 */
+        .rarity-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            font-size: 11px;
+            border-radius: 2px;
+        }
+        .rarity-badge.common {
+            background: #f5f5f5;
+            color: #616161;
+        }
+        .rarity-badge.uncommon {
+            background: #e8f5e9;
+            color: #388e3c;
+        }
+        .rarity-badge.rare {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+        .rarity-badge.epic {
+            background: #f3e5f5;
+            color: #7b1fa2;
+        }
+        .rarity-badge.legendary {
+            background: #fff8e1;
+            color: #f57f17;
+        }
+
+        /* 信息框 - Wiki风格 */
+        .info-box {
+            background: var(--wiki-box-bg);
+            border: 1px solid var(--wiki-border);
+            border-left: 4px solid var(--wiki-link);
+            padding: 12px;
+            margin: 12px 0;
+        }
+        .tip-box {
+            background: #e3f2fd;
+            border: 1px solid #90caf9;
+            border-left: 4px solid #2196f3;
+            padding: 12px;
+            margin: 12px 0;
+        }
+
+        /* 筛选标签 */
+        .filter-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 16px 0;
+        }
+        .filter-tabs .tab-btn {
+            padding: 6px 12px;
+            background: var(--wiki-box-bg);
+            border: 1px solid var(--wiki-border);
+            cursor: pointer;
+            font-size: 13px;
+            margin-right: 0;
+        }
+        .filter-tabs .tab-btn:hover {
+            background: var(--wiki-header-bg);
+        }
+        .filter-tabs .tab-btn.active {
+            background: var(--wiki-content-bg);
+            font-weight: bold;
+            color: var(--wiki-text);
+        }
+    </style>
+</head>
+<body class="wiki-layout">
+    <header class="wiki-topbar">
+        <div class="wiki-logo">
+            <a href="../index.html">蛙噻！好摊</a>
+        </div>
+        <div class="wiki-search">
+            <input type="text" placeholder="搜索百科..." id="searchInput">
+            <button onclick="search()">搜索</button>
+        </div>
+        <div class="wiki-user">
+            <span>欢迎访问</span>
+        </div>
+    </header>
+
+    <div class="wiki-container">
+        <aside class="wiki-sidebar">
+            <nav class="wiki-nav">
+                <div class="nav-section">
+                    <h3>百科分类</h3>
+                    <ul>
+                        <li><a href="../index.html">首页</a></li>
+                        <li><a href="game-intro.html">游戏介绍</a></li>
+                        <li><a href="world.html">世界观</a></li>
+                        <li><a href="factions.html">势力分布</a></li>
+                        <li><a href="history.html">历史年表</a></li>
+                        <li><a href="price-mechanism.html">价格机制</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>游戏特色</h3>
+                    <ul>
+                        <li><a href="bazaar.html">集市</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>游戏玩法</h3>
+                    <ul>
+                        <li><a href="market.html">摆摊系统</a></li>
+                        <li><a href="achievements.html">成就系统</a></li>
+                        <li><a href="combat.html">战斗系统</a></li>
+                        <li><a href="progression.html">成长系统</a></li>
+                        <li><a href="currency.html">货币系统</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>角色</h3>
+                    <ul>
+                        <li><a href="characters.html">角色总览</a></li>
+                        <li><a href="characters.html?type=playable">主要角色</a></li>
+                        <li><a href="characters.html?type=npc">NPC</a></li>
+                        <li><a href="enemies.html">敌人</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>物品装备</h3>
+                    <ul>
+                        <li><a href="items.html">物品总览</a></li>
+                        <li><a href="weapon.html">武器</a></li>
+                        <li><a href="armor.html">防具</a></li>
+                        <li><a href="accessory.html">饰品</a></li>
+                        <li><a href="treasure.html">法宝</a></li>
+                        <li><a href="consumable.html">消耗品</a></li>
+                        <li><a href="material.html">材料</a></li>
+                        <li><a href="collection.html" class="active">收藏品</a></li>
+                        <li><a href="crafting.html">生活技能</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>世界探索</h3>
+                    <ul>
+                        <li><a href="locations.html">地点总览</a></li>
+                        <li><a href="map.html">游戏地图</a></li>
+                        <li><a href="quests.html">任务剧情</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>关于</h3>
+                    <ul>
+                        <li><a href="dev-thoughts.html">开发者随想</a></li>
+                    </ul>
+                </div>
+            </nav>
+        </aside>
+
+        <main class="wiki-content">
+            <nav class="breadcrumb">
+                <a href="../index.html">首页</a> &gt; <a href="items.html">物品装备</a> &gt; <span class="current">收藏品</span>
+            </nav>
+
+            <article class="wiki-article">
+                <h1 class="article-title">收藏品</h1>
+                
+                <div class="info-box">
+                    <strong>收藏系统简介：</strong>收藏品是游戏中用于满足玩家收集癖好的特殊物品。它们通常没有直接的战斗属性，但具有独特的收藏价值，部分收藏品还可用于兑换奖励或激活特殊成就。收藏品是摆摊交易中的热门物品，尤其是稀有和绝版收藏品。
+                </div>
+
+                <h2>收藏品种类</h2>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>收藏类型</th>
+                            <th>主要内容</th>
+                            <th>获取方式</th>
+                            <th>说明</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>妖怪图鉴</td>
+                            <td>各类妖怪的画像和资料</td>
+                            <td>击败妖怪掉落、任务奖励</td>
+                            <td>记录西游世界中的妖怪信息</td>
+                        </tr>
+                        <tr>
+                            <td>风景卡片</td>
+                            <td>各地风景的画卷</td>
+                            <td>探索地图、宝箱获得</td>
+                            <td>收集西游世界的美丽风景</td>
+                        </tr>
+                        <tr>
+                            <td>名人手札</td>
+                            <td>NPC的书信和笔记</td>
+                            <td>任务奖励、NPC赠送</td>
+                            <td>了解角色背后的故事</td>
+                        </tr>
+                        <tr>
+                            <td>奇珍异宝</td>
+                            <td>各种珍贵的宝物</td>
+                            <td>活动奖励、限时获取</td>
+                            <td>纯收藏用途，彰显身份</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h2>收藏品列表</h2>
+                <div class="filter-tabs">
+                    <button class="tab-btn active" onclick="filterCollections('all')">全部</button>
+                    <button class="tab-btn" onclick="filterCollections('monster')">妖怪图鉴</button>
+                    <button class="tab-btn" onclick="filterCollections('landscape')">风景卡片</button>
+                    <button class="tab-btn" onclick="filterCollections('letter')">名人手札</button>
+                    <button class="tab-btn" onclick="filterCollections('treasure')">奇珍异宝</button>
+                </div>
+                <div class="item-grid" id="collectionGrid"></div>
+
+                <h2>收藏品获取途径</h2>
+                <div class="tip-box">
+                    <ul>
+                        <li><strong>击败妖怪</strong>：特定妖怪有概率掉落对应的图鉴</li>
+                        <li><strong>探索地图</strong>：地图上的宝箱和隐藏点可获得风景卡片</li>
+                        <li><strong>完成任务</strong>：NPC可能会赠送手札作为任务奖励</li>
+                        <li><strong>参与活动</strong>：限时活动可获得珍贵的奇珍异宝</li>
+                        <li><strong>摆摊交易</strong>：从其他玩家处购买收藏品</li>
+                        <li><strong>成就奖励</strong>：完成特定成就可获得专属收藏品</li>
+                    </ul>
+                </div>
+
+                <h2>收藏系统奖励</h2>
+                <p>收集收藏品可获得以下奖励：</p>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>收集进度</th>
+                            <th>奖励内容</th>
+                            <th>说明</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>收集10件</td>
+                            <td>收藏家称号、金币奖励</td>
+                            <td>入门级收藏家</td>
+                        </tr>
+                        <tr>
+                            <td>收集30件</td>
+                            <td>高级收藏家称号、专属头像框</td>
+                            <td>进阶级收藏家</td>
+                        </tr>
+                        <tr>
+                            <td>收集50件</td>
+                            <td>大师收藏家称号、专属坐骑</td>
+                            <td>大师级收藏家</td>
+                        </tr>
+                        <tr>
+                            <td>收集全部</td>
+                            <td>传说收藏家称号、专属时装</td>
+                            <td>传说级收藏家</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="article-footer">
+                    <p>最后更新于：2026-03-21 | 编辑次数：1</p>
+                </div>
+            </article>
+        </main>
+    </div>
+
+    <footer class="wiki-footer">
+        <p>&copy; 2026 《蛙噻！好摊》游戏百科 | 本百科由玩家共同维护</p>
+    </footer>
+
+    <script src="../js/main.js"></script>
+    <script>
+        let collections = [
+            // 妖怪图鉴
+            { id: 301, name: "白骨精画像", type: "monster", rarity: "rare", description: "白骨精的真容画像，记录了她的妖艳外貌。", effect: "收藏值+50，可兑换白骨精相关奖励" },
+            { id: 302, name: "黄袍怪画像", type: "monster", rarity: "rare", description: "黄袍怪的威武画像，展现了他的凶悍气势。", effect: "收藏值+50，可兑换黄袍怪相关奖励" },
+            { id: 303, name: "红孩儿画像", type: "monster", rarity: "rare", description: "红孩儿的可爱画像，记录了他孩童般的外表。", effect: "收藏值+50，可兑换红孩儿相关奖励" },
+            { id: 304, name: "牛魔王画像", type: "monster", rarity: "epic", description: "牛魔王的霸气画像，展现了他作为妖王的威严。", effect: "收藏值+100，可兑换牛魔王相关奖励" },
+            { id: 305, name: "铁扇公主画像", type: "monster", rarity: "epic", description: "铁扇公主的优雅画像，记录了她的美丽容颜。", effect: "收藏值+100，可兑换铁扇公主相关奖励" },
+            { id: 306, name: "蜘蛛精画像", type: "monster", rarity: "uncommon", description: "蜘蛛精的妖媚画像，展现了她的迷人魅力。", effect: "收藏值+30，可兑换蜘蛛精相关奖励" },
+            { id: 307, name: "金角大王画像", type: "monster", rarity: "rare", description: "金角大王的威猛画像，记录了他的霸气形象。", effect: "收藏值+50，可兑换金角大王相关奖励" },
+            { id: 308, name: "银角大王画像", type: "monster", rarity: "rare", description: "银角大王的英俊画像，展现了他的不凡气质。", effect: "收藏值+50，可兑换银角大王相关奖励" },
+            
+            // 风景卡片
+            { id: 309, name: "花果山风景", type: "landscape", rarity: "common", description: "花果山的美景画卷，山清水秀，鸟语花香。", effect: "收藏值+10，可兑换花果山特产" },
+            { id: 310, name: "水帘洞风景", type: "landscape", rarity: "uncommon", description: "水帘洞的壮观画卷，飞瀑流泉，气势恢宏。", effect: "收藏值+20，可兑换水帘洞特产" },
+            { id: 311, name: "高老庄风景", type: "landscape", rarity: "common", description: "高老庄的田园画卷，宁静祥和，民风淳朴。", effect: "收藏值+10，可兑换高老庄特产" },
+            { id: 312, name: "流沙河风景", type: "landscape", rarity: "uncommon", description: "流沙河的苍凉画卷，黄沙漫天，波涛汹涌。", effect: "收藏值+20，可兑换流沙河特产" },
+            { id: 313, name: "雷音寺风景", type: "landscape", rarity: "epic", description: "雷音寺的庄严画卷，金碧辉煌，佛光普照。", effect: "收藏值+100，可兑换雷音寺特产" },
+            { id: 314, name: "火焰山风景", type: "landscape", rarity: "rare", description: "火焰山的炽热画卷，烈焰熊熊，寸草不生。", effect: "收藏值+50，可兑换火焰山特产" },
+            { id: 315, name: "盘丝洞风景", type: "landscape", rarity: "uncommon", description: "盘丝洞的诡异画卷，蛛网密布，阴森恐怖。", effect: "收藏值+20，可兑换盘丝洞特产" },
+            { id: 316, name: "龙宫风景", type: "landscape", rarity: "epic", description: "龙宫的华丽画卷，珊瑚玉树，珍珠玛瑙。", effect: "收藏值+100，可兑换龙宫特产" },
+            
+            // 名人手札
+            { id: 317, name: "唐僧手书", type: "letter", rarity: "rare", description: "唐僧亲笔书写的佛经心得，字迹工整，充满智慧。", effect: "收藏值+50，阅读可获得经验值" },
+            { id: 318, name: "孙悟空墨宝", type: "letter", rarity: "epic", description: "孙悟空留下的墨宝，虽然字迹潦草但蕴含灵气。", effect: "收藏值+100，阅读可获得战斗技巧" },
+            { id: 319, name: "猪八戒日记", type: "letter", rarity: "uncommon", description: "猪八戒的日记，记录了他的吃喝玩乐和心事。", effect: "收藏值+20，阅读可获得生活技能经验" },
+            { id: 320, name: "沙僧笔记", type: "letter", rarity: "uncommon", description: "沙僧的笔记，记录了一路上的见闻和感悟。", effect: "收藏值+20，阅读可获得探索经验" },
+            { id: 321, name: "白龙马蹄印", type: "letter", rarity: "rare", description: "白龙马留下的蹄印拓片，记录了他的足迹。", effect: "收藏值+50，可兑换移动速度加成" },
+            { id: 322, name: "观音菩萨手谕", type: "letter", rarity: "legendary", description: "观音菩萨的手谕，蕴含佛法无边。", effect: "收藏值+200，可获得观音菩萨的祝福" },
+            { id: 323, name: "如来佛旨", type: "letter", rarity: "legendary", description: "如来佛祖的佛旨，蕴含无上智慧。", effect: "收藏值+200，可获得如来佛祖的庇佑" },
+            { id: 324, name: "太上老君丹方", type: "letter", rarity: "epic", description: "太上老君的炼丹秘方，记载着炼丹之术。", effect: "收藏值+100，可学习高级炼丹术" },
+            
+            // 奇珍异宝
+            { id: 325, name: "天庭玉玺（仿）", type: "treasure", rarity: "epic", description: "仿造天庭玉玺制作的宝物，虽然不是真品但也价值连城。", effect: "收藏值+100，彰显尊贵身份" },
+            { id: 326, name: "如来佛掌印", type: "treasure", rarity: "legendary", description: "如来佛祖的掌印化石，蕴含无上佛力。", effect: "收藏值+200，可获得如来神掌技能" },
+            { id: 327, name: "观音菩萨玉净瓶（仿）", type: "treasure", rarity: "epic", description: "仿造观音菩萨玉净瓶制作的宝物，可装甘露水。", effect: "收藏值+100，可恢复生命值" },
+            { id: 328, name: "太上老君炼丹炉（仿）", type: "treasure", rarity: "epic", description: "仿造太上老君炼丹炉制作的宝物，可用于炼丹。", effect: "收藏值+100，炼丹成功率+10%" },
+            { id: 329, name: "王母娘娘蟠桃核", type: "treasure", rarity: "legendary", description: "王母娘娘蟠桃的桃核，虽然吃过但仍有灵气残留。", effect: "收藏值+200，永久增加生命值上限" },
+            { id: 330, name: "孙悟空猴毛", type: "treasure", rarity: "epic", description: "孙悟空掉落的猴毛，蕴含变化之力。", effect: "收藏值+100，可召唤分身协助战斗" },
+            { id: 331, name: "猪八戒獠牙", type: "treasure", rarity: "rare", description: "猪八戒的獠牙，是他天蓬元帅身份的象征。", effect: "收藏值+50，攻击力+5" },
+            { id: 332, name: "沙僧骷髅项链", type: "treasure", rarity: "rare", description: "沙僧佩戴的骷髅项链，记录了他吃人的过去。", effect: "收藏值+50，威慑敌人" }
+        ];
+
+        function getRarityLabel(r) { 
+            const l = {common:'普通',uncommon:'优秀',rare:'稀有',epic:'史诗',legendary:'传说'}; 
+            return l[r] || r; 
+        }
+        
+        function getTypeLabel(t) { 
+            const l = {monster:'妖怪图鉴',landscape:'风景卡片',letter:'名人手札',treasure:'奇珍异宝'}; 
+            return l[t] || t; 
+        }
+
+        function renderCollections(filter = 'all') {
+            const grid = document.getElementById('collectionGrid');
+            let filtered = collections;
+            if (filter !== 'all') filtered = collections.filter(c => c.type === filter);
+            
+            if (filtered.length === 0) { 
+                grid.innerHTML = '<p style="color:var(--wiki-text-secondary);padding:20px;">暂无该类型的收藏品</p>'; 
+                return; 
+            }
+            
+            grid.innerHTML = filtered.map(collection => `
+                <div class="item-card" data-type="${collection.type}">
+                    <h4>${collection.name}</h4>
+                    <div class="meta">
+                        <span class="type-badge collection">${getTypeLabel(collection.type)}</span>
+                        <span class="rarity-badge ${collection.rarity}">${getRarityLabel(collection.rarity)}</span>
+                    </div>
+                    <p class="description">${collection.description}</p>
+                    <div class="effect-box"><strong>效果：</strong>${collection.effect}</div>
+                </div>
+            `).join('');
+        }
+
+        function filterCollections(type) {
+            document.querySelectorAll('.filter-tabs .tab-btn').forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+            renderCollections(type);
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            renderCollections();
+        });
+    </script>
+</body>
+</html>

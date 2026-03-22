@@ -3,8 +3,379 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>物品装备 - 蛙噻！好摊</title>
+    <title>物品总览 - 蛙噻！好摊</title>
     <link rel="stylesheet" href="../css/style.css">
+    <style>
+        /* 标签页样式 - Wiki风格 */
+        .tab-container {
+            margin-bottom: 20px;
+        }
+        .tab-nav {
+            display: flex;
+            border-bottom: 1px solid var(--wiki-border);
+            margin-bottom: 20px;
+        }
+        .tab-btn {
+            padding: 8px 16px;
+            background: var(--wiki-header-bg);
+            border: 1px solid var(--wiki-border);
+            border-bottom: none;
+            cursor: pointer;
+            font-size: 14px;
+            color: var(--wiki-link);
+            margin-right: 4px;
+        }
+        .tab-btn:hover {
+            background: var(--wiki-content-bg);
+            text-decoration: underline;
+        }
+        .tab-btn.active {
+            background: var(--wiki-content-bg);
+            border-bottom: 1px solid var(--wiki-content-bg);
+            margin-bottom: -1px;
+            font-weight: bold;
+            color: var(--wiki-text);
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+
+        /* 模拟器样式 */
+        .simulator-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        @media (max-width: 900px) {
+            .simulator-container {
+                grid-template-columns: 1fr;
+            }
+        }
+        .simulator-panel {
+            background: var(--wiki-box-bg);
+            border: 1px solid var(--wiki-border);
+            padding: 16px;
+        }
+        .simulator-panel h3 {
+            margin-top: 0;
+            color: var(--wiki-text);
+            border-bottom: 1px solid var(--wiki-border);
+            padding-bottom: 8px;
+            font-size: 16px;
+        }
+        .form-group {
+            margin-bottom: 12px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 4px;
+            font-weight: normal;
+            color: var(--wiki-text);
+        }
+        .form-group select,
+        .form-group input {
+            width: 100%;
+            padding: 6px 8px;
+            border: 1px solid var(--wiki-border);
+            font-size: 13px;
+            box-sizing: border-box;
+        }
+        .btn-group {
+            display: flex;
+            gap: 8px;
+            margin-top: 16px;
+        }
+
+        /* 结果展示样式 */
+        .result-box {
+            background: var(--wiki-content-bg);
+            border: 1px solid var(--wiki-border);
+            padding: 12px;
+            margin-bottom: 12px;
+        }
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 0;
+            border-bottom: 1px dashed var(--wiki-border);
+        }
+        .result-item:last-child {
+            border-bottom: none;
+        }
+        .result-label {
+            color: var(--wiki-text-secondary);
+        }
+        .result-value {
+            font-weight: bold;
+            color: var(--wiki-text);
+        }
+        .result-value.highlight {
+            color: var(--wiki-link);
+        }
+        .result-value.warning {
+            color: #ff6b35;
+        }
+        .result-value.danger {
+            color: #d32f2f;
+        }
+        .result-value.success {
+            color: #388e3c;
+        }
+
+        /* 快速入门卡片 */
+        .quick-start-cards {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin: 16px 0;
+        }
+        @media (max-width: 600px) {
+            .quick-start-cards {
+                grid-template-columns: 1fr;
+            }
+        }
+        .quick-card {
+            background: var(--wiki-box-bg);
+            border: 1px solid var(--wiki-border);
+            padding: 12px;
+        }
+        .quick-card h4 {
+            margin: 0 0 8px 0;
+            color: var(--wiki-link);
+            font-size: 14px;
+        }
+        .quick-card p {
+            margin: 0;
+            font-size: 13px;
+            color: var(--wiki-text-secondary);
+        }
+
+        /* 批量模拟按钮 */
+        .batch-sim-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 12px;
+        }
+        .batch-btn {
+            padding: 6px 12px;
+            background: var(--wiki-box-bg);
+            border: 1px solid var(--wiki-border);
+            cursor: pointer;
+            font-size: 13px;
+        }
+        .batch-btn:hover {
+            background: var(--wiki-header-bg);
+        }
+
+        /* 代码折叠 */
+        .code-section {
+            margin: 12px 0;
+            border: 1px solid var(--wiki-border);
+        }
+        .code-header {
+            background: var(--wiki-header-bg);
+            padding: 8px 12px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+        }
+        .code-header:hover {
+            background: var(--wiki-box-bg);
+        }
+        .code-content {
+            display: none;
+            background: var(--wiki-content-bg);
+        }
+        .code-content.active {
+            display: block;
+        }
+        .toggle-icon {
+            font-size: 12px;
+        }
+        .toggle-icon.rotated {
+            transform: rotate(180deg);
+        }
+
+        /* FAQ样式 */
+        .faq-item {
+            margin-bottom: 8px;
+            border: 1px solid var(--wiki-border);
+        }
+        .faq-question {
+            background: var(--wiki-header-bg);
+            padding: 10px 12px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 500;
+        }
+        .faq-question:hover {
+            background: var(--wiki-box-bg);
+        }
+        .faq-answer {
+            display: none;
+            padding: 12px;
+            background: var(--wiki-content-bg);
+            border-top: 1px solid var(--wiki-border);
+        }
+        .faq-answer.active {
+            display: block;
+        }
+
+        /* 信息框 - Wiki风格 */
+        .info-box {
+            background: var(--wiki-box-bg);
+            border: 1px solid var(--wiki-border);
+            border-left: 4px solid var(--wiki-link);
+            padding: 12px;
+            margin: 12px 0;
+        }
+        .warning-box {
+            background: #fff3e0;
+            border: 1px solid #ffcc80;
+            border-left: 4px solid #ff9800;
+            padding: 12px;
+            margin: 12px 0;
+        }
+        .tip-box {
+            background: #e3f2fd;
+            border: 1px solid #90caf9;
+            border-left: 4px solid #2196f3;
+            padding: 12px;
+            margin: 12px 0;
+        }
+
+        /* 物品卡片样式 */
+        .item-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+            margin: 16px 0;
+        }
+        .item-card {
+            background: var(--wiki-box-bg);
+            border: 1px solid var(--wiki-border);
+            padding: 12px;
+        }
+        .item-card h4 {
+            margin: 0 0 8px 0;
+            color: var(--wiki-text);
+            font-size: 15px;
+        }
+        .item-card .meta {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+        .item-card .description {
+            font-size: 13px;
+            color: var(--wiki-text-secondary);
+            margin: 0 0 8px 0;
+        }
+        .item-card .effect-box {
+            background: var(--wiki-content-bg);
+            padding: 8px;
+            font-size: 12px;
+            border-left: 3px solid var(--wiki-link);
+        }
+
+        /* 类型标签 */
+        .type-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            font-size: 11px;
+            border-radius: 2px;
+        }
+        .type-badge.weapon {
+            background: #ffebee;
+            color: #c62828;
+        }
+        .type-badge.armor {
+            background: #e3f2fd;
+            color: #1565c0;
+        }
+        .type-badge.consumable {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+        .type-badge.material {
+            background: #fff3e0;
+            color: #ef6c00;
+        }
+        .type-badge.special {
+            background: #f3e5f5;
+            color: #7b1fa2;
+        }
+
+        /* 稀有度标签 */
+        .rarity-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            font-size: 11px;
+            border-radius: 2px;
+        }
+        .rarity-badge.common {
+            background: #f5f5f5;
+            color: #616161;
+        }
+        .rarity-badge.uncommon {
+            background: #e8f5e9;
+            color: #388e3c;
+        }
+        .rarity-badge.rare {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+        .rarity-badge.epic {
+            background: #f3e5f5;
+            color: #7b1fa2;
+        }
+        .rarity-badge.legendary {
+            background: #fff8e1;
+            color: #f57f17;
+        }
+
+        /* 筛选标签 */
+        .filter-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 16px 0;
+        }
+        .filter-tabs .tab-btn {
+            margin-right: 0;
+        }
+
+        /* 概率条 */
+        .probability-bar {
+            width: 100%;
+            height: 20px;
+            background: var(--wiki-border);
+            position: relative;
+            margin: 8px 0;
+        }
+        .probability-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4caf50, #8bc34a);
+            transition: width 0.3s ease;
+        }
+        .probability-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 11px;
+            font-weight: bold;
+            color: var(--wiki-text);
+        }
+    </style>
 </head>
 <body class="wiki-layout">
     <header class="wiki-topbar">
@@ -13,7 +384,7 @@
         </div>
         <div class="wiki-search">
             <input type="text" placeholder="搜索百科..." id="searchInput">
-            <button onclick="searchItems()">搜索</button>
+            <button onclick="search()">搜索</button>
         </div>
         <div class="wiki-user">
             <span>欢迎访问</span>
@@ -27,33 +398,64 @@
                     <h3>百科分类</h3>
                     <ul>
                         <li><a href="../index.html">首页</a></li>
+                        <li><a href="game-intro.html">游戏介绍</a></li>
                         <li><a href="world.html">世界观</a></li>
+                        <li><a href="factions.html">势力分布</a></li>
+                        <li><a href="history.html">历史年表</a></li>
+                        <li><a href="price-mechanism.html">价格机制</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>游戏特色</h3>
+                    <ul>
+                        <li><a href="bazaar.html">集市</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>游戏玩法</h3>
+                    <ul>
+                        <li><a href="market.html">摆摊系统</a></li>
+                        <li><a href="achievements.html">成就系统</a></li>
+                        <li><a href="combat.html">战斗系统</a></li>
+                        <li><a href="progression.html">成长系统</a></li>
+                        <li><a href="currency.html">货币系统</a></li>
                     </ul>
                 </div>
                 <div class="nav-section">
                     <h3>角色</h3>
                     <ul>
                         <li><a href="characters.html">角色总览</a></li>
-                        <li><a href="characters.html?type=playable">可招募角色</a></li>
+                        <li><a href="characters.html?type=playable">主要角色</a></li>
                         <li><a href="characters.html?type=npc">NPC</a></li>
-                        <li><a href="characters.html?type=enemy">敌人</a></li>
+                        <li><a href="enemies.html">敌人</a></li>
                     </ul>
                 </div>
                 <div class="nav-section">
                     <h3>物品装备</h3>
                     <ul>
                         <li><a href="items.html" class="active">物品总览</a></li>
-                        <li><a href="items.html?type=weapon">武器</a></li>
-                        <li><a href="items.html?type=armor">防具</a></li>
-                        <li><a href="items.html?type=consumable">消耗品</a></li>
-                        <li><a href="items.html?type=material">材料</a></li>
+                        <li><a href="weapon.html">武器</a></li>
+                        <li><a href="armor.html">防具</a></li>
+                        <li><a href="accessory.html">饰品</a></li>
+                        <li><a href="treasure.html">法宝</a></li>
+                        <li><a href="consumable.html">消耗品</a></li>
+                        <li><a href="material.html">材料</a></li>
+                        <li><a href="collection.html">收藏品</a></li>
+                        <li><a href="crafting.html">生活技能</a></li>
                     </ul>
                 </div>
                 <div class="nav-section">
                     <h3>世界探索</h3>
                     <ul>
                         <li><a href="locations.html">地点总览</a></li>
+                        <li><a href="map.html">游戏地图</a></li>
                         <li><a href="quests.html">任务剧情</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>关于</h3>
+                    <ul>
+                        <li><a href="dev-thoughts.html">开发者随想</a></li>
                     </ul>
                 </div>
             </nav>
@@ -61,92 +463,875 @@
 
         <main class="wiki-content">
             <nav class="breadcrumb">
-                <a href="../index.html">首页</a> &gt; <span class="current">物品装备</span>
+                <a href="../index.html">首页</a> &gt; <span class="current">物品总览</span>
             </nav>
 
             <article class="wiki-article">
-                <h1 class="article-title">物品装备</h1>
-                
-                <div class="article-intro">
-                    <p>本页面收录了游戏中的所有物品，包括<strong>武器</strong>、<strong>防具</strong>、<strong>消耗品</strong>、<strong>材料</strong>和<strong>特殊物品</strong>。</p>
-                </div>
+                <h1 class="article-title">物品总览</h1>
+                <p style="color: #666; font-size: 13px;">游戏物品系统完全指南 | 开发者数值参考 | 物品模拟器 | 文档版本：v1.0</p>
 
-                <div class="infobox">
-                    <div class="infobox-header">物品统计</div>
-                    <div class="infobox-row">
-                        <div class="infobox-label">武器</div>
-                        <div class="infobox-value" id="weaponCount">-</div>
+                <!-- 标签导航 -->
+                <div class="tab-container">
+                    <div class="tab-nav">
+                        <button class="tab-btn active" onclick="switchTab('player')">玩家指南</button>
+                        <button class="tab-btn" onclick="switchTab('developer')">开发者文档</button>
+                        <button class="tab-btn" onclick="switchTab('simulator')">物品模拟器</button>
                     </div>
-                    <div class="infobox-row">
-                        <div class="infobox-label">防具</div>
-                        <div class="infobox-value" id="armorCount">-</div>
+
+                    <!-- 标签1：玩家指南 -->
+                    <div id="tab-player" class="tab-content active">
+                        <h2>玩家快速入门</h2>
+                        <div class="info-box">
+                            <strong>一句话理解物品系统：</strong>游戏中的物品分为<strong>武器、防具、饰品、法宝、消耗品、材料、收藏品、生活技能产物</strong>八大类型，每种类型都有独特的用途和获取方式。物品稀有度从<strong>普通到传说</strong>共分五级，稀有度越高，属性越强。
+                        </div>
+
+                        <div class="quick-start-cards">
+                            <div class="quick-card">
+                                <h4>装备强化</h4>
+                                <p>武器和防具可以通过材料进行强化，提升基础属性</p>
+                            </div>
+                            <div class="quick-card">
+                                <h4>消耗品使用</h4>
+                                <p>丹药和食物在战斗中可以恢复生命值，合理使用是胜利关键</p>
+                            </div>
+                            <div class="quick-card">
+                                <h4>材料收集</h4>
+                                <p>击败敌人或探索地图可以获得各种材料，用于合成和强化</p>
+                            </div>
+                            <div class="quick-card">
+                                <h4>稀有物品</h4>
+                                <p>传说级物品拥有独特效果，是通关高难度内容的必备</p>
+                            </div>
+                        </div>
+
+                        <h2>物品类型介绍</h2>
+
+                        <h3>武器</h3>
+                        <p>武器是提升攻击力的主要装备。不同武器有不同的攻击范围和攻击速度。</p>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>武器类型</th>
+                                    <th>攻击范围</th>
+                                    <th>攻击速度</th>
+                                    <th>适用场景</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>剑类</td>
+                                    <td>中等</td>
+                                    <td>中等</td>
+                                    <td>平衡型，适合新手</td>
+                                </tr>
+                                <tr>
+                                    <td>刀类</td>
+                                    <td>较短</td>
+                                    <td>较快</td>
+                                    <td>近战快速输出</td>
+                                </tr>
+                                <tr>
+                                    <td>枪类</td>
+                                    <td>较长</td>
+                                    <td>较慢</td>
+                                    <td>远程poke，控制距离</td>
+                                </tr>
+                                <tr>
+                                    <td>法器</td>
+                                    <td>远程</td>
+                                    <td>慢</td>
+                                    <td>法术输出，范围伤害</td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <h3>防具</h3>
+                        <p>防具提供防御力和生命值加成，是生存的基础保障。</p>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>防具部位</th>
+                                    <th>主要属性</th>
+                                    <th>次要属性</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>头盔</td><td>防御力</td><td>生命值、抗性</td></tr>
+                                <tr><td>铠甲</td><td>防御力、生命值</td><td>抗性、减伤</td></tr>
+                                <tr><td>护腿</td><td>防御力</td><td>移动速度</td></tr>
+                                <tr><td>鞋子</td><td>防御力</td><td>移动速度、闪避</td></tr>
+                                <tr><td>披风</td><td>闪避率</td><td>全抗性、移动速度</td></tr>
+                                <tr><td>护肩</td><td>防御力</td><td>格挡率、生命值</td></tr>
+                                <tr><td>手套</td><td>攻击力</td><td>命中率、攻击速度</td></tr>
+                            </tbody>
+                        </table>
+
+                        <h3>饰品</h3>
+                        <p>饰品提供额外属性加成和特殊效果，是完善角色build的关键装备。</p>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>饰品类型</th>
+                                    <th>主要属性</th>
+                                    <th>次要属性</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>项链</td><td>生命值、法力值</td><td>回复效果、生命恢复</td></tr>
+                                <tr><td>戒指</td><td>攻击力、暴击率</td><td>命中率、攻击速度</td></tr>
+                                <tr><td>手镯</td><td>防御力、闪避率</td><td>格挡率、减伤</td></tr>
+                                <tr><td>腰带</td><td>背包容量、负重</td><td>生命恢复、抗性</td></tr>
+                                <tr><td>玉佩</td><td>全属性抗性</td><td>特殊状态免疫</td></tr>
+                                <tr><td>耳环</td><td>法术攻击、法力值</td><td>法术暴击、法力恢复</td></tr>
+                                <tr><td>面具</td><td>特殊效果</td><td>伪装、威慑</td></tr>
+                                <tr><td>勋章</td><td>全属性</td><td>荣誉加成、特殊称号</td></tr>
+                            </tbody>
+                        </table>
+
+                        <h3>法宝</h3>
+                        <p>法宝是西游世界中的特殊道具，拥有强大的神通力量，可在战斗中扭转乾坤。</p>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>法宝类型</th>
+                                    <th>主要作用</th>
+                                    <th>使用方式</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>攻击法宝</td><td>造成大量伤害或控制敌人</td><td>主动释放，消耗法力</td></tr>
+                                <tr><td>防御法宝</td><td>提供护盾、减伤或免疫</td><td>主动释放或被动触发</td></tr>
+                                <tr><td>辅助法宝</td><td>侦查、控制、治疗等</td><td>主动释放</td></tr>
+                                <tr><td>飞行法宝</td><td>提升移动速度或飞行</td><td>持续生效或主动使用</td></tr>
+                            </tbody>
+                        </table>
+
+                        <h3>消耗品</h3>
+                        <p>消耗品是一次性使用的物品，主要用于恢复、临时增益和永久属性提升。</p>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>消耗品类型</th>
+                                    <th>效果</th>
+                                    <th>使用场景</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>回血丹药</td><td>恢复生命值</td><td>战斗中或战后恢复</td></tr>
+                                <tr><td>增益食物</td><td>临时属性提升</td><td>战斗前使用</td></tr>
+                                <tr><td>属性点药丸</td><td>永久增加基础属性</td><td>角色培养</td></tr>
+                                <tr><td>特殊道具</td><td>各种特殊效果</td><td>特定场景使用</td></tr>
+                            </tbody>
+                        </table>
+
+                        <h3>属性点药丸</h3>
+                        <div class="tip-box">
+                            <strong>属性点药丸可永久提升角色基础属性！</strong>分为力量、敏捷、体质、智力、精神五种类型，每种类型有5个等级，使用次数逐级解锁。
+                        </div>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>等级</th>
+                                    <th>名称示例</th>
+                                    <th>增加点数</th>
+                                    <th>使用次数上限</th>
+                                    <th>说明</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>初级</td><td>小力量丹</td><td>+1</td><td>1000次</td><td>达到上限后无法继续使用</td></tr>
+                                <tr><td>中级</td><td>力量丹</td><td>+2</td><td>500次</td><td>达到上限后无法继续使用</td></tr>
+                                <tr><td>高级</td><td>大力量丹</td><td>+3</td><td>200次</td><td>达到上限后无法继续使用</td></tr>
+                                <tr><td>大师</td><td>力量灵丹</td><td>+5</td><td>50次</td><td>达到上限后无法继续使用</td></tr>
+                                <tr><td>传说</td><td>力量神丹</td><td>+10</td><td>1次</td><td>每个角色限用1次</td></tr>
+                            </tbody>
+                        </table>
+                        <p><strong>使用规则：</strong>小力量丹用了1000次后，无法再使用，必须使用力量丹及以上等级的药丸。逐级解锁机制确保玩家需要持续收集更高级的药丸。</p>
+                        <p><strong>单属性最高可获得：</strong>2860点（使用1751次药丸）</p>
+
+                        <h3>材料</h3>
+                        <p>材料是游戏中的基础资源，用于合成、强化、炼丹等各种系统。</p>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>材料类型</th>
+                                    <th>主要用途</th>
+                                    <th>获取方式</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>矿石</td><td>锻造装备</td><td>采矿、击败敌人</td></tr>
+                                <tr><td>草药</td><td>炼制丹药</td><td>采集、购买</td></tr>
+                                <tr><td>虫类</td><td>炼丹材料</td><td>特定地点采集</td></tr>
+                                <tr><td>妖丹</td><td>高级炼丹/炼器</td><td>击败妖怪</td></tr>
+                                <tr><td>皮革</td><td>制作皮甲和饰品</td><td>击败野兽、采集</td></tr>
+                                <tr><td>布料</td><td>制作布甲</td><td>采集、购买</td></tr>
+                                <tr><td>木材</td><td>制作法器</td><td>伐木、采集</td></tr>
+                                <tr><td>宝石</td><td>装备镶嵌</td><td>采矿、击败敌人</td></tr>
+                                <tr><td>符文材料</td><td>制作符咒</td><td>采集、商店购买</td></tr>
+                                <tr><td>染料</td><td>染色、装饰</td><td>采集、炼制</td></tr>
+                                <tr><td>书籍材料</td><td>制作技能书</td><td>采集、击败敌人</td></tr>
+                            </tbody>
+                        </table>
+
+                        <h3>收藏品</h3>
+                        <p>收藏品是满足玩家收集癖好的特殊物品，通常没有直接的战斗属性，但具有独特的收藏价值。</p>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>收藏类型</th>
+                                    <th>主要内容</th>
+                                    <th>获取方式</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>妖怪图鉴</td><td>各类妖怪的画像和资料</td><td>击败妖怪掉落、任务奖励</td></tr>
+                                <tr><td>风景卡片</td><td>各地风景的画卷</td><td>探索地图、宝箱获得</td></tr>
+                                <tr><td>名人手札</td><td>NPC的书信和笔记</td><td>任务奖励、NPC赠送</td></tr>
+                                <tr><td>奇珍异宝</td><td>各种珍贵的宝物</td><td>活动奖励、限时获取</td></tr>
+                            </tbody>
+                        </table>
+
+                        <h3>生活技能产物</h3>
+                        <p>生活技能产物是玩家通过学习生活技能制作的物品，包括食物、酒水、卷轴、工艺品以及最重要的技能书。</p>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>产物类型</th>
+                                    <th>主要用途</th>
+                                    <th>制作技能</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>烹饪食物</td><td>恢复生命、增益属性</td><td>烹饪技能</td></tr>
+                                <tr><td>酿造酒水</td><td>恢复法力、特殊效果</td><td>酿造技能</td></tr>
+                                <tr><td>制作卷轴</td><td>传送、战斗辅助</td><td>制符技能</td></tr>
+                                <tr><td>工艺品</td><td>装饰、收藏</td><td>工艺技能</td></tr>
+                                <tr><td>技能书</td><td>提升生活技能等级</td><td>各生活技能对应</td></tr>
+                            </tbody>
+                        </table>
+
+                        <h3>技能书系统</h3>
+                        <div class="tip-box">
+                            <strong>技能书是生活技能升级的核心道具！</strong>每种生活技能都有对应的技能书，使用技能书可以提升技能等级。技能书分为五个等级：初级、中级、高级、大师、传说，对应技能1-50级的升级需求。
+                        </div>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>技能书等级</th>
+                                    <th>适用技能等级</th>
+                                    <th>升级消耗</th>
+                                    <th>总需求量</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>初级技能书</td><td>1-10级</td><td>每级消耗10本</td><td>100本</td></tr>
+                                <tr><td>中级技能书</td><td>11-20级</td><td>每级消耗20本</td><td>200本</td></tr>
+                                <tr><td>高级技能书</td><td>21-30级</td><td>每级消耗30本</td><td>300本</td></tr>
+                                <tr><td>大师技能书</td><td>31-40级</td><td>每级消耗40本</td><td>400本</td></tr>
+                                <tr><td>传说技能书</td><td>41-50级</td><td>每级消耗50本</td><td>500本</td></tr>
+                            </tbody>
+                        </table>
+                        <p><strong>技能书总需求量：</strong>将一项生活技能从1级提升到50级，共需要1500本技能书。</p>
+
+                        <h2>稀有度系统</h2>
+                        <p>每件物品都有对应的稀有度，稀有度决定了物品的基础属性和附加效果。</p>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>稀有度</th>
+                                    <th>颜色标识</th>
+                                    <th>属性加成</th>
+                                    <th>掉落概率</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>普通</td><td>灰色</td><td>基础属性</td><td>60%</td></tr>
+                                <tr><td>优秀</td><td>绿色</td><td>基础属性+20%</td><td>25%</td></tr>
+                                <tr><td>稀有</td><td>蓝色</td><td>基础属性+50%</td><td>10%</td></tr>
+                                <tr><td>史诗</td><td>紫色</td><td>基础属性+100%</td><td>4%</td></tr>
+                                <tr><td>传说</td><td>橙色</td><td>基础属性+200%</td><td>1%</td></tr>
+                            </tbody>
+                        </table>
+
+                        <h2>物品获取途径</h2>
+                        <div class="tip-box">
+                            <ul>
+                                <li><strong>击败敌人</strong>：普通敌人掉落普通和优秀物品，精英和Boss掉落稀有以上物品</li>
+                                <li><strong>探索地图</strong>：地图上的宝箱和采集点可以获得各种物品</li>
+                                <li><strong>完成任务</strong>：主线和支线任务奖励丰富的物品</li>
+                                <li><strong>商店购买</strong>：NPC商店出售基础物品，集市可以购买玩家出售的物品</li>
+                                <li><strong>合成制作</strong>：收集材料后可以在工坊合成高级物品</li>
+                            </ul>
+                        </div>
+
+                        <h2>物品列表</h2>
+                        <div class="filter-tabs">
+                            <button class="tab-btn active" id="btn-all" onclick="filterItems('all')">全部</button>
+                            <button class="tab-btn" id="btn-weapon" onclick="filterItems('weapon')">武器</button>
+                            <button class="tab-btn" id="btn-armor" onclick="filterItems('armor')">防具</button>
+                            <button class="tab-btn" id="btn-consumable" onclick="filterItems('consumable')">消耗品</button>
+                            <button class="tab-btn" id="btn-material" onclick="filterItems('material')">材料</button>
+                            <button class="tab-btn" id="btn-special" onclick="filterItems('special')">特殊</button>
+                        </div>
+                        <div class="item-grid" id="itemGrid"></div>
+
+                        <h2>常见问题</h2>
+                        
+                        <div class="faq-item">
+                            <div class="faq-question" onclick="toggleFaq(this)">
+                                <span>如何提升装备属性？</span>
+                                <span>▼</span>
+                            </div>
+                            <div class="faq-answer">
+                                <p>装备属性可以通过以下方式提升：</p>
+                                <ul>
+                                    <li><strong>强化</strong>：使用矿石和金币提升装备基础属性</li>
+                                    <li><strong>附魔</strong>：使用特殊材料为装备添加额外属性</li>
+                                    <li><strong>升级</strong>：收集特定材料可以将低级装备升级为高级装备</li>
+                                    <li><strong>更换</strong>：获取更高稀有度的装备直接替换</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="faq-item">
+                            <div class="faq-question" onclick="toggleFaq(this)">
+                                <span>传说级物品如何获得？</span>
+                                <span>▼</span>
+                            </div>
+                            <div class="faq-answer">
+                                <p>传说级物品获取途径：</p>
+                                <ul>
+                                    <li>击败世界Boss有概率掉落</li>
+                                    <li>完成高难度副本奖励</li>
+                                    <li>参与限时活动获取</li>
+                                    <li>通过合成系统使用大量稀有材料合成</li>
+                                    <li>在集市从其他玩家处购买</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="faq-item">
+                            <div class="faq-question" onclick="toggleFaq(this)">
+                                <span>材料在哪里采集？</span>
+                                <span>▼</span>
+                            </div>
+                            <div class="faq-answer">
+                                <p>不同材料在不同地点采集：</p>
+                                <ul>
+                                    <li><strong>矿石</strong>：矿山、洞穴地图</li>
+                                    <li><strong>草药</strong>：森林、草地地图</li>
+                                    <li><strong>虫类</strong>：花果山等特定区域</li>
+                                    <li><strong>妖丹</strong>：击败各类妖怪掉落</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="faq-item">
+                            <div class="faq-question" onclick="toggleFaq(this)">
+                                <span>背包满了怎么办？</span>
+                                <span>▼</span>
+                            </div>
+                            <div class="faq-answer">
+                                <p>背包空间管理建议：</p>
+                                <ul>
+                                    <li>及时使用或出售不需要的消耗品</li>
+                                    <li>将材料存入仓库</li>
+                                    <li>在集市出售多余的装备和材料</li>
+                                    <li>分解低级装备获得强化材料</li>
+                                    <li>购买背包扩展道具增加容量</li>
+                                </ul>
+                            </div>
+                        </div>
                     </div>
-                    <div class="infobox-row">
-                        <div class="infobox-label">消耗品</div>
-                        <div class="infobox-value" id="consumableCount">-</div>
+
+                    <!-- 标签2：开发者文档 -->
+                    <div id="tab-developer" class="tab-content">
+                        <h2>系统架构</h2>
+                        <p>物品系统采用组件化设计，主要包含以下模块：</p>
+                        <ul>
+                            <li><strong>物品数据层（Item Data Layer）</strong>：定义所有物品的基础数据和属性</li>
+                            <li><strong>物品管理器（Item Manager）</strong>：负责物品的创建、销毁、查询等操作</li>
+                            <li><strong>掉落系统（Drop System）</strong>：处理敌人死亡时的物品掉落逻辑</li>
+                            <li><strong>背包系统（Inventory System）</strong>：管理玩家的物品存储</li>
+                            <li><strong>合成系统（Crafting System）</strong>：处理物品的合成和强化</li>
+                        </ul>
+
+                        <h2>数据结构设计</h2>
+
+                        <h3>物品基础数据表</h3>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>字段名</th>
+                                    <th>类型</th>
+                                    <th>说明</th>
+                                    <th>示例</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>item_id</td><td>int</td><td>物品唯一ID</td><td>1001</td></tr>
+                                <tr><td>item_name</td><td>string</td><td>物品名称</td><td>"火焰草"</td></tr>
+                                <tr><td>item_type</td><td>enum</td><td>物品类型</td><td>weapon/armor/consumable/material/special</td></tr>
+                                <tr><td>rarity</td><td>enum</td><td>稀有度等级</td><td>common/uncommon/rare/epic/legendary</td></tr>
+                                <tr><td>base_value</td><td>int</td><td>基础价值（文）</td><td>100</td></tr>
+                                <tr><td>description</td><td>string</td><td>物品描述</td><td>"用花果山灵草炼制..."</td></tr>
+                                <tr><td>effect</td><td>string</td><td>物品效果描述</td><td>"恢复生命值50点"</td></tr>
+                                <tr><td>stackable</td><td>bool</td><td>是否可堆叠</td><td>true/false</td></tr>
+                                <tr><td>max_stack</td><td>int</td><td>最大堆叠数量</td><td>99</td></tr>
+                            </tbody>
+                        </table>
+
+                        <h3>装备属性数据表</h3>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>字段名</th>
+                                    <th>类型</th>
+                                    <th>说明</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>attack</td><td>int</td><td>攻击力加成</td></tr>
+                                <tr><td>defense</td><td>int</td><td>防御力加成</td></tr>
+                                <tr><td>hp</td><td>int</td><td>生命值加成</td></tr>
+                                <tr><td>attack_speed</td><td>float</td><td>攻击速度系数</td></tr>
+                                <tr><td>move_speed</td><td>float</td><td>移动速度系数</td></tr>
+                                <tr><td>crit_rate</td><td>float</td><td>暴击率加成</td></tr>
+                                <tr><td>crit_damage</td><td>float</td><td>暴击伤害加成</td></tr>
+                            </tbody>
+                        </table>
+
+                        <h3>稀有度系数表</h3>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>稀有度</th>
+                                    <th>系数值</th>
+                                    <th>附加属性数</th>
+                                    <th>掉落权重</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>common</td><td>1.0</td><td>0</td><td>60</td></tr>
+                                <tr><td>uncommon</td><td>1.2</td><td>1</td><td>25</td></tr>
+                                <tr><td>rare</td><td>1.5</td><td>2</td><td>10</td></tr>
+                                <tr><td>epic</td><td>2.0</td><td>3</td><td>4</td></tr>
+                                <tr><td>legendary</td><td>3.0</td><td>4</td><td>1</td></tr>
+                            </tbody>
+                        </table>
+
+                        <h2>算法实现</h2>
+
+                        <h3>物品掉落算法</h3>
+                        <div class="code-section">
+                            <div class="code-header" onclick="toggleCode(this)">
+                                <span>CalculateDrop 实现代码</span>
+                                <span class="toggle-icon">▼</span>
+                            </div>
+                            <div class="code-content">
+                                <pre class="code-block">public List&lt;Item&gt; CalculateDrop(EnemyData enemy, PlayerData player)
+{
+    List&lt;Item&gt; drops = new List&lt;Item&gt;();
+    
+    // 1. 获取敌人掉落表
+    DropTable dropTable = GetDropTable(enemy.drop_table_id);
+    
+    // 2. 计算掉落数量
+    int dropCount = Random.Range(dropTable.min_drops, dropTable.max_drops + 1);
+    
+    // 3. 根据权重随机选择物品
+    for (int i = 0; i &lt; dropCount; i++)
+    {
+        float randomValue = Random.value * dropTable.totalWeight;
+        float currentWeight = 0;
+        
+        foreach (var entry in dropTable.entries)
+        {
+            currentWeight += entry.weight;
+            if (randomValue &lt;= currentWeight)
+            {
+                // 4. 计算稀有度
+                Rarity rarity = CalculateRarity(entry.baseRarity, player.luck);
+                
+                // 5. 创建物品实例
+                Item item = CreateItem(entry.itemId, rarity);
+                drops.Add(item);
+                break;
+            }
+        }
+    }
+    
+    return drops;
+}</pre>
+                            </div>
+                        </div>
+
+                        <h3>稀有度计算算法</h3>
+                        <div class="code-section">
+                            <div class="code-header" onclick="toggleCode(this)">
+                                <span>CalculateRarity 实现代码</span>
+                                <span class="toggle-icon">▼</span>
+                            </div>
+                            <div class="code-content">
+                                <pre class="code-block">public Rarity CalculateRarity(Rarity baseRarity, float luckBonus)
+{
+    // 基础概率表
+    float[] baseProbs = { 0.60f, 0.25f, 0.10f, 0.04f, 0.01f };
+    
+    // 应用幸运值加成
+    float luckMultiplier = 1.0f + luckBonus;
+    float[] modifiedProbs = new float[5];
+    
+    // 降低低稀有度概率，提高高稀有度概率
+    for (int i = 0; i &lt; 5; i++)
+    {
+        float factor = (i - 2) * 0.1f * luckBonus; // -0.2 to +0.2
+        modifiedProbs[i] = baseProbs[i] * (1 - factor);
+    }
+    
+    // 归一化概率
+    float total = modifiedProbs.Sum();
+    for (int i = 0; i &lt; 5; i++)
+    {
+        modifiedProbs[i] /= total;
+    }
+    
+    // 随机选择
+    float roll = Random.value;
+    float cumulative = 0;
+    
+    for (int i = 0; i &lt; 5; i++)
+    {
+        cumulative += modifiedProbs[i];
+        if (roll &lt;= cumulative)
+        {
+            // 确保不低于基础稀有度
+            return (Rarity)Math.Max((int)baseRarity, i);
+        }
+    }
+    
+    return Rarity.Legendary;
+}</pre>
+                            </div>
+                        </div>
+
+                        <h3>属性计算公式</h3>
+                        <div class="code-section">
+                            <div class="code-header" onclick="toggleCode(this)">
+                                <span>CalculateItemStats 实现代码</span>
+                                <span class="toggle-icon">▼</span>
+                            </div>
+                            <div class="code-content">
+                                <pre class="code-block">public ItemStats CalculateItemStats(ItemData baseData, Rarity rarity, int level)
+{
+    ItemStats stats = new ItemStats();
+    
+    // 1. 获取稀有度系数
+    float rarityMultiplier = GetRarityMultiplier(rarity);
+    
+    // 2. 计算基础属性
+    stats.attack = Mathf.RoundToInt(baseData.baseAttack * rarityMultiplier);
+    stats.defense = Mathf.RoundToInt(baseData.baseDefense * rarityMultiplier);
+    stats.hp = Mathf.RoundToInt(baseData.baseHp * rarityMultiplier);
+    
+    // 3. 应用等级成长
+    float levelMultiplier = 1.0f + (level - 1) * 0.1f;
+    stats.attack = Mathf.RoundToInt(stats.attack * levelMultiplier);
+    stats.defense = Mathf.RoundToInt(stats.defense * levelMultiplier);
+    stats.hp = Mathf.RoundToInt(stats.hp * levelMultiplier);
+    
+    // 4. 添加随机波动 (±5%)
+    float variance = Random.Range(0.95f, 1.05f);
+    stats.attack = Mathf.RoundToInt(stats.attack * variance);
+    stats.defense = Mathf.RoundToInt(stats.defense * variance);
+    stats.hp = Mathf.RoundToInt(stats.hp * variance);
+    
+    // 5. 生成附加属性
+    int bonusCount = GetBonusStatCount(rarity);
+    stats.bonusStats = GenerateBonusStats(bonusCount);
+    
+    return stats;
+}</pre>
+                            </div>
+                        </div>
+
+                        <h2>接口定义</h2>
+
+                        <h3>核心接口列表</h3>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>接口名</th>
+                                    <th>功能</th>
+                                    <th>输入参数</th>
+                                    <th>返回值</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>CreateItem</td>
+                                    <td>创建物品实例</td>
+                                    <td>itemId, rarity, level</td>
+                                    <td>Item</td>
+                                </tr>
+                                <tr>
+                                    <td>CalculateDrop</td>
+                                    <td>计算掉落物品</td>
+                                    <td>enemyData, playerData</td>
+                                    <td>List&lt;Item&gt;</td>
+                                </tr>
+                                <tr>
+                                    <td>CalculateRarity</td>
+                                    <td>计算物品稀有度</td>
+                                    <td>baseRarity, luckBonus</td>
+                                    <td>Rarity</td>
+                                </tr>
+                                <tr>
+                                    <td>CalculateItemStats</td>
+                                    <td>计算物品属性</td>
+                                    <td>itemData, rarity, level</td>
+                                    <td>ItemStats</td>
+                                </tr>
+                                <tr>
+                                    <td>AddToInventory</td>
+                                    <td>添加物品到背包</td>
+                                    <td>playerId, item, count</td>
+                                    <td>bool</td>
+                                </tr>
+                                <tr>
+                                    <td>RemoveFromInventory</td>
+                                    <td>从背包移除物品</td>
+                                    <td>playerId, itemId, count</td>
+                                    <td>bool</td>
+                                </tr>
+                                <tr>
+                                    <td>CraftItem</td>
+                                    <td>合成物品</td>
+                                    <td>recipeId, materials</td>
+                                    <td>Item</td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <h2>测试方案</h2>
+                        <h3>单元测试</h3>
+                        <ul>
+                            <li>物品创建测试（验证所有字段正确赋值）</li>
+                            <li>稀有度计算测试（验证概率分布符合预期）</li>
+                            <li>属性计算测试（验证公式计算正确）</li>
+                            <li>背包操作测试（验证添加/移除逻辑）</li>
+                        </ul>
+                        <h3>集成测试</h3>
+                        <ul>
+                            <li>完整掉落流程测试</li>
+                            <li>合成系统测试</li>
+                            <li>背包容量边界测试</li>
+                        </ul>
+                        <h3>平衡性测试</h3>
+                        <ul>
+                            <li>掉落率验证（各稀有度比例符合设计）</li>
+                            <li>属性成长验证（等级提升带来的属性增长合理）</li>
+                            <li>经济平衡测试（物品价值与获取难度匹配）</li>
+                        </ul>
+
+                        <h2>物品管理</h2>
+                        <form id="addItemForm" class="wiki-form">
+                            <div class="form-group">
+                                <label>物品名称</label>
+                                <input type="text" id="itemName" placeholder="输入物品名称" required>
+                            </div>
+                            <div class="form-group">
+                                <label>物品类型</label>
+                                <select id="itemType">
+                                    <option value="weapon">武器</option>
+                                    <option value="armor">防具</option>
+                                    <option value="consumable">消耗品</option>
+                                    <option value="material">材料</option>
+                                    <option value="special">特殊</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>稀有度</label>
+                                <select id="itemRarity">
+                                    <option value="common">普通</option>
+                                    <option value="uncommon">优秀</option>
+                                    <option value="rare">稀有</option>
+                                    <option value="epic">史诗</option>
+                                    <option value="legendary">传说</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>物品描述</label>
+                                <textarea id="itemDesc" placeholder="输入物品描述" rows="3"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label>属性/效果</label>
+                                <input type="text" id="itemEffect" placeholder="例如：攻击力+10, 生命值+50">
+                            </div>
+                            <button type="submit" class="btn-primary">添加物品</button>
+                        </form>
                     </div>
-                    <div class="infobox-row">
-                        <div class="infobox-label">材料</div>
-                        <div class="infobox-value" id="materialCount">-</div>
-                    </div>
-                    <div class="infobox-row">
-                        <div class="infobox-label">总计</div>
-                        <div class="infobox-value" id="totalCount">-</div>
+
+                    <!-- 标签3：物品模拟器 -->
+                    <div id="tab-simulator" class="tab-content">
+                        <h2>物品属性模拟器</h2>
+                        <p>输入参数，模拟计算物品的属性值和掉落概率。</p>
+
+                        <div class="simulator-container">
+                            <!-- 左侧：参数输入 -->
+                            <div class="simulator-panel">
+                                <h3>参数设置</h3>
+                                
+                                <div class="form-group">
+                                    <label for="sim-item">物品选择</label>
+                                    <select id="sim-item" onchange="updateSimulator()">
+                                        <option value="1" data-type="weapon" data-attack="5" data-defense="0">新手木剑 (基础攻击: 5)</option>
+                                        <option value="2" data-type="weapon" data-attack="15" data-defense="0">铁剑 (基础攻击: 15)</option>
+                                        <option value="3" data-type="armor" data-attack="0" data-defense="3">布甲 (基础防御: 3)</option>
+                                        <option value="4" data-type="consumable" data-attack="0" data-defense="0">小还丹 (恢复50生命)</option>
+                                        <option value="12" data-type="material" data-attack="0" data-defense="0">铁矿石 (锻造材料)</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="sim-rarity">稀有度</label>
+                                    <select id="sim-rarity" onchange="updateSimulator()">
+                                        <option value="1.0" data-bonus="0">普通 (1.0x)</option>
+                                        <option value="1.2" data-bonus="1">优秀 (1.2x)</option>
+                                        <option value="1.5" data-bonus="2">稀有 (1.5x)</option>
+                                        <option value="2.0" data-bonus="3">史诗 (2.0x)</option>
+                                        <option value="3.0" data-bonus="4">传说 (3.0x)</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="sim-level">物品等级</label>
+                                    <input type="number" id="sim-level" value="1" min="1" max="100" oninput="updateSimulator()">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="sim-luck">幸运值加成</label>
+                                    <input type="number" id="sim-luck" value="0" min="0" max="100" step="0.1" oninput="updateSimulator()">
+                                </div>
+
+                                <div class="btn-group">
+                                    <button class="btn-primary" onclick="calculateItem()">开始计算</button>
+                                    <button class="btn-secondary" onclick="resetSimulator()">重置参数</button>
+                                </div>
+                            </div>
+
+                            <!-- 右侧：计算结果 -->
+                            <div class="simulator-panel">
+                                <h3>计算结果</h3>
+                                
+                                <div class="result-box">
+                                    <div class="result-item">
+                                        <span class="result-label">基础属性</span>
+                                        <span class="result-value" id="result-base-stat">--</span>
+                                    </div>
+                                    <div class="result-item">
+                                        <span class="result-label">稀有度加成</span>
+                                        <span class="result-value" id="result-rarity-multiplier">--</span>
+                                    </div>
+                                    <div class="result-item">
+                                        <span class="result-label">等级加成</span>
+                                        <span class="result-value" id="result-level-multiplier">--</span>
+                                    </div>
+                                    <div class="result-item">
+                                        <span class="result-label">最终属性</span>
+                                        <span class="result-value highlight" id="result-final-stat">--</span>
+                                    </div>
+                                </div>
+
+                                <div class="result-box" style="border-color: #2196f3;">
+                                    <div class="result-item">
+                                        <span class="result-label">附加属性数量</span>
+                                        <span class="result-value" id="result-bonus-count">--</span>
+                                    </div>
+                                    <div class="result-item">
+                                        <span class="result-label">物品价值</span>
+                                        <span class="result-value" id="result-value">--</span>
+                                    </div>
+                                </div>
+
+                                <div class="suggestion-box" id="suggestion-box">
+                                    <h4 style="margin-top: 0;">系统建议</h4>
+                                    <p id="suggestion-text">点击"开始计算"获取建议</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 掉落概率模拟 -->
+                        <div class="simulator-panel" style="margin-top: 20px;">
+                            <h3>掉落概率模拟</h3>
+                            <p>模拟不同幸运值下的稀有度掉落概率：</p>
+                            
+                            <div class="form-group">
+                                <label for="sim-drop-luck">幸运值</label>
+                                <input type="range" id="sim-drop-luck" min="0" max="50" value="0" oninput="updateDropSimulation()" style="width: 100%;">
+                                <span id="drop-luck-value">0</span>
+                            </div>
+
+                            <div id="drop-probability-results">
+                                <div style="margin: 8px 0;">
+                                    <span style="display: inline-block; width: 80px;">普通</span>
+                                    <div class="probability-bar">
+                                        <div class="probability-fill" id="prob-common" style="width: 60%;"></div>
+                                        <span class="probability-text" id="prob-text-common">60%</span>
+                                    </div>
+                                </div>
+                                <div style="margin: 8px 0;">
+                                    <span style="display: inline-block; width: 80px;">优秀</span>
+                                    <div class="probability-bar">
+                                        <div class="probability-fill" id="prob-uncommon" style="width: 25%; background: linear-gradient(90deg, #81c784, #a5d6a7);"></div>
+                                        <span class="probability-text" id="prob-text-uncommon">25%</span>
+                                    </div>
+                                </div>
+                                <div style="margin: 8px 0;">
+                                    <span style="display: inline-block; width: 80px;">稀有</span>
+                                    <div class="probability-bar">
+                                        <div class="probability-fill" id="prob-rare" style="width: 10%; background: linear-gradient(90deg, #64b5f6, #90caf9);"></div>
+                                        <span class="probability-text" id="prob-text-rare">10%</span>
+                                    </div>
+                                </div>
+                                <div style="margin: 8px 0;">
+                                    <span style="display: inline-block; width: 80px;">史诗</span>
+                                    <div class="probability-bar">
+                                        <div class="probability-fill" id="prob-epic" style="width: 4%; background: linear-gradient(90deg, #ba68c8, #ce93d8);"></div>
+                                        <span class="probability-text" id="prob-text-epic">4%</span>
+                                    </div>
+                                </div>
+                                <div style="margin: 8px 0;">
+                                    <span style="display: inline-block; width: 80px;">传说</span>
+                                    <div class="probability-bar">
+                                        <div class="probability-fill" id="prob-legendary" style="width: 1%; background: linear-gradient(90deg, #ffb74d, #ffcc80);"></div>
+                                    <span class="probability-text" id="prob-text-legendary">1%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 批量对比 -->
+                        <div class="simulator-panel" style="margin-top: 20px;">
+                            <h3>批量对比 - 不同稀有度属性对比</h3>
+                            <p>快速查看同一物品在不同稀有度下的属性差异：</p>
+                            <div class="batch-sim-buttons" id="batch-buttons">
+                                <button class="batch-btn" onclick="batchCompare('common')">普通</button>
+                                <button class="batch-btn" onclick="batchCompare('uncommon')">优秀</button>
+                                <button class="batch-btn" onclick="batchCompare('rare')">稀有</button>
+                                <button class="batch-btn" onclick="batchCompare('epic')">史诗</button>
+                                <button class="batch-btn" onclick="batchCompare('legendary')">传说</button>
+                            </div>
+                            <div id="batch-result" style="margin-top: 16px;">
+                                <p style="color: #999;">点击上方按钮查看不同稀有度的属性对比</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
-
-                <h2 id="list">物品列表</h2>
-                
-                <div class="filter-tabs">
-                    <button class="tab-btn active" onclick="filterItems('all')">全部</button>
-                    <button class="tab-btn" onclick="filterItems('weapon')">武器</button>
-                    <button class="tab-btn" onclick="filterItems('armor')">防具</button>
-                    <button class="tab-btn" onclick="filterItems('consumable')">消耗品</button>
-                    <button class="tab-btn" onclick="filterItems('material')">材料</button>
-                    <button class="tab-btn" onclick="filterItems('special')">特殊</button>
-                </div>
-                
-                <div class="card-grid" id="itemGrid"></div>
-
-                <h2 id="add">添加新物品</h2>
-                <form id="addItemForm" class="wiki-form">
-                    <div class="form-group">
-                        <label>物品名称</label>
-                        <input type="text" id="itemName" placeholder="输入物品名称" required>
-                    </div>
-                    <div class="form-group">
-                        <label>物品类型</label>
-                        <select id="itemType">
-                            <option value="weapon">武器</option>
-                            <option value="armor">防具</option>
-                            <option value="consumable">消耗品</option>
-                            <option value="material">材料</option>
-                            <option value="special">特殊</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>稀有度</label>
-                        <select id="itemRarity">
-                            <option value="common">普通</option>
-                            <option value="uncommon">优秀</option>
-                            <option value="rare">稀有</option>
-                            <option value="epic">史诗</option>
-                            <option value="legendary">传说</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>物品描述</label>
-                        <textarea id="itemDesc" placeholder="输入物品描述" rows="3"></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label>属性/效果</label>
-                        <input type="text" id="itemEffect" placeholder="例如：攻击力+10, 生命值+50">
-                    </div>
-                    <button type="submit" class="btn-primary">添加物品</button>
-                </form>
 
                 <div class="article-footer">
-                    <p>最后更新于：2026-03-19 | 编辑次数：1</p>
+                    <p>文档版本：v1.0 | 最后更新于：2026-03-21 | 编辑次数：3</p>
                 </div>
             </article>
         </main>
@@ -158,28 +1343,47 @@
 
     <script src="../js/main.js"></script>
     <script>
-        let items = JSON.parse(localStorage.getItem('wiki_items')) || [
+        // 清除旧数据以确保使用新的物品列表
+        localStorage.removeItem('wiki_items');
+        
+        let items = [
+            // 武器
             { id: 1, name: "新手木剑", type: "weapon", rarity: "common", description: "初学者使用的木剑，轻便但威力有限。", effect: "攻击力+5" },
             { id: 2, name: "铁剑", type: "weapon", rarity: "uncommon", description: "用精铁打造的剑，比木剑更加锋利耐用。", effect: "攻击力+15" },
             { id: 3, name: "布甲", type: "armor", rarity: "common", description: "用粗布缝制的简易护甲，提供基础防护。", effect: "防御力+3" },
-            { id: 4, name: "生命药水", type: "consumable", rarity: "common", description: "恢复生命值的红色药水，冒险者必备。", effect: "恢复生命值50点" },
-            { id: 5, name: "铁矿石", type: "material", rarity: "common", description: "常见的矿石，可用于打造装备。", effect: "锻造材料" },
-            { id: 6, name: "商人的算盘", type: "special", rarity: "rare", description: "传说中的商人使用的算盘，据说能带来好运。", effect: "交易时价格优惠10%" }
+            
+            // 血药类消耗品
+            { id: 4, name: "小还丹", type: "consumable", rarity: "common", description: "用花果山灵草炼制的初级回血丹药，适合新手使用。", effect: "恢复生命值50点" },
+            { id: 5, name: "大还丹", type: "consumable", rarity: "uncommon", description: "比小还丹药效更强的回血丹药，炼制工艺更加复杂。", effect: "恢复生命值150点" },
+            { id: 6, name: "九转金丹", type: "consumable", rarity: "epic", description: "太上老君炼丹炉中炼制的仙丹，具有起死回生的功效。", effect: "恢复生命值500点，解除所有负面状态" },
+            { id: 7, name: "灵芝草", type: "consumable", rarity: "common", description: "生长在仙山的灵芝，嚼食后可恢复些许体力。", effect: "恢复生命值30点" },
+            { id: 8, name: "人参果", type: "consumable", rarity: "rare", description: "五庄观特产，闻一闻可活三百六十岁，吃一个可活四万七千年。", effect: "恢复生命值300点，永久增加生命上限10点" },
+            { id: 9, name: "蟠桃", type: "consumable", rarity: "epic", description: "王母娘娘蟠桃园中的仙桃，食之可延年益寿。", effect: "恢复生命值1000点，永久增加生命上限50点" },
+            { id: 10, name: "猴儿酒", type: "consumable", rarity: "uncommon", description: "花果山猴子们酿造的美酒，喝一口可恢复元气。", effect: "恢复生命值80点，攻击力+10%（持续30秒）" },
+            { id: 11, name: "唐僧肉", type: "consumable", rarity: "legendary", description: "传说吃了可以长生不老，但实际上只是唐僧的素斋。", effect: "恢复全部生命值，获得长生buff（持续1小时）" },
+            
+            // 材料
+            { id: 12, name: "铁矿石", type: "material", rarity: "common", description: "常见的矿石，可用于打造装备。", effect: "锻造材料" },
+            { id: 13, name: "灵草", type: "material", rarity: "common", description: "生长在灵气充沛之地的草药，是炼制丹药的基础材料。", effect: "炼丹材料" },
+            { id: 14, name: "仙草", type: "material", rarity: "uncommon", description: "比灵草更加稀有的草药，炼制高级丹药必备。", effect: "炼丹材料" },
+            { id: 15, name: "妖丹", type: "material", rarity: "rare", description: "妖怪体内凝结的内丹，蕴含着妖怪的修为精华。", effect: "炼丹/炼器材料" },
+            
+            // 虫类材料（花果山产出）
+            { id: 16, name: "灵虫", type: "material", rarity: "common", description: "花果山常见的灵虫，体内含有微弱的灵气，可用于炼制初级丹药。", effect: "炼丹材料，可炼制小还丹" },
+            { id: 17, name: "花蜜虫", type: "material", rarity: "common", description: "以花蜜为食的虫子，体内储存着花蜜精华，是炼制恢复类丹药的材料。", effect: "炼丹材料，增加丹药恢复效果" },
+            { id: 18, name: "仙草蚕", type: "material", rarity: "uncommon", description: "以仙草为食的蚕虫，体内蕴含着仙草的精华，十分珍贵。", effect: "炼丹材料，可炼制大还丹" },
+            { id: 19, name: "金蝉子", type: "material", rarity: "rare", description: "花果山特有的金色蝉虫，传说与唐僧前世同名，蕴含强大灵力。", effect: "炼丹材料，可炼制九转金丹" },
+            { id: 20, name: "百草虫", type: "material", rarity: "common", description: "以各种草药为食的虫子，是炼制解毒丹药的好材料。", effect: "炼丹材料，可炼制解毒丹" },
+            { id: 21, name: "灵芝虫", type: "material", rarity: "uncommon", description: "生活在灵芝附近的虫子，吸收了灵芝的灵气，十分稀有。", effect: "炼丹材料，大幅提升丹药品质" },
+            
+            // 特殊
+            { id: 22, name: "商人的算盘", type: "special", rarity: "rare", description: "传说中的商人使用的算盘，据说能带来好运。", effect: "交易时价格优惠10%" }
         ];
 
         function saveItems() { localStorage.setItem('wiki_items', JSON.stringify(items)); }
 
-        function updateStats() {
-            document.getElementById('weaponCount').textContent = items.filter(i => i.type === 'weapon').length;
-            document.getElementById('armorCount').textContent = items.filter(i => i.type === 'armor').length;
-            document.getElementById('consumableCount').textContent = items.filter(i => i.type === 'consumable').length;
-            document.getElementById('materialCount').textContent = items.filter(i => i.type === 'material').length;
-            document.getElementById('totalCount').textContent = items.length;
-        }
-
-        function getRarityIcon(r) { const i={common:'',uncommon:'',rare:'',epic:'',legendary:''}; return i[r]||''; }
-        function getTypeLabel(t) { const l={weapon:'武器',armor:'防具',consumable:'消耗品',material:'材料',special:'特殊'}; return l[t]||t; }
         function getRarityLabel(r) { const l={common:'普通',uncommon:'优秀',rare:'稀有',epic:'史诗',legendary:'传说'}; return l[r]||r; }
+        function getTypeLabel(t) { const l={weapon:'武器',armor:'防具',consumable:'消耗品',material:'材料',special:'特殊'}; return l[t]||t; }
 
         function renderItems(filter='all') {
             const grid=document.getElementById('itemGrid');
@@ -187,7 +1391,7 @@
             if(filter!=='all') filtered=items.filter(i=>i.type===filter);
             if(filtered.length===0){ grid.innerHTML='<p style="color:var(--wiki-text-secondary);padding:20px;">暂无该类型的物品</p>'; return; }
             grid.innerHTML=filtered.map(item=>`
-                <div class="info-card" data-type="${item.type}">
+                <div class="item-card" data-type="${item.type}">
                     <h4>${item.name}</h4>
                     <div class="meta">
                         <span class="type-badge ${item.type}">${getTypeLabel(item.type)}</span>
@@ -195,23 +1399,253 @@
                     </div>
                     <p class="description">${item.description}</p>
                     <div class="effect-box"><strong>效果：</strong>${item.effect}</div>
-                    <button onclick="deleteItem(${item.id})" class="btn-delete">删除</button>
                 </div>
             `).join('');
         }
 
-        function filterItems(type){ document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active')); event.target.classList.add('active'); renderItems(type); }
-        function searchItems(){ const q=document.getElementById('searchInput').value.toLowerCase(); const filtered=items.filter(i=>i.name.toLowerCase().includes(q)||i.description.toLowerCase().includes(q)); document.getElementById('itemGrid').innerHTML=filtered.map(item=>`<div class="info-card"><h4>${item.name}</h4><div class="meta"><span class="type-badge ${item.type}">${getTypeLabel(item.type)}</span><span class="rarity-badge ${item.rarity}">${getRarityLabel(item.rarity)}</span></div><p class="description">${item.description}</p><div class="effect-box"><strong>效果：</strong>${item.effect}</div><button onclick="deleteItem(${item.id})" class="btn-delete">删除</button></div>`).join(''); }
+        function filterItems(type){
+            document.querySelectorAll('#tab-player .filter-tabs .tab-btn').forEach(b=>b.classList.remove('active'));
+            const btnId = 'btn-' + type;
+            const activeBtn = document.getElementById(btnId);
+            if(activeBtn) activeBtn.classList.add('active');
+            renderItems(type);
+        }
 
+        // 标签切换
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-nav .tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.getElementById('tab-' + tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // FAQ切换
+        function toggleFaq(element) {
+            const answer = element.nextElementSibling;
+            const icon = element.querySelector('span:last-child');
+            answer.classList.toggle('active');
+            icon.textContent = answer.classList.contains('active') ? '▲' : '▼';
+        }
+
+        // 代码折叠
+        function toggleCode(header) {
+            const content = header.nextElementSibling;
+            const icon = header.querySelector('.toggle-icon');
+            content.classList.toggle('active');
+            icon.classList.toggle('rotated');
+        }
+
+        // 物品模拟器核心算法
+        function calculateItem() {
+            const itemSelect = document.getElementById('sim-item');
+            const selectedOption = itemSelect.options[itemSelect.selectedIndex];
+            const baseAttack = parseInt(selectedOption.dataset.attack) || 0;
+            const baseDefense = parseInt(selectedOption.dataset.defense) || 0;
+            const itemType = selectedOption.dataset.type;
+            
+            const raritySelect = document.getElementById('sim-rarity');
+            const rarityMultiplier = parseFloat(raritySelect.value);
+            const bonusCount = parseInt(raritySelect.options[raritySelect.selectedIndex].dataset.bonus);
+            
+            const level = parseInt(document.getElementById('sim-level').value) || 1;
+            const levelMultiplier = 1.0 + (level - 1) * 0.1;
+            
+            const variance = 0.95 + Math.random() * 0.1;
+            
+            let baseStat = baseAttack > 0 ? baseAttack : baseDefense;
+            let statType = baseAttack > 0 ? '攻击力' : (baseDefense > 0 ? '防御力' : '效果值');
+            
+            let finalStat = Math.round(baseStat * rarityMultiplier * levelMultiplier * variance);
+            let itemValue = Math.round(finalStat * 10 * rarityMultiplier);
+            
+            // 更新结果展示
+            document.getElementById('result-base-stat').textContent = baseStat > 0 ? baseStat + ' (' + statType + ')' : '无基础属性';
+            document.getElementById('result-rarity-multiplier').textContent = 'x' + rarityMultiplier.toFixed(1);
+            document.getElementById('result-level-multiplier').textContent = 'x' + levelMultiplier.toFixed(1);
+            document.getElementById('result-final-stat').textContent = finalStat > 0 ? finalStat + ' (' + statType + ')' : '效果物品';
+            document.getElementById('result-bonus-count').textContent = bonusCount + ' 条';
+            document.getElementById('result-value').textContent = itemValue + ' 文';
+            
+            // 更新建议
+            let suggestion = '';
+            if (rarityMultiplier >= 3.0) {
+                suggestion = '传说级物品拥有极强的属性和独特效果，是终极追求目标。';
+            } else if (rarityMultiplier >= 2.0) {
+                suggestion = '史诗级物品属性优秀，适合挑战高难度内容。';
+            } else if (rarityMultiplier >= 1.5) {
+                suggestion = '稀有级物品性价比较高，是中期过渡的理想选择。';
+            } else if (rarityMultiplier >= 1.2) {
+                suggestion = '优秀级物品适合新手期使用，容易获取。';
+            } else {
+                suggestion = '普通级物品基础属性，适合前期过渡。';
+            }
+            document.getElementById('suggestion-text').textContent = suggestion;
+        }
+
+        function updateSimulator() {
+            // 实时更新（可选）
+        }
+
+        function resetSimulator() {
+            document.getElementById('sim-item').selectedIndex = 0;
+            document.getElementById('sim-rarity').selectedIndex = 0;
+            document.getElementById('sim-level').value = 1;
+            document.getElementById('sim-luck').value = 0;
+            
+            document.getElementById('result-base-stat').textContent = '--';
+            document.getElementById('result-rarity-multiplier').textContent = '--';
+            document.getElementById('result-level-multiplier').textContent = '--';
+            document.getElementById('result-final-stat').textContent = '--';
+            document.getElementById('result-bonus-count').textContent = '--';
+            document.getElementById('result-value').textContent = '--';
+            document.getElementById('suggestion-text').textContent = '点击"开始计算"获取建议';
+            document.getElementById('batch-result').innerHTML = '<p style="color: #999;">点击上方按钮查看不同稀有度的属性对比</p>';
+        }
+
+        // 掉落概率模拟
+        function updateDropSimulation() {
+            const luck = parseFloat(document.getElementById('sim-drop-luck').value);
+            document.getElementById('drop-luck-value').textContent = luck.toFixed(1);
+            
+            // 基础概率
+            let probs = [60, 25, 10, 4, 1];
+            
+            // 应用幸运值影响
+            if (luck > 0) {
+                const luckFactor = luck / 100;
+                // 降低低稀有度概率，提高高稀有度概率
+                probs[0] = Math.max(30, 60 - luck * 0.5);
+                probs[1] = Math.max(20, 25 - luck * 0.1);
+                probs[2] = Math.min(30, 10 + luck * 0.2);
+                probs[3] = Math.min(15, 4 + luck * 0.1);
+                probs[4] = Math.min(10, 1 + luck * 0.1);
+            }
+            
+            // 更新显示
+            document.getElementById('prob-common').style.width = probs[0] + '%';
+            document.getElementById('prob-text-common').textContent = probs[0].toFixed(1) + '%';
+            document.getElementById('prob-uncommon').style.width = probs[1] + '%';
+            document.getElementById('prob-text-uncommon').textContent = probs[1].toFixed(1) + '%';
+            document.getElementById('prob-rare').style.width = probs[2] + '%';
+            document.getElementById('prob-text-rare').textContent = probs[2].toFixed(1) + '%';
+            document.getElementById('prob-epic').style.width = probs[3] + '%';
+            document.getElementById('prob-text-epic').textContent = probs[3].toFixed(1) + '%';
+            document.getElementById('prob-legendary').style.width = probs[4] + '%';
+            document.getElementById('prob-text-legendary').textContent = probs[4].toFixed(1) + '%';
+        }
+
+        // 批量对比
+        function batchCompare(rarity) {
+            const itemSelect = document.getElementById('sim-item');
+            const selectedOption = itemSelect.options[itemSelect.selectedIndex];
+            const baseAttack = parseInt(selectedOption.dataset.attack) || 0;
+            const baseDefense = parseInt(selectedOption.dataset.defense) || 0;
+            let baseStat = baseAttack > 0 ? baseAttack : baseDefense;
+            let statType = baseAttack > 0 ? '攻击力' : (baseDefense > 0 ? '防御力' : '效果值');
+            
+            const rarityMultipliers = {
+                'common': 1.0,
+                'uncommon': 1.2,
+                'rare': 1.5,
+                'epic': 2.0,
+                'legendary': 3.0
+            };
+            
+            const rarityNames = {
+                'common': '普通',
+                'uncommon': '优秀',
+                'rare': '稀有',
+                'epic': '史诗',
+                'legendary': '传说'
+            };
+            
+            const level = parseInt(document.getElementById('sim-level').value) || 1;
+            const levelMultiplier = 1.0 + (level - 1) * 0.1;
+            const multiplier = rarityMultipliers[rarity];
+            const finalStat = Math.round(baseStat * multiplier * levelMultiplier);
+            const itemValue = Math.round(finalStat * 10 * multiplier);
+            
+            const resultDiv = document.getElementById('batch-result');
+            
+            let table = resultDiv.querySelector('table');
+            if (!table) {
+                resultDiv.innerHTML = `
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>稀有度</th>
+                                <th>属性系数</th>
+                                <th>最终属性</th>
+                                <th>附加属性</th>
+                                <th>物品价值</th>
+                            </tr>
+                        </thead>
+                        <tbody id="batch-tbody"></tbody>
+                    </table>
+                `;
+            }
+            
+            const tbody = document.getElementById('batch-tbody');
+            const bonusCounts = { 'common': 0, 'uncommon': 1, 'rare': 2, 'epic': 3, 'legendary': 4 };
+            
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${rarityNames[rarity]}</td>
+                <td>x${multiplier.toFixed(1)}</td>
+                <td>${finalStat > 0 ? finalStat + ' (' + statType + ')' : '效果物品'}</td>
+                <td>${bonusCounts[rarity]} 条</td>
+                <td>${itemValue} 文</td>
+            `;
+            
+            // 检查是否已存在相同稀有度的行
+            const existingRows = tbody.querySelectorAll('tr');
+            let replaced = false;
+            existingRows.forEach(r => {
+                if (r.cells[0].textContent === rarityNames[rarity]) {
+                    r.innerHTML = row.innerHTML;
+                    replaced = true;
+                }
+            });
+            
+            if (!replaced) {
+                tbody.appendChild(row);
+            }
+            
+            // 按稀有度排序
+            const rarityOrder = ['普通', '优秀', '稀有', '史诗', '传说'];
+            const rows = Array.from(tbody.querySelectorAll('tr'));
+            rows.sort((a, b) => {
+                return rarityOrder.indexOf(a.cells[0].textContent) - rarityOrder.indexOf(b.cells[0].textContent);
+            });
+            rows.forEach(r => tbody.appendChild(r));
+        }
+
+        // 添加物品表单
         document.getElementById('addItemForm').addEventListener('submit',function(e){
             e.preventDefault();
-            items.push({ id:Date.now(), name:document.getElementById('itemName').value, type:document.getElementById('itemType').value, rarity:document.getElementById('itemRarity').value, description:document.getElementById('itemDesc').value, effect:document.getElementById('itemEffect').value });
-            saveItems(); renderItems(); updateStats(); this.reset(); alert('物品添加成功！');
+            items.push({ 
+                id: Date.now(), 
+                name: document.getElementById('itemName').value, 
+                type: document.getElementById('itemType').value, 
+                rarity: document.getElementById('itemRarity').value, 
+                description: document.getElementById('itemDesc').value, 
+                effect: document.getElementById('itemEffect').value 
+            });
+            saveItems(); 
+            renderItems(); 
+            this.reset(); 
+            alert('物品添加成功！');
         });
 
-        function deleteItem(id){ if(confirm('确定删除？')){ items=items.filter(i=>i.id!==id); saveItems(); renderItems(); updateStats(); } }
-
-        renderItems(); updateStats();
+        // 页面加载时初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            renderItems();
+            updateDropSimulation();
+        });
     </script>
 </body>
 </html>

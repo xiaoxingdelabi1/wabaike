@@ -3,8 +3,535 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>地点地图 - 蛙噻！好摊</title>
+    <title>地点总览 - 蛙噻！好摊</title>
     <link rel="stylesheet" href="../css/style.css">
+    <style>
+        /* 三级层级样式 */
+        .hierarchy-container {
+            margin-bottom: 20px;
+        }
+
+        .continent-section {
+            margin-bottom: 16px;
+            border: 1px solid #a2a9b1;
+            background: #fff;
+        }
+
+        .continent-header {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #a2a9b1;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .continent-header:hover {
+            background: #eaecf0;
+        }
+
+        .continent-header .toggle-icon {
+            width: 20px;
+            height: 20px;
+            margin-right: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .continent-header .continent-name {
+            font-size: 16px;
+            font-weight: bold;
+            color: #000;
+        }
+
+        .continent-header .continent-desc {
+            margin-left: auto;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .continent-content {
+            display: none;
+        }
+
+        .continent-content.expanded {
+            display: block;
+        }
+
+        .region-section {
+            margin: 8px 16px;
+            border: 1px solid #d0d0d0;
+            background: #fafafa;
+        }
+
+        .region-header {
+            display: flex;
+            align-items: center;
+            padding: 10px 14px;
+            background: #f0f0f0;
+            border-bottom: 1px solid #d0d0d0;
+            cursor: pointer;
+        }
+
+        .region-header:hover {
+            background: #e8e8e8;
+        }
+
+        .region-header .toggle-icon {
+            width: 18px;
+            height: 18px;
+            margin-right: 10px;
+            font-size: 11px;
+            color: #666;
+        }
+
+        .region-header .region-name {
+            font-size: 14px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .region-content {
+            display: none;
+            padding: 12px;
+        }
+
+        .region-content.expanded {
+            display: block;
+        }
+
+        /* 地点卡片网格 */
+        .location-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 12px;
+        }
+
+        .location-card {
+            padding: 12px;
+            background: #fff;
+            border: 1px solid #a2a9b1;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .location-card:hover {
+            border-color: #3366cc;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .location-card .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .location-card .card-name {
+            font-size: 14px;
+            font-weight: bold;
+            color: #000;
+        }
+
+        .location-card .card-type {
+            font-size: 11px;
+            padding: 2px 6px;
+            background: #f5f5f5;
+            border: 1px solid #ddd;
+            color: #333;
+        }
+
+        .location-card .card-stats {
+            display: flex;
+            gap: 12px;
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .location-card .card-stat {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .location-card .card-stat-label {
+            color: #999;
+        }
+
+        .location-card .card-exploration {
+            height: 4px;
+            background: #e0e0e0;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .location-card .card-exploration-bar {
+            height: 100%;
+            background: #3366cc;
+            border-radius: 2px;
+        }
+
+        .location-card .card-exploration-text {
+            font-size: 11px;
+            color: #999;
+            margin-top: 4px;
+            text-align: right;
+        }
+
+        /* 筛选器样式 */
+        .filter-panel {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            padding: 16px;
+            background: #f8f9fa;
+            border: 1px solid #a2a9b1;
+            margin-bottom: 20px;
+        }
+
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .filter-group label {
+            font-size: 13px;
+            color: #333;
+            white-space: nowrap;
+        }
+
+        .filter-group select,
+        .filter-group input {
+            padding: 6px 10px;
+            border: 1px solid #a2a9b1;
+            font-size: 13px;
+            background: #fff;
+        }
+
+        .filter-group input[type="number"] {
+            width: 70px;
+        }
+
+        .filter-btn {
+            padding: 6px 16px;
+            background: #fff;
+            border: 1px solid #a2a9b1;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        .filter-btn:hover {
+            background: #f0f0f0;
+        }
+
+        .filter-btn.primary {
+            background: #3366cc;
+            color: #fff;
+            border-color: #3366cc;
+        }
+
+        .filter-btn.primary:hover {
+            background: #2a56b0;
+        }
+
+        /* 详情面板 */
+        .detail-panel {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            background: #fff;
+            border: 2px solid #a2a9b1;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            z-index: 1000;
+            overflow-y: auto;
+        }
+
+        .detail-panel.active {
+            display: block;
+        }
+
+        .detail-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 20px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #a2a9b1;
+        }
+
+        .detail-header h3 {
+            margin: 0;
+            font-size: 18px;
+        }
+
+        .detail-close {
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #fff;
+            border: 1px solid #a2a9b1;
+            cursor: pointer;
+            font-size: 18px;
+            line-height: 1;
+        }
+
+        .detail-close:hover {
+            background: #f0f0f0;
+        }
+
+        .detail-content {
+            padding: 20px;
+        }
+
+        .detail-section {
+            margin-bottom: 16px;
+        }
+
+        .detail-section-title {
+            font-size: 14px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 8px;
+            padding-bottom: 4px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .detail-info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+        }
+
+        .detail-info-item {
+            display: flex;
+            font-size: 13px;
+        }
+
+        .detail-info-label {
+            color: #666;
+            min-width: 80px;
+        }
+
+        .detail-info-value {
+            color: #000;
+            font-weight: 500;
+        }
+
+        .detail-description {
+            font-size: 13px;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        .detail-connections {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .connection-group {
+            padding: 10px;
+            background: #f8f9fa;
+            border: 1px solid #e0e0e0;
+        }
+
+        .connection-title {
+            font-size: 12px;
+            font-weight: bold;
+            color: #666;
+            margin-bottom: 6px;
+        }
+
+        .connection-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .connection-item {
+            font-size: 12px;
+            padding: 2px 8px;
+            background: #fff;
+            border: 1px solid #d0d0d0;
+        }
+
+        .detail-loot {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .loot-tag {
+            font-size: 12px;
+            padding: 3px 8px;
+            background: #f0f0f0;
+            border: 1px solid #d0d0d0;
+        }
+
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+        }
+
+        .overlay.active {
+            display: block;
+        }
+
+        /* 统计面板 */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            padding: 16px;
+            background: #f8f9fa;
+            border: 1px solid #a2a9b1;
+            text-align: center;
+        }
+
+        .stat-card .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #3366cc;
+        }
+
+        .stat-card .stat-label {
+            font-size: 12px;
+            color: #666;
+            margin-top: 4px;
+        }
+
+        /* 子位置样式 */
+        .sub-location-section {
+            margin-top: 12px;
+            padding: 10px;
+            background: #f5f5f5;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+        }
+
+        .sub-location-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .sub-location-header:hover {
+            color: #3366cc;
+        }
+
+        .sub-location-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 8px;
+        }
+
+        .sub-location-card {
+            padding: 8px;
+            background: #fff;
+            border: 1px solid #d0d0d0;
+            border-radius: 3px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .sub-location-card:hover {
+            border-color: #3366cc;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .sub-location-card .sub-name {
+            font-size: 12px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 4px;
+        }
+
+        .sub-location-card .sub-type {
+            font-size: 10px;
+            padding: 1px 4px;
+            background: #e8e8e8;
+            border-radius: 2px;
+            color: #666;
+            display: inline-block;
+            margin-bottom: 4px;
+        }
+
+        .sub-location-card .sub-desc {
+            font-size: 11px;
+            color: #999;
+            line-height: 1.4;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .sub-location-content {
+            display: none;
+        }
+
+        .sub-location-content.expanded {
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .filter-panel {
+                flex-direction: column;
+            }
+
+            .filter-group {
+                width: 100%;
+            }
+
+            .filter-group select,
+            .filter-group input {
+                flex: 1;
+            }
+
+            .location-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .detail-info-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .sub-location-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
 <body class="wiki-layout">
     <header class="wiki-topbar">
@@ -12,7 +539,7 @@
             <a href="../index.html">蛙噻！好摊</a>
         </div>
         <div class="wiki-search">
-            <input type="text" placeholder="搜索百科..." id="searchInput">
+            <input type="text" placeholder="搜索地点..." id="searchInput">
             <button onclick="searchLocations()">搜索</button>
         </div>
         <div class="wiki-user">
@@ -27,32 +554,57 @@
                     <h3>百科分类</h3>
                     <ul>
                         <li><a href="../index.html">首页</a></li>
+                        <li><a href="game-intro.html">游戏介绍</a></li>
                         <li><a href="world.html">世界观</a></li>
+                        <li><a href="factions.html">势力分布</a></li>
+                        <li><a href="history.html">历史年表</a></li>
+                        <li><a href="price-mechanism.html">价格机制</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>游戏特色</h3>
+                    <ul>
+                        <li><a href="bazaar.html">集市</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h3>游戏玩法</h3>
+                    <ul>
+                        <li><a href="market.html">摆摊系统</a></li>
+                        <li><a href="achievements.html">成就系统</a></li>
+                        <li><a href="combat.html">战斗系统</a></li>
+                        <li><a href="progression.html">成长系统</a></li>
+                        <li><a href="currency.html">货币系统</a></li>
                     </ul>
                 </div>
                 <div class="nav-section">
                     <h3>角色</h3>
                     <ul>
                         <li><a href="characters.html">角色总览</a></li>
-                        <li><a href="characters.html?type=playable">可招募角色</a></li>
+                        <li><a href="characters.html?type=playable">主要角色</a></li>
                         <li><a href="characters.html?type=npc">NPC</a></li>
-                        <li><a href="characters.html?type=enemy">敌人</a></li>
+                        <li><a href="enemies.html">敌人</a></li>
                     </ul>
                 </div>
                 <div class="nav-section">
                     <h3>物品装备</h3>
                     <ul>
                         <li><a href="items.html">物品总览</a></li>
-                        <li><a href="items.html?type=weapon">武器</a></li>
-                        <li><a href="items.html?type=armor">防具</a></li>
-                        <li><a href="items.html?type=consumable">消耗品</a></li>
-                        <li><a href="items.html?type=material">材料</a></li>
+                        <li><a href="weapon.html">武器</a></li>
+                        <li><a href="armor.html">防具</a></li>
+                        <li><a href="accessory.html">饰品</a></li>
+                        <li><a href="treasure.html">法宝</a></li>
+                        <li><a href="consumable.html">消耗品</a></li>
+                        <li><a href="material.html">材料</a></li>
+                        <li><a href="collection.html">收藏品</a></li>
+                        <li><a href="crafting.html">生活技能</a></li>
                     </ul>
                 </div>
                 <div class="nav-section">
                     <h3>世界探索</h3>
                     <ul>
                         <li><a href="locations.html" class="active">地点总览</a></li>
+                        <li><a href="map.html">游戏地图</a></li>
                         <li><a href="quests.html">任务剧情</a></li>
                     </ul>
                 </div>
@@ -61,89 +613,105 @@
 
         <main class="wiki-content">
             <nav class="breadcrumb">
-                <a href="../index.html">首页</a> &gt; <span class="current">地点地图</span>
+                <a href="../index.html">首页</a> &gt; <span class="current">地点总览</span>
             </nav>
 
             <article class="wiki-article">
-                <h1 class="article-title">地点地图</h1>
-                
+                <h1 class="article-title">取经之路 - 地点总览</h1>
+
                 <div class="article-intro">
-                    <p>本页面收录了游戏世界中的所有地点，包括<strong>城镇</strong>、<strong>副本</strong>、<strong>野外</strong>和<strong>特殊地点</strong>。</p>
+                    <p>本页面收录了取经之路上的所有地点，采用<strong>大洲→区域→地点</strong>的三级层级结构。从东胜神洲的花果山到西牛贺洲的雷音寺，每个地点都有独特的等级、战力和探索度属性。</p>
                 </div>
 
-                <div class="infobox">
-                    <div class="infobox-header">地点统计</div>
-                    <div class="infobox-row">
-                        <div class="infobox-label">城镇</div>
-                        <div class="infobox-value" id="townCount">-</div>
+                <!-- 统计面板 -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="statTotal">-</div>
+                        <div class="stat-label">总地点数</div>
                     </div>
-                    <div class="infobox-row">
-                        <div class="infobox-label">副本</div>
-                        <div class="infobox-value" id="dungeonCount">-</div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="statTown">-</div>
+                        <div class="stat-label">城镇</div>
                     </div>
-                    <div class="infobox-row">
-                        <div class="infobox-label">野外</div>
-                        <div class="infobox-value" id="fieldCount">-</div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="statDungeon">-</div>
+                        <div class="stat-label">洞府</div>
                     </div>
-                    <div class="infobox-row">
-                        <div class="infobox-label">总计</div>
-                        <div class="infobox-value" id="totalCount">-</div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="statField">-</div>
+                        <div class="stat-label">野外</div>
                     </div>
                 </div>
 
-                <h2 id="list">地点列表</h2>
-                
-                <div class="filter-tabs">
-                    <button class="tab-btn active" onclick="filterLocations('all')">全部</button>
-                    <button class="tab-btn" onclick="filterLocations('town')">城镇</button>
-                    <button class="tab-btn" onclick="filterLocations('dungeon')">副本</button>
-                    <button class="tab-btn" onclick="filterLocations('field')">野外</button>
-                    <button class="tab-btn" onclick="filterLocations('special')">特殊</button>
-                </div>
-                
-                <div class="card-grid" id="locationGrid"></div>
-
-                <h2 id="add">添加新地点</h2>
-                <form id="addLocationForm" class="wiki-form">
-                    <div class="form-group">
-                        <label>地点名称</label>
-                        <input type="text" id="locName" placeholder="输入地点名称" required>
+                <!-- 筛选面板 -->
+                <div class="filter-panel">
+                    <div class="filter-group">
+                        <label>大洲:</label>
+                        <select id="filterContinent" onchange="applyFilters()">
+                            <option value="">全部</option>
+                        </select>
                     </div>
-                    <div class="form-group">
-                        <label>地点类型</label>
-                        <select id="locType">
+                    <div class="filter-group">
+                        <label>区域:</label>
+                        <select id="filterRegion" onchange="applyFilters()">
+                            <option value="">全部</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>类型:</label>
+                        <select id="filterType" onchange="applyFilters()">
+                            <option value="">全部</option>
                             <option value="town">城镇</option>
-                            <option value="dungeon">副本</option>
+                            <option value="dungeon">洞府</option>
                             <option value="field">野外</option>
                             <option value="special">特殊</option>
                         </select>
                     </div>
-                    <div class="form-group">
-                        <label>危险等级</label>
-                        <select id="locDanger">
-                            <option value="safe">安全</option>
-                            <option value="low">低危</option>
-                            <option value="medium">中危</option>
-                            <option value="high">高危</option>
-                            <option value="extreme">极危</option>
+                    <div class="filter-group">
+                        <label>等级:</label>
+                        <input type="number" id="filterLevelMin" placeholder="最小" min="1" max="100" onchange="applyFilters()">
+                        <span>-</span>
+                        <input type="number" id="filterLevelMax" placeholder="最大" min="1" max="100" onchange="applyFilters()">
+                    </div>
+                    <div class="filter-group">
+                        <label>探索度:</label>
+                        <select id="filterExploration" onchange="applyFilters()">
+                            <option value="">全部</option>
+                            <option value="0">未探索(0%)</option>
+                            <option value="1-50">低探索(1-50%)</option>
+                            <option value="51-99">中探索(51-99%)</option>
+                            <option value="100">完全探索(100%)</option>
                         </select>
                     </div>
-                    <div class="form-group">
-                        <label>地点描述</label>
-                        <textarea id="locDesc" placeholder="输入地点描述" rows="3"></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label>主要产出（用逗号分隔）</label>
-                        <input type="text" id="locLoot" placeholder="例如：铁矿石, 草药, 金币">
-                    </div>
-                    <button type="submit" class="btn-primary">添加地点</button>
-                </form>
+                    <button class="filter-btn" onclick="resetFilters()">重置</button>
+                </div>
+
+                <h2 id="list">地点列表</h2>
+
+                <!-- 三级层级容器 -->
+                <div class="hierarchy-container" id="hierarchyContainer">
+                    <!-- 动态生成 -->
+                </div>
 
                 <div class="article-footer">
-                    <p>最后更新于：2026-03-19 | 编辑次数：1</p>
+                    <p>最后更新于：2026-03-20 | 编辑次数：2</p>
                 </div>
             </article>
         </main>
+    </div>
+
+    <!-- 遮罩层 -->
+    <div class="overlay" id="overlay" onclick="closeDetail()"></div>
+
+    <!-- 详情面板 -->
+    <div class="detail-panel" id="detailPanel">
+        <div class="detail-header">
+            <h3 id="detailTitle">地点详情</h3>
+            <button class="detail-close" onclick="closeDetail()">&times;</button>
+        </div>
+        <div class="detail-content" id="detailContent">
+            <!-- 动态生成 -->
+        </div>
     </div>
 
     <footer class="wiki-footer">
@@ -152,58 +720,767 @@
 
     <script src="../js/main.js"></script>
     <script>
-        let locations = JSON.parse(localStorage.getItem('wiki_locations')) || [
-            { id: 1, name: "起始城镇", type: "town", danger: "safe", description: "冒险开始的地方，这里有热闹的市场和友善的居民。", loot: ["基础材料", "普通商品"] },
-            { id: 2, name: "迷雾森林", type: "field", danger: "low", description: "城镇附近的森林，经常有低级怪物出没。", loot: ["木材", "草药", "低级素材"] },
-            { id: 3, name: "废弃矿洞", type: "dungeon", danger: "medium", description: "曾经繁荣的矿洞，现在被怪物占据。", loot: ["铁矿石", "铜矿石", "稀有矿石"] },
-            { id: 4, name: "商业之都", type: "town", danger: "safe", description: "大陆上最大的贸易城市。", loot: ["稀有商品", "高级材料", "珍贵情报"] },
-            { id: 5, name: "龙息山脉", type: "field", danger: "high", description: "传说中巨龙栖息的山脉。", loot: ["龙鳞", "稀有矿石", "传奇材料"] }
+        // ==================== 数据结构 ====================
+
+        // 大洲数据
+        const continents = [
+            {
+                id: 'east',
+                name: '东胜神洲',
+                description: '孙悟空的故乡，修仙圣地，灵气充沛',
+                order: 1
+            },
+            {
+                id: 'south',
+                name: '南赡部洲',
+                description: '人间繁华之地，大唐国都所在，取经主路',
+                order: 2
+            },
+            {
+                id: 'west',
+                name: '西牛贺洲',
+                description: '西方极乐世界附近，佛法昌盛，取经终点',
+                order: 3
+            },
+            {
+                id: 'north',
+                name: '北俱芦洲',
+                description: '苦寒之地，环境恶劣，藏有上古遗迹',
+                order: 4
+            },
+            {
+                id: 'other',
+                name: '其他仙境',
+                description: '天庭、仙岛等特殊区域',
+                order: 5
+            }
         ];
 
-        function saveLocations() { localStorage.setItem('wiki_locations', JSON.stringify(locations)); }
+        // 区域数据
+        const regions = [
+            // 东胜神洲
+            { id: 'huaguo', name: '花果山区域', continent: 'east', description: '孙悟空诞生地，猴群聚居' },
+            { id: 'aolai', name: '傲来国区域', continent: 'east', description: '东胜神洲贸易中心' },
+            { id: 'donghai', name: '东海区域', continent: 'east', description: '龙宫所在，水族聚集地' },
+            { id: 'fangcun', name: '方寸山区域', continent: 'east', description: '菩提祖师修道之地' },
+
+            // 南赡部洲 - 按取经路线分段
+            { id: 'chang_an', name: '长安区域', continent: 'south', description: '大唐国都，取经起点' },
+            { id: 'liangjie', name: '两界山区域', continent: 'south', description: '连接东西的神山' },
+            { id: 'wuxing', name: '五行山区域', continent: 'south', description: '镇压孙悟空之地' },
+            { id: 'yingchou', name: '鹰愁涧区域', continent: 'south', description: '小白龙盘踞的深涧' },
+            { id: 'guanyin', name: '观音禅院区域', continent: 'south', description: '观音菩萨道场' },
+            { id: 'heifeng', name: '黑风山区域', continent: 'south', description: '黑熊精洞府所在' },
+            { id: 'huangfeng', name: '黄风岭区域', continent: 'south', description: '黄风怪地盘' },
+            { id: 'liusha', name: '流沙河区域', continent: 'south', description: '沙僧栖身之地' },
+            { id: 'wuzhuang', name: '五庄观区域', continent: 'south', description: '镇元大仙道场' },
+            { id: 'baihu', name: '白虎岭区域', continent: 'south', description: '白骨精盘踞之地' },
+            { id: 'wanzi', name: '碗子山区域', continent: 'south', description: '波月洞所在' },
+            { id: 'baoxiang', name: '宝象国区域', continent: 'south', description: '西域宝石之国' },
+            { id: 'pingding', name: '平顶山区域', continent: 'south', description: '金角银角大王地盘' },
+            { id: 'wuji', name: '乌鸡国区域', continent: 'south', description: '曾被假国王统治' },
+            { id: 'haoshan', name: '号山区域', continent: 'south', description: '红孩儿地盘' },
+            { id: 'heishui', name: '黑水河区域', continent: 'south', description: '鼍龙作祟之河' },
+            { id: 'chechi', name: '车迟国区域', continent: 'south', description: '信奉道教之国' },
+            { id: 'tongtian', name: '通天河区域', continent: 'south', description: '灵感大王作祟' },
+            { id: 'jindou', name: '金兜山区域', continent: 'south', description: '独角兕大王地盘' },
+            { id: 'nver', name: '女儿国区域', continent: 'south', description: '神秘女子国度' },
+            { id: 'dudi', name: '毒敌山区域', continent: 'south', description: '蝎子精地盘' },
+            { id: 'huoyan', name: '火焰山区域', continent: 'south', description: '八百里火焰' },
+            { id: 'cuiyun', name: '翠云山区域', continent: 'south', description: '铁扇公主居所' },
+            { id: 'jilei', name: '积雷山区域', continent: 'south', description: '牛魔王地盘' },
+
+            // 西牛贺洲
+            { id: 'jisai', name: '祭赛国区域', continent: 'west', description: '西域佛国' },
+            { id: 'jingji', name: '荆棘岭区域', continent: 'west', description: '树精藤怪盘踞' },
+            { id: 'zhuzi', name: '朱紫国区域', continent: 'west', description: '紫金珠宝之国' },
+            { id: 'pansi', name: '盘丝岭区域', continent: 'west', description: '蜘蛛精七姐妹' },
+            { id: 'shituo', name: '狮驼岭区域', continent: 'west', description: '三魔盘踞之地' },
+            { id: 'biqiu', name: '比丘国区域', continent: 'west', description: '白鹿精国师' },
+            { id: 'xiankong', name: '陷空山区域', continent: 'west', description: '地涌夫人地盘' },
+            { id: 'miefo', name: '灭法国区域', continent: 'west', description: '国王曾杀和尚' },
+            { id: 'yinwu', name: '隐雾山区域', continent: 'west', description: '云雾缭绕' },
+            { id: 'fengxian', name: '凤仙郡区域', continent: 'west', description: '曾遭大旱' },
+            { id: 'yuhua', name: '玉华州区域', continent: 'west', description: '三位王子学艺' },
+            { id: 'baotou', name: '豹头山区域', continent: 'west', description: '虎口洞所在' },
+            { id: 'zhujie', name: '竹节山区域', continent: 'west', description: '九灵元圣地盘' },
+            { id: 'jinping', name: '金平府区域', continent: 'west', description: '天竺边陲重镇' },
+            { id: 'qinglong', name: '青龙山区域', continent: 'west', description: '玄英洞所在' },
+            { id: 'bujin', name: '布金禅寺区域', continent: 'west', description: '给孤独长者遗址' },
+            { id: 'tianzhu', name: '天竺国区域', continent: 'west', description: '佛法昌盛' },
+            { id: 'tongtai', name: '铜台府区域', continent: 'west', description: '寇员外款待处' },
+            { id: 'lingyun', name: '凌云渡区域', continent: 'west', description: '脱胎换骨试炼' },
+            { id: 'leiyin', name: '雷音寺区域', continent: 'west', description: '取经终点' },
+
+            // 北俱芦洲
+            { id: 'xueyuan', name: '雪原区域', continent: 'north', description: '苦寒之地' },
+
+            // 其他仙境
+            { id: 'penglai', name: '蓬莱区域', continent: 'other', description: '东海仙岛' },
+            { id: 'yaochi', name: '瑶池区域', continent: 'other', description: '王母娘娘居所' },
+            { id: 'doushuai', name: '兜率宫区域', continent: 'other', description: '太上老君宫殿' }
+        ];
+
+        // 地点数据（80个地点，带等级、战力、探索度）
+        const locations = [
+            // ========== 东胜神洲 ==========
+            // 花果山区域
+            { id: 1, name: '花果山', type: 'town', region: 'huaguo', continent: 'east', level: 1, power: 100, exploration: 0, description: '主角的诞生地，山顶仙石灵气充沛，是取经之旅的起点。这里有热闹的水帘洞集市和友善的猴群。', loot: ['灵果', '仙草', '猴儿酒', '灵虫', '花蜜虫', '仙草蚕', '金蝉子', '百草虫', '灵芝虫'], connections: { main: [2, 4], branch: [3] }, subLocations: [{ id: '1-1', name: '花果山水池旁', type: 'habitat', description: '青蛙主角最喜欢的栖息地，池水清澈，常年有灵虫出没', loot: ['灵虫', '池水草', '小虾'] }, { id: '1-2', name: '花果山大榕树下', type: 'rest', description: '千年大榕树，猴群聚集的阴凉处，常有猴子掉落的食物', loot: ['野果', '猴毛', '树汁'] }, { id: '1-3', name: '花果山瀑布后', type: 'special', description: '水帘洞入口附近，水雾弥漫，是修炼的好地方', loot: ['水雾珠', '瀑布晶', '灵气'] }, { id: '1-4', name: '花果山桃林深处', type: 'resource', description: '盛产仙桃的地方，香气四溢，吸引各种灵兽', loot: ['仙桃', '桃核', '桃花瓣'] }, { id: '1-5', name: '花果山仙石旁', type: 'special', description: '主角诞生的地方，仙石灵气充沛，对修炼大有裨益', loot: ['仙石碎片', '灵气结晶', '灵石粉'] }, { id: '1-6', name: '花果山溪边草地', type: 'resource', description: '清澈的溪流旁，草地柔软，是捕捉灵虫的好地方', loot: ['灵虫', '溪石', '水草'] }, { id: '1-7', name: '花果山悬崖边', type: 'view', description: '俯瞰东海的绝佳观景点，风大但景色壮丽', loot: ['海风露', '悬崖草', '云雾'] }, { id: '1-8', name: '花果山洞穴深处', type: 'dungeon', description: '神秘的地下空间，据说通往未知的地方', loot: ['洞穴晶', '蝙蝠粪', '矿石'] }] },
+            { id: 3, name: '水帘洞', type: 'special', region: 'huaguo', continent: 'east', level: 1, power: 150, exploration: 0, description: '花果山内的洞天福地，曾是美猴王的居所，现在是灵蛙们交易的秘密场所。', loot: ['猴儿酒', '仙石碎片', '灵泉'], connections: { main: [1], branch: [] }, subLocations: [{ id: '3-1', name: '水帘洞密室', type: 'dungeon', description: '洞内的秘密空间，藏有美猴王留下的宝物', loot: ['猴王遗物', '秘藏酒', '古卷'] }, { id: '3-2', name: '水帘洞藏酒窖', type: 'resource', description: '存放猴儿酒的地方，酒香扑鼻', loot: ['猴儿酒', '酒坛', '酒曲'] }, { id: '3-3', name: '水帘洞议事厅', type: 'rest', description: '猴群商议大事的地方，宽敞明亮', loot: ['石凳', '议事石', '果核'] }] },
+
+            // 傲来国区域
+            { id: 2, name: '傲来国集市', type: 'town', region: 'aolai', continent: 'east', level: 2, power: 200, exploration: 0, description: '东胜神洲最繁华的贸易中心，商贾云集，是商战者们学习经商之道的第一站。', loot: ['丝绸', '茶叶', '奇珍异宝'], connections: { main: [1, 6], branch: [] } },
+
+            // 东海区域
+            { id: 4, name: '东海龙宫', type: 'dungeon', region: 'donghai', continent: 'east', level: 5, power: 500, exploration: 0, description: '东海龙王的水晶宫殿，藏有无数珍宝，但需要特殊的避水珠才能进入深处。', loot: ['避水珠', '龙宫珍宝', '珊瑚', '珍珠'], connections: { main: [1], branch: [76] }, subLocations: [{ id: '4-1', name: '龙宫正殿', type: 'special', description: '龙王议事的地方，金碧辉煌，气势恢宏', loot: ['龙鳞', '宝珠', '珊瑚'] }, { id: '4-2', name: '龙宫宝库', type: 'dungeon', description: '藏有无数珍宝的密室，守卫森严', loot: ['珍珠', '夜明珠', '海底金'] }, { id: '4-3', name: '龙宫外花园', type: 'resource', description: '海底珊瑚花园，五彩斑斓，美不胜收', loot: ['珊瑚', '海花', '贝壳'] }, { id: '4-4', name: '龙宫偏殿', type: 'rest', description: '龙子龙女的居所，相对安静', loot: ['龙子玉', '珍珠链', '海螺'] }, { id: '4-5', name: '龙宫入口长廊', type: 'passage', description: '通往龙宫的必经之路，两旁有虾兵蟹将把守', loot: ['虾壳', '蟹钳', '水晶'] }, { id: '4-6', name: '龙宫炼丹房', type: 'special', description: '炼制水族丹药的地方，药香四溢', loot: ['水族丹', '海藻', '珍珠粉'] }, { id: '4-7', name: '龙宫演武场', type: 'training', description: '虾兵蟹将训练的场所，常有比武', loot: ['兵器碎片', '盔甲片', '训练木'] }, { id: '4-8', name: '龙宫水晶回廊', type: 'passage', description: '连接各殿的水晶通道，光芒四射', loot: ['水晶', '光石', '琉璃'] }] },
+
+            // 方寸山区域
+            { id: 5, name: '方寸山', type: 'town', region: 'fangcun', continent: 'east', level: 8, power: 800, exploration: 0, description: '菩提祖师的修道之地，斜月三星洞外常有求道者摆摊售卖道家法器。', loot: ['道家典籍', '符箓', '法器'], connections: { main: [78], branch: [] }, subLocations: [{ id: '5-1', name: '斜月三星洞', type: 'special', description: '菩提祖师讲道的地方，仙气缭绕', loot: ['道经', '仙草', '灵石'] }, { id: '5-2', name: '方寸山腰小道', type: 'passage', description: '蜿蜒的山路，两旁长满奇花异草', loot: ['山花', '草药', '松果'] }, { id: '5-3', name: '方寸山顶平台', type: 'view', description: '山顶的修炼平台，可俯瞰群山', loot: ['云雾', '山巅石', '灵芝'] }] },
+            { id: 78, name: '灵台方寸山', type: 'special', region: 'fangcun', continent: 'east', level: 10, power: 1000, exploration: 0, description: '孙悟空学艺之地，山中有斜月三星洞，是修仙圣地。', loot: ['七十二变秘籍', '筋斗云', '仙丹'], connections: { main: [5], branch: [] } },
+
+            // ========== 南赡部洲 ==========
+            // 长安区域
+            { id: 6, name: '长安城', type: 'town', region: 'chang_an', continent: 'south', level: 3, power: 300, exploration: 0, description: '大唐国都，人间最繁华的都市，各国商贾云集，是经商者的天堂。', loot: ['唐三彩', '丝绸', '茶叶', '古玩'], connections: { main: [2, 7], branch: [] } },
+
+            // 两界山区域
+            { id: 7, name: '两界山', type: 'field', region: 'liangjie', continent: 'south', level: 4, power: 400, exploration: 0, description: '连接东胜神洲与南赡部洲的必经之路，山中有不少低级妖兽出没。', loot: ['山参', '野味', '低级妖丹'], connections: { main: [6, 8], branch: [] } },
+            { id: 8, name: '双叉岭', type: 'field', region: 'liangjie', continent: 'south', level: 5, power: 500, exploration: 0, description: '取经人初出茅庐时遇到的第一个险地，常有虎豹豺狼出没。', loot: ['虎皮', '豹骨', '山货'], connections: { main: [7, 9], branch: [] } },
+
+            // 五行山区域
+            { id: 9, name: '五行山', type: 'special', region: 'wuxing', continent: 'south', level: 8, power: 800, exploration: 0, description: '如来佛祖镇压孙悟空之地，山下灵气充沛，生长着许多珍稀药材。', loot: ['五行灵石', '佛印草', '镇山符'], connections: { main: [8, 10], branch: [] } },
+
+            // 鹰愁涧区域
+            { id: 10, name: '鹰愁涧', type: 'field', region: 'yingchou', continent: 'south', level: 10, power: 1000, exploration: 0, description: '小白龙曾盘踞的深涧，涧水幽深，传说有龙族宝藏沉于水底。', loot: ['龙鳞', '涧底珍珠', '水晶'], connections: { main: [9, 11], branch: [] } },
+
+            // 观音禅院区域
+            { id: 11, name: '观音禅院', type: 'town', region: 'guanyin', continent: 'south', level: 12, power: 1200, exploration: 0, description: '观音菩萨的道场之一，香火鼎盛，常有善男信女前来供奉。', loot: ['香火', '佛经', '观音像'], connections: { main: [10, 12], branch: [] } },
+
+            // 黑风山区域
+            { id: 12, name: '黑风山', type: 'dungeon', region: 'heifeng', continent: 'south', level: 15, power: 1500, exploration: 0, description: '黑熊精曾盘踞的洞府，如今虽被收复，但仍有残余妖气吸引各路小妖。', loot: ['熊胆', '黑铁', '佛经残卷'], connections: { main: [11, 13], branch: [] } },
+
+            // 黄风岭区域
+            { id: 13, name: '黄风岭', type: 'field', region: 'huangfeng', continent: 'south', level: 18, power: 1800, exploration: 0, description: '黄风怪的地盘，常年刮着三昧神风，需要特殊装备才能抵御。', loot: ['定风珠碎片', '黄风砂', '妖丹'], connections: { main: [12, 14], branch: [17] } },
+            { id: 17, name: '白虎岭', type: 'field', region: 'baihu', continent: 'south', level: 25, power: 2500, exploration: 0, description: '白骨精盘踞之地，阴气森森，常有骷髅精和僵尸出没。', loot: ['白骨', '阴魂珠', '僵尸粉'], connections: { main: [], branch: [13] } },
+
+            // 流沙河区域
+            { id: 14, name: '流沙河', type: 'field', region: 'liusha', continent: 'south', level: 20, power: 2000, exploration: 0, description: '沙僧曾经的栖身之地，河水湍急，河底藏有不少被冲来的宝物。', loot: ['河沙', '珍珠', '沉船遗物'], connections: { main: [13, 16], branch: [] } },
+            { id: 15, name: '万寿山', type: 'field', region: 'liusha', continent: 'south', level: 22, power: 2200, exploration: 0, description: '风景秀丽的仙山，山中有不少散仙修行，常有仙草灵药出售。', loot: ['灵芝', '仙草', '灵石'], connections: { main: [16], branch: [] } },
+
+            // 五庄观区域
+            { id: 16, name: '五庄观', type: 'town', region: 'wuzhuang', continent: 'south', level: 25, power: 2500, exploration: 0, description: '镇元大仙的道场，以人参果闻名天下，是采集高级药材的圣地。', loot: ['人参果', '仙丹', '道家符箓'], connections: { main: [14, 18], branch: [15, 20] } },
+
+            // 碗子山区域
+            { id: 18, name: '碗子山', type: 'field', region: 'wanzi', continent: 'south', level: 28, power: 2800, exploration: 0, description: '山势险峻，波月洞内藏有黄袍怪的宝藏，但也有重重机关。', loot: ['黄袍', '波月珠', '山精内丹'], connections: { main: [16, 19], branch: [] } },
+
+            // 宝象国区域
+            { id: 19, name: '宝象国', type: 'town', region: 'baoxiang', continent: 'south', level: 30, power: 3000, exploration: 0, description: '西域小国，以出产宝石和香料闻名，是采购奢侈品的好去处。', loot: ['宝石', '香料', '西域特产'], connections: { main: [18, 20], branch: [] } },
+
+            // 平顶山区域
+            { id: 20, name: '平顶山', type: 'field', region: 'pingding', continent: 'south', level: 32, power: 3200, exploration: 0, description: '金角大王和银角大王的地盘，山上布满各种法宝陷阱。', loot: ['紫金葫芦碎片', '羊脂玉净瓶', '法宝残片'], connections: { main: [19, 21], branch: [16] } },
+            { id: 21, name: '莲花洞', type: 'dungeon', region: 'pingding', continent: 'south', level: 35, power: 3500, exploration: 0, description: '金角银角的老巢，洞内藏有太上老君的各种法宝。', loot: ['七星剑', '芭蕉扇', '幌金绳'], connections: { main: [20], branch: [] } },
+
+            // 乌鸡国区域
+            { id: 22, name: '乌鸡国', type: 'town', region: 'wuji', continent: 'south', level: 38, power: 3800, exploration: 0, description: '被假国王统治多年的国度，如今真相大白，百废待兴，商机无限。', loot: ['乌鸡肉', '国宝玉玺', '宫廷珍宝'], connections: { main: [21, 24], branch: [] } },
+
+            // 号山区域
+            { id: 23, name: '火云洞', type: 'dungeon', region: 'haoshan', continent: 'south', level: 45, power: 4500, exploration: 0, description: '红孩儿的洞府，三昧真火日夜燃烧，只有特殊方法才能进入。', loot: ['三昧真火', '火尖枪', '火云石'], connections: { main: [24], branch: [] } },
+            { id: 24, name: '号山', type: 'field', region: 'haoshan', continent: 'south', level: 42, power: 4200, exploration: 0, description: '红孩儿的地盘，山中遍布火系妖怪，温度极高。', loot: ['火鼠皮', '炎晶', '火灵草'], connections: { main: [22, 25], branch: [23] } },
+
+            // 黑水河区域
+            { id: 25, name: '黑水河', type: 'field', region: 'heishui', continent: 'south', level: 45, power: 4500, exploration: 0, description: '河水漆黑如墨，河中有鼍龙作祟，需要小心渡河。', loot: ['黑水珍珠', '鼍龙皮', '玄铁'], connections: { main: [24, 26], branch: [] } },
+
+            // 车迟国区域
+            { id: 26, name: '车迟国', type: 'town', region: 'chechi', continent: 'south', level: 48, power: 4800, exploration: 0, description: '信奉道教的国家，国内有三位国师，是采购道家物品的好地方。', loot: ['道袍', '法器', '丹药'], connections: { main: [25, 28], branch: [27] } },
+            { id: 27, name: '三清观', type: 'special', region: 'chechi', continent: 'south', level: 50, power: 5000, exploration: 0, description: '车迟国的道观，供奉三清，常有高人在此讲道。', loot: ['三清像', '道德经', '仙丹'], connections: { main: [], branch: [26] } },
+
+            // 通天河区域
+            { id: 28, name: '通天河', type: 'field', region: 'tongtian', continent: 'south', level: 52, power: 5200, exploration: 0, description: '宽阔的大河，河中有灵感大王作祟，需要找到渡河方法。', loot: ['通天鱼', '河底玉石', '水灵珠'], connections: { main: [26, 30], branch: [29] } },
+            { id: 29, name: '陈家庄', type: 'town', region: 'tongtian', continent: 'south', level: 50, power: 5000, exploration: 0, description: '通天河边的村庄，村民淳朴，盛产河鲜和农产品。', loot: ['河鲜', '稻米', '农家特产'], connections: { main: [], branch: [28] } },
+
+            // 金兜山区域
+            { id: 30, name: '金兜山', type: 'field', region: 'jindou', continent: 'south', level: 55, power: 5500, exploration: 0, description: '独角兕大王的地盘，山中有金刚琢守护，法宝难以发挥作用。', loot: ['金刚琢碎片', '独角', '山精石'], connections: { main: [28, 31], branch: [] } },
+            { id: 31, name: '金兜洞', type: 'dungeon', region: 'jindou', continent: 'south', level: 58, power: 5800, exploration: 0, description: '独角兕大王的洞府，洞内有太上老君的金刚琢，危险重重。', loot: ['金刚琢', '老君丹', '仙铁'], connections: { main: [30], branch: [] } },
+
+            // 女儿国区域
+            { id: 32, name: '西梁女国', type: 'town', region: 'nver', continent: 'south', level: 60, power: 6000, exploration: 0, description: '神秘的国度，举国皆是女子，特产胭脂水粉和各类精致手工艺品。', loot: ['胭脂', '丝绸', '女儿红'], connections: { main: [31, 35], branch: [33] } },
+
+            // 毒敌山区域
+            { id: 33, name: '毒敌山', type: 'field', region: 'dudi', continent: 'south', level: 62, power: 6200, exploration: 0, description: '蝎子精的地盘，山中遍布毒虫毒草，需要解毒丹才能安全通过。', loot: ['蝎子尾', '毒草', '解毒丹材料'], connections: { main: [32], branch: [34] } },
+            { id: 34, name: '琵琶洞', type: 'dungeon', region: 'dudi', continent: 'south', level: 65, power: 6500, exploration: 0, description: '蝎子精的洞府，洞内布满倒马毒，是炼制毒药的材料来源。', loot: ['倒马毒', '琵琶', '妖丹'], connections: { main: [], branch: [33] } },
+
+            // 火焰山区域
+            { id: 35, name: '火焰山', type: 'field', region: 'huoyan', continent: 'south', level: 68, power: 6800, exploration: 0, description: '八百里火焰熊熊燃烧，只有借来芭蕉扇才能通行，危险与机遇并存。', loot: ['火晶石', '耐火材料', '火灵珠'], connections: { main: [32, 37], branch: [36] } },
+
+            // 翠云山区域
+            { id: 36, name: '翠云山', type: 'field', region: 'cuiyun', continent: 'south', level: 65, power: 6500, exploration: 0, description: '铁扇公主的居所，山中风景秀丽，有芭蕉扇可以扇灭火焰山之火。', loot: ['芭蕉叶', '山泉水', '灵芝'], connections: { main: [], branch: [35] } },
+
+            // 积雷山区域
+            { id: 37, name: '积雷山', type: 'field', region: 'jilei', continent: 'south', level: 70, power: 7000, exploration: 0, description: '牛魔王的地盘，山中妖气冲天，是妖怪的聚集地。', loot: ['牛角', '妖气结晶', '魔铁'], connections: { main: [35, 39], branch: [38] } },
+            { id: 38, name: '摩云洞', type: 'dungeon', region: 'jilei', continent: 'south', level: 72, power: 7200, exploration: 0, description: '玉面狐狸的洞府，洞内藏有牛魔王的不少珍宝。', loot: ['狐狸毛', '珍宝', '妖丹'], connections: { main: [], branch: [37] } },
+
+            // ========== 西牛贺洲 ==========
+            // 祭赛国区域
+            { id: 39, name: '祭赛国', type: 'town', region: 'jisai', continent: 'west', level: 45, power: 4500, exploration: 0, description: '西域佛国，金光寺宝塔闻名遐迩，是佛教用品的集散地。', loot: ['佛光珠', '舍利子', '佛经'], connections: { main: [37, 41], branch: [40] } },
+            { id: 40, name: '金光寺', type: 'special', region: 'jisai', continent: 'west', level: 48, power: 4800, exploration: 0, description: '祭赛国的皇家寺院，塔内供奉佛宝，香火鼎盛。', loot: ['佛宝', '香火', '袈裟'], connections: { main: [], branch: [39] } },
+
+            // 荆棘岭区域
+            { id: 41, name: '荆棘岭', type: 'field', region: 'jingji', continent: 'west', level: 50, power: 5000, exploration: 0, description: '长满荆棘的荒岭，树精藤怪盘踞其中，但也有珍稀药材生长。', loot: ['荆棘', '树精心', '千年灵芝'], connections: { main: [39, 43], branch: [42] } },
+            { id: 42, name: '木仙庵', type: 'special', region: 'jingji', continent: 'west', level: 52, power: 5200, exploration: 0, description: '树精们的居所，虽然精怪出没，但也产珍稀木材和药材。', loot: ['沉香木', '桃木', '树精液'], connections: { main: [], branch: [41] } },
+            { id: 43, name: '小雷音寺', type: 'dungeon', region: 'jingji', continent: 'west', level: 55, power: 5500, exploration: 0, description: '黄眉老佛假扮如来设下的陷阱，寺内布满人种袋和金铙。', loot: ['人种袋碎片', '金铙', '佛器'], connections: { main: [41, 45], branch: [44] } },
+            { id: 44, name: '七绝山', type: 'field', region: 'jingji', continent: 'west', level: 48, power: 4800, exploration: 0, description: '山路险峻，有红鳞大蟒盘踞，山中有七绝岭阻隔去路。', loot: ['蟒蛇皮', '红鳞', '山货'], connections: { main: [], branch: [43] } },
+
+            // 朱紫国区域
+            { id: 45, name: '朱紫国', type: 'town', region: 'zhuzi', continent: 'west', level: 52, power: 5200, exploration: 0, description: '西域国度，以出产紫金和珠宝闻名，国王曾被赛太岁掳走王后。', loot: ['紫金', '珠宝', '宫廷贡品'], connections: { main: [43, 47], branch: [46] } },
+            { id: 46, name: '麒麟山', type: 'field', region: 'zhuzi', continent: 'west', level: 55, power: 5500, exploration: 0, description: '赛太岁的地盘，山中有獬豸洞，洞内妖气弥漫。', loot: ['麒麟角', '獬豸毛', '妖丹'], connections: { main: [], branch: [45] } },
+            { id: 47, name: '獬豸洞', type: 'dungeon', region: 'zhuzi', continent: 'west', level: 58, power: 5800, exploration: 0, description: '赛太岁的洞府，洞内藏有金圣宫娘娘曾被囚禁的密室。', loot: ['紫金铃', '妖王宝藏', '密室钥匙'], connections: { main: [45, 49], branch: [] } },
+
+            // 盘丝岭区域
+            { id: 48, name: '盘丝岭', type: 'field', region: 'pansi', continent: 'west', level: 55, power: 5500, exploration: 0, description: '盘丝洞外的山岭，常有蜘蛛精的手下巡逻，布满蛛网。', loot: ['蛛丝', '毒虫', '蜘蛛卵'], connections: { main: [49], branch: [] } },
+            { id: 49, name: '盘丝洞', type: 'dungeon', region: 'pansi', continent: 'west', level: 58, power: 5800, exploration: 0, description: '蜘蛛精的洞府，布满蛛网陷阱，但洞中的蛛丝是制作防具的珍贵材料。', loot: ['蛛丝', '毒囊', '妖丹'], connections: { main: [47, 51], branch: [48, 50] } },
+            { id: 50, name: '黄花观', type: 'special', region: 'pansi', continent: 'west', level: 60, power: 6000, exploration: 0, description: '百眼魔君（蜈蚣精）的道观，观内布满金光阵，危险异常。', loot: ['蜈蚣毒', '金光珠', '道袍'], connections: { main: [], branch: [49] } },
+
+            // 狮驼岭区域
+            { id: 51, name: '狮驼岭', type: 'field', region: 'shituo', continent: 'west', level: 75, power: 7500, exploration: 0, description: '西游记中最危险的地方之一，狮驼洞三魔盘踞，妖兵数万。', loot: ['狮鬃', '象骨', '大鹏羽'], connections: { main: [49, 53], branch: [52] } },
+            { id: 52, name: '狮驼洞', type: 'dungeon', region: 'shituo', continent: 'west', level: 80, power: 8000, exploration: 0, description: '青狮、白象、大鹏三魔的老巢，洞内尸骨如山，是取经路上最大的险地。', loot: ['魔君令', '三魔宝藏', '妖王内丹'], connections: { main: [], branch: [51] } },
+
+            // 比丘国区域
+            { id: 53, name: '比丘国', type: 'town', region: 'biqiu', continent: 'west', level: 58, power: 5800, exploration: 0, description: '被白鹿精国师蛊惑的国度，如今恢复平静，是补给的好去处。', loot: ['寿桃', '养生药材', '宫廷用品'], connections: { main: [51, 55], branch: [54] } },
+            { id: 54, name: '清华洞', type: 'dungeon', region: 'biqiu', continent: 'west', level: 62, power: 6200, exploration: 0, description: '白鹿精的洞府，洞内藏有美人皮和众多邪物。', loot: ['美人皮', '邪物', '妖丹'], connections: { main: [], branch: [53] } },
+
+            // 陷空山区域
+            { id: 55, name: '陷空山', type: 'field', region: 'xiankong', continent: 'west', level: 60, power: 6000, exploration: 0, description: '地涌夫人（金鼻白毛老鼠精）的地盘，山中布满无底洞入口。', loot: ['老鼠须', '地底矿石', '夜明珠'], connections: { main: [53, 57], branch: [56] } },
+            { id: 56, name: '无底洞', type: 'dungeon', region: 'xiankong', continent: 'west', level: 65, power: 6500, exploration: 0, description: '地涌夫人的洞府，深不见底，洞内错综复杂如迷宫。', loot: ['托塔李天王牌位', '地底珍宝', '佛前灯油'], connections: { main: [], branch: [55] } },
+
+            // 灭法国区域
+            { id: 57, name: '灭法国', type: 'town', region: 'miefo', continent: 'west', level: 55, power: 5500, exploration: 0, description: '国王曾发誓要杀一万个和尚，如今被孙悟空剃度后改邪归正。', loot: ['剃刀', '袈裟', '佛珠'], connections: { main: [55, 60], branch: [] } },
+
+            // 隐雾山区域
+            { id: 58, name: '隐雾山', type: 'field', region: 'yinwu', continent: 'west', level: 52, power: 5200, exploration: 0, description: '山中常年云雾缭绕，折岳连环洞藏于其中，容易迷路。', loot: ['雾晶', '山参', '云雾茶'], connections: { main: [], branch: [59] } },
+            { id: 59, name: '折岳连环洞', type: 'dungeon', region: 'yinwu', continent: 'west', level: 55, power: 5500, exploration: 0, description: '南山大王（艾叶花皮豹子精）的洞府，洞内洞洞相连如迷宫。', loot: ['豹子皮', '连环洞地图', '妖王宝藏'], connections: { main: [], branch: [58] } },
+
+            // 凤仙郡区域
+            { id: 60, name: '凤仙郡', type: 'town', region: 'fengxian', continent: 'west', level: 50, power: 5000, exploration: 0, description: '曾因郡侯不敬天而遭大旱，如今风调雨顺，是西域的粮仓。', loot: ['粮食', '瓜果', '郡侯珍宝'], connections: { main: [57, 61], branch: [] } },
+
+            // 玉华州区域
+            { id: 61, name: '玉华州', type: 'town', region: 'yuhua', continent: 'west', level: 52, power: 5200, exploration: 0, description: '天竺国下的州城，三位王子曾拜孙悟空等为师学习武艺。', loot: ['兵器', '武艺秘籍', '王子赏赐'], connections: { main: [60, 62], branch: [] } },
+
+            // 豹头山区域
+            { id: 62, name: '豹头山', type: 'field', region: 'baotou', continent: 'west', level: 55, power: 5500, exploration: 0, description: '虎口洞所在的山岭，黄狮精曾在此盘踞。', loot: ['黄狮皮', '虎口洞钥匙', '山货'], connections: { main: [61, 64], branch: [63] } },
+            { id: 63, name: '虎口洞', type: 'dungeon', region: 'baotou', continent: 'west', level: 58, power: 5800, exploration: 0, description: '黄狮精的洞府，洞内藏有偷来的孙悟空三兄弟的兵器。', loot: ['金箍棒仿品', '九齿钉耙仿品', '降妖宝杖仿品'], connections: { main: [], branch: [62] } },
+
+            // 竹节山区域
+            { id: 64, name: '竹节山', type: 'field', region: 'zhujie', continent: 'west', level: 75, power: 7500, exploration: 0, description: '九灵元圣（九头狮子）的地盘，山中有九曲盘桓洞。', loot: ['狮毛', '竹节', '山精石'], connections: { main: [62, 66], branch: [65] } },
+            { id: 65, name: '九曲盘桓洞', type: 'dungeon', region: 'zhujie', continent: 'west', level: 82, power: 8200, exploration: 0, description: '九灵元圣的洞府，洞内有太乙救苦天尊的坐骑留下的仙家气息。', loot: ['九头狮鬃', '仙家法器', '天尊令牌'], connections: { main: [], branch: [64] } },
+
+            // 金平府区域
+            { id: 66, name: '金平府', type: 'town', region: 'jinping', continent: 'west', level: 55, power: 5500, exploration: 0, description: '天竺国边陲重镇，每年需要供奉犀牛精以保护地方安宁。', loot: ['香油', '府库珍宝', '天竺特产'], connections: { main: [64, 67], branch: [] } },
+
+            // 青龙山区域
+            { id: 67, name: '青龙山', type: 'field', region: 'qinglong', continent: 'west', level: 58, power: 5800, exploration: 0, description: '玄英洞所在的山脉，辟寒、辟暑、辟尘三只犀牛精盘踞于此。', loot: ['犀牛角', '玄英石', '香油'], connections: { main: [66, 69], branch: [68] } },
+            { id: 68, name: '玄英洞', type: 'dungeon', region: 'qinglong', continent: 'west', level: 62, power: 6200, exploration: 0, description: '三只犀牛精的洞府，洞内藏有大量从天竺国骗取的香油。', loot: ['辟寒珠', '辟暑珠', '辟尘珠'], connections: { main: [], branch: [67] } },
+
+            // 布金禅寺区域
+            { id: 69, name: '布金禅寺', type: 'special', region: 'bujin', continent: 'west', level: 60, power: 6000, exploration: 0, description: '天竺国的古老寺院，传说给孤独长者曾在此布金买地建寺。', loot: ['佛经', '佛前供品', '长者遗物'], connections: { main: [67, 70], branch: [] } },
+
+            // 天竺国区域
+            { id: 70, name: '天竺国', type: 'town', region: 'tianzhu', continent: 'west', level: 62, power: 6200, exploration: 0, description: '西方极乐世界附近的国度，佛法昌盛，是取经目的地的最后一站。', loot: ['天竺丝绸', '佛经', '佛器'], connections: { main: [69, 71], branch: [] } },
+
+            // 铜台府区域
+            { id: 71, name: '铜台府', type: 'town', region: 'tongtai', continent: 'west', level: 65, power: 6500, exploration: 0, description: '天竺国下的府城，寇员外曾在此款待唐僧师徒。', loot: ['寇家珍宝', '斋饭', '佛经'], connections: { main: [70, 72], branch: [] } },
+
+            // 凌云渡区域
+            { id: 72, name: '凌云渡', type: 'field', region: 'lingyun', continent: 'west', level: 85, power: 8500, exploration: 0, description: '通往雷音寺的最后一道关卡，独木桥横跨湍急河流，是脱胎换骨的试炼之地。', loot: ['脱下的凡胎', '凌云石', '渡水法宝'], connections: { main: [71, 73], branch: [] } },
+
+            // 雷音寺区域
+            { id: 73, name: '雷音寺', type: 'special', region: 'leiyin', continent: 'west', level: 90, power: 9000, exploration: 0, description: '取经的终点，如来佛祖讲法之地，佛法昌盛，也是天庭商会的重要据点。', loot: ['真经', '舍利子', '功德', '佛宝'], connections: { main: [72, 74], branch: [] } },
+            { id: 74, name: '大雷音寺', type: 'special', region: 'leiyin', continent: 'west', level: 100, power: 10000, exploration: 0, description: '真正的佛祖道场，大雄宝殿内供奉如来，是佛教最高圣地。', loot: ['佛祖舍利', '无上佛经', '成佛功德'], connections: { main: [73], branch: [] } },
+
+            // ========== 北俱芦洲 ==========
+            { id: 75, name: '北俱芦洲雪原', type: 'field', region: 'xueyuan', continent: 'north', level: 95, power: 9500, exploration: 0, description: '苦寒之地，环境恶劣，但藏有许多珍稀材料和上古遗迹。', loot: ['冰魄', '雪莲', '远古遗物'], connections: { main: [], branch: [] } },
+
+            // ========== 其他仙境 ==========
+            { id: 76, name: '蓬莱仙岛', type: 'special', region: 'penglai', continent: 'other', level: 88, power: 8800, exploration: 0, description: '东海上的仙岛，八仙过海之地，常有仙人聚会。', loot: ['仙果', '长生不老药', '仙家法器'], connections: { main: [4], branch: [] } },
+            { id: 77, name: '瑶池', type: 'special', region: 'yaochi', continent: 'other', level: 95, power: 9500, exploration: 0, description: '王母娘娘的居所，蟠桃盛会举办地，是仙家聚会之所。', loot: ['蟠桃', '琼浆玉液', '仙家珍宝'], connections: { main: [], branch: [] } },
+            { id: 79, name: '兜率宫', type: 'special', region: 'doushuai', continent: 'other', level: 92, power: 9200, exploration: 0, description: '太上老君的宫殿，内有八卦炉，是炼丹圣地。', loot: ['金丹', '老君炉', '仙丹配方'], connections: { main: [], branch: [] } }
+        ];
+
+        // ==================== 辅助函数 ====================
+
+        function getTypeLabel(type) {
+            const labels = { town: '城镇', dungeon: '洞府', field: '野外', special: '特殊' };
+            return labels[type] || type;
+        }
+
+        function getContinentName(id) {
+            const continent = continents.find(c => c.id === id);
+            return continent ? continent.name : id;
+        }
+
+        function getRegionName(id) {
+            const region = regions.find(r => r.id === id);
+            return region ? region.name : id;
+        }
+
+        // ==================== 渲染函数 ====================
+
+        function initFilters() {
+            const continentSelect = document.getElementById('filterContinent');
+            const regionSelect = document.getElementById('filterRegion');
+
+            // 填充大洲选项
+            continents.forEach(c => {
+                const option = document.createElement('option');
+                option.value = c.id;
+                option.textContent = c.name;
+                continentSelect.appendChild(option);
+            });
+
+            // 填充区域选项
+            regions.forEach(r => {
+                const option = document.createElement('option');
+                option.value = r.id;
+                option.textContent = r.name;
+                option.dataset.continent = r.continent;
+                regionSelect.appendChild(option);
+            });
+        }
+
+        function updateRegionFilter() {
+            const continentId = document.getElementById('filterContinent').value;
+            const regionSelect = document.getElementById('filterRegion');
+
+            // 重置区域选项
+            regionSelect.innerHTML = '<option value="">全部</option>';
+
+            // 根据选择的大洲过滤区域
+            const filteredRegions = continentId
+                ? regions.filter(r => r.continent === continentId)
+                : regions;
+
+            filteredRegions.forEach(r => {
+                const option = document.createElement('option');
+                option.value = r.id;
+                option.textContent = r.name;
+                regionSelect.appendChild(option);
+            });
+        }
+
+        function renderHierarchy(filteredLocations = locations) {
+            const container = document.getElementById('hierarchyContainer');
+            container.innerHTML = '';
+
+            // 按大洲分组
+            const continentGroups = {};
+            filteredLocations.forEach(loc => {
+                if (!continentGroups[loc.continent]) {
+                    continentGroups[loc.continent] = {};
+                }
+                if (!continentGroups[loc.continent][loc.region]) {
+                    continentGroups[loc.continent][loc.region] = [];
+                }
+                continentGroups[loc.continent][loc.region].push(loc);
+            });
+
+            // 按大洲顺序渲染
+            continents.forEach(continent => {
+                if (!continentGroups[continent.id]) return;
+
+                const continentSection = document.createElement('div');
+                continentSection.className = 'continent-section';
+
+                const continentHeader = document.createElement('div');
+                continentHeader.className = 'continent-header';
+                continentHeader.onclick = () => toggleContinent(continent.id);
+                continentHeader.innerHTML = `
+                    <span class="toggle-icon" id="icon-continent-${continent.id}">▶</span>
+                    <span class="continent-name">${continent.name}</span>
+                    <span class="continent-desc">${continent.description}</span>
+                `;
+
+                const continentContent = document.createElement('div');
+                continentContent.className = 'continent-content';
+                continentContent.id = `continent-${continent.id}`;
+
+                // 渲染区域
+                const regionGroups = continentGroups[continent.id];
+                regions.filter(r => r.continent === continent.id && regionGroups[r.id]).forEach(region => {
+                    const regionSection = document.createElement('div');
+                    regionSection.className = 'region-section';
+
+                    const regionHeader = document.createElement('div');
+                    regionHeader.className = 'region-header';
+                    regionHeader.onclick = (e) => {
+                        e.stopPropagation();
+                        toggleRegion(region.id);
+                    };
+                    regionHeader.innerHTML = `
+                        <span class="toggle-icon" id="icon-region-${region.id}">▶</span>
+                        <span class="region-name">${region.name}</span>
+                    `;
+
+                    const regionContent = document.createElement('div');
+                    regionContent.className = 'region-content';
+                    regionContent.id = `region-${region.id}`;
+
+                    // 渲染地点卡片
+                    const locationGrid = document.createElement('div');
+                    locationGrid.className = 'location-grid';
+
+                    regionGroups[region.id].forEach(loc => {
+                        const card = createLocationCard(loc);
+                        locationGrid.appendChild(card);
+                    });
+
+                    regionContent.appendChild(locationGrid);
+                    regionSection.appendChild(regionHeader);
+                    regionSection.appendChild(regionContent);
+                    continentContent.appendChild(regionSection);
+                });
+
+                continentSection.appendChild(continentHeader);
+                continentSection.appendChild(continentContent);
+                container.appendChild(continentSection);
+            });
+
+            if (Object.keys(continentGroups).length === 0) {
+                container.innerHTML = '<p style="color:#666;padding:20px;text-align:center;">没有找到符合条件的地点</p>';
+            }
+        }
+
+        function createLocationCard(loc) {
+            const card = document.createElement('div');
+            card.className = 'location-card';
+
+            // 构建卡片基本内容
+            let cardHtml = `
+                <div class="card-header" onclick="showDetail(locations.find(l => l.id === ${loc.id}))">
+                    <span class="card-name">${loc.name}</span>
+                    <span class="card-type">${getTypeLabel(loc.type)}</span>
+                </div>
+                <div class="card-stats" onclick="showDetail(locations.find(l => l.id === ${loc.id}))">
+                    <div class="card-stat">
+                        <span class="card-stat-label">等级:</span>
+                        <span>${loc.level}</span>
+                    </div>
+                    <div class="card-stat">
+                        <span class="card-stat-label">战力:</span>
+                        <span>${loc.power}</span>
+                    </div>
+                </div>
+                <div class="card-exploration" onclick="showDetail(locations.find(l => l.id === ${loc.id}))">
+                    <div class="card-exploration-bar" style="width: ${loc.exploration}%"></div>
+                </div>
+                <div class="card-exploration-text" onclick="showDetail(locations.find(l => l.id === ${loc.id}))">探索度: ${loc.exploration}%</div>
+            `;
+
+            // 如果有子位置，添加子位置区域
+            if (loc.subLocations && loc.subLocations.length > 0) {
+                cardHtml += `
+                    <div class="sub-location-section">
+                        <div class="sub-location-header" onclick="event.stopPropagation(); toggleSubLocations('${loc.id}')">
+                            <span id="sub-icon-${loc.id}">▶</span>
+                            <span>展开子位置 (${loc.subLocations.length}个)</span>
+                        </div>
+                        <div class="sub-location-content" id="sub-content-${loc.id}">
+                            <div class="sub-location-grid">
+                                ${loc.subLocations.map(subLoc => createSubLocationCard(subLoc, loc)).join('')}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            card.innerHTML = cardHtml;
+            return card;
+        }
+
+        function toggleContinent(continentId) {
+            const content = document.getElementById(`continent-${continentId}`);
+            const icon = document.getElementById(`icon-continent-${continentId}`);
+
+            if (content.classList.contains('expanded')) {
+                content.classList.remove('expanded');
+                icon.textContent = '▶';
+            } else {
+                content.classList.add('expanded');
+                icon.textContent = '▼';
+            }
+        }
+
+        function toggleRegion(regionId) {
+            const content = document.getElementById(`region-${regionId}`);
+            const icon = document.getElementById(`icon-region-${regionId}`);
+
+            if (content.classList.contains('expanded')) {
+                content.classList.remove('expanded');
+                icon.textContent = '▶';
+            } else {
+                content.classList.add('expanded');
+                icon.textContent = '▼';
+            }
+        }
+
+        // 子位置类型标签
+        function getSubTypeLabel(type) {
+            const labels = {
+                habitat: '栖息地',
+                rest: '休息点',
+                special: '特殊地点',
+                resource: '资源点',
+                dungeon: '子洞府',
+                view: '观景点',
+                training: '训练场',
+                passage: '通道'
+            };
+            return labels[type] || type;
+        }
+
+        // 创建子位置卡片HTML
+        function createSubLocationCard(subLoc, parentLoc) {
+            return `
+                <div class="sub-location-card" onclick="event.stopPropagation(); showSubLocationDetail('${subLoc.id}', ${parentLoc.id})">
+                    <div class="sub-name">${subLoc.name}</div>
+                    <span class="sub-type">${getSubTypeLabel(subLoc.type)}</span>
+                    <div class="sub-desc">${subLoc.description}</div>
+                </div>
+            `;
+        }
+
+        // 切换子位置展开/收起
+        function toggleSubLocations(locationId) {
+            const content = document.getElementById(`sub-content-${locationId}`);
+            const icon = document.getElementById(`sub-icon-${locationId}`);
+
+            if (content.classList.contains('expanded')) {
+                content.classList.remove('expanded');
+                icon.textContent = '▶';
+            } else {
+                content.classList.add('expanded');
+                icon.textContent = '▼';
+            }
+        }
+
+        // 显示子位置详情
+        function showSubLocationDetail(subLocId, parentLocId) {
+            const parentLoc = locations.find(l => l.id === parentLocId);
+            if (!parentLoc || !parentLoc.subLocations) return;
+
+            const subLoc = parentLoc.subLocations.find(s => s.id === subLocId);
+            if (!subLoc) return;
+
+            document.getElementById('detailTitle').textContent = subLoc.name;
+
+            document.getElementById('detailContent').innerHTML = `
+                <div class="detail-section">
+                    <div class="detail-section-title">基本信息</div>
+                    <div class="detail-info-grid">
+                        <div class="detail-info-item">
+                            <span class="detail-info-label">类型:</span>
+                            <span class="detail-info-value">${getSubTypeLabel(subLoc.type)}</span>
+                        </div>
+                        <div class="detail-info-item">
+                            <span class="detail-info-label">所属地点:</span>
+                            <span class="detail-info-value">${parentLoc.name}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="detail-section">
+                    <div class="detail-section-title">地点描述</div>
+                    <div class="detail-description">${subLoc.description}</div>
+                </div>
+
+                <div class="detail-section">
+                    <div class="detail-section-title">主要产出</div>
+                    <div class="detail-loot">
+                        ${subLoc.loot ? subLoc.loot.map(item => `<span class="loot-tag">${item}</span>`).join('') : '<span style="color:#999;font-size:13px;">暂无数据</span>'}
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('overlay').classList.add('active');
+            document.getElementById('detailPanel').classList.add('active');
+        }
+
+        // ==================== 筛选功能 ====================
+
+        function applyFilters() {
+            const continentId = document.getElementById('filterContinent').value;
+            const regionId = document.getElementById('filterRegion').value;
+            const type = document.getElementById('filterType').value;
+            const levelMin = parseInt(document.getElementById('filterLevelMin').value) || 1;
+            const levelMax = parseInt(document.getElementById('filterLevelMax').value) || 100;
+            const exploration = document.getElementById('filterExploration').value;
+
+            // 更新区域筛选器
+            updateRegionFilter();
+            if (regionId && continentId) {
+                document.getElementById('filterRegion').value = regionId;
+            }
+
+            let filtered = locations.filter(loc => {
+                if (continentId && loc.continent !== continentId) return false;
+                if (regionId && loc.region !== regionId) return false;
+                if (type && loc.type !== type) return false;
+                if (loc.level < levelMin || loc.level > levelMax) return false;
+
+                if (exploration) {
+                    if (exploration === '0' && loc.exploration !== 0) return false;
+                    if (exploration === '1-50' && (loc.exploration < 1 || loc.exploration > 50)) return false;
+                    if (exploration === '51-99' && (loc.exploration < 51 || loc.exploration > 99)) return false;
+                    if (exploration === '100' && loc.exploration !== 100) return false;
+                }
+
+                return true;
+            });
+
+            renderHierarchy(filtered);
+        }
+
+        function resetFilters() {
+            document.getElementById('filterContinent').value = '';
+            document.getElementById('filterRegion').value = '';
+            document.getElementById('filterType').value = '';
+            document.getElementById('filterLevelMin').value = '';
+            document.getElementById('filterLevelMax').value = '';
+            document.getElementById('filterExploration').value = '';
+            updateRegionFilter();
+            renderHierarchy(locations);
+        }
+
+        // ==================== 详情面板 ====================
+
+        function showDetail(loc) {
+            document.getElementById('detailTitle').textContent = loc.name;
+
+            const mainConnections = loc.connections.main.map(id => {
+                const target = locations.find(l => l.id === id);
+                return target ? target.name : '';
+            }).filter(Boolean);
+
+            const branchConnections = loc.connections.branch.map(id => {
+                const target = locations.find(l => l.id === id);
+                return target ? target.name : '';
+            }).filter(Boolean);
+
+            document.getElementById('detailContent').innerHTML = `
+                <div class="detail-section">
+                    <div class="detail-section-title">基本信息</div>
+                    <div class="detail-info-grid">
+                        <div class="detail-info-item">
+                            <span class="detail-info-label">类型:</span>
+                            <span class="detail-info-value">${getTypeLabel(loc.type)}</span>
+                        </div>
+                        <div class="detail-info-item">
+                            <span class="detail-info-label">等级:</span>
+                            <span class="detail-info-value">${loc.level}</span>
+                        </div>
+                        <div class="detail-info-item">
+                            <span class="detail-info-label">推荐战力:</span>
+                            <span class="detail-info-value">${loc.power}</span>
+                        </div>
+                        <div class="detail-info-item">
+                            <span class="detail-info-label">探索度:</span>
+                            <span class="detail-info-value">${loc.exploration}%</span>
+                        </div>
+                        <div class="detail-info-item">
+                            <span class="detail-info-label">所属大洲:</span>
+                            <span class="detail-info-value">${getContinentName(loc.continent)}</span>
+                        </div>
+                        <div class="detail-info-item">
+                            <span class="detail-info-label">所属区域:</span>
+                            <span class="detail-info-value">${getRegionName(loc.region)}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="detail-section">
+                    <div class="detail-section-title">地点描述</div>
+                    <div class="detail-description">${loc.description}</div>
+                </div>
+
+                <div class="detail-section">
+                    <div class="detail-section-title">连接关系</div>
+                    <div class="detail-connections">
+                        ${mainConnections.length > 0 ? `
+                            <div class="connection-group">
+                                <div class="connection-title">主线连接</div>
+                                <div class="connection-list">
+                                    ${mainConnections.map(name => `<span class="connection-item">${name}</span>`).join('')}
+                                </div>
+                            </div>
+                        ` : ''}
+                        ${branchConnections.length > 0 ? `
+                            <div class="connection-group">
+                                <div class="connection-title">分支连接</div>
+                                <div class="connection-list">
+                                    ${branchConnections.map(name => `<span class="connection-item">${name}</span>`).join('')}
+                                </div>
+                            </div>
+                        ` : ''}
+                        ${mainConnections.length === 0 && branchConnections.length === 0 ? '<p style="color:#999;font-size:13px;">暂无连接</p>' : ''}
+                    </div>
+                </div>
+
+                <div class="detail-section">
+                    <div class="detail-section-title">主要产出</div>
+                    <div class="detail-loot">
+                        ${loc.loot.map(item => `<span class="loot-tag">${item}</span>`).join('')}
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('overlay').classList.add('active');
+            document.getElementById('detailPanel').classList.add('active');
+        }
+
+        function closeDetail() {
+            document.getElementById('overlay').classList.remove('active');
+            document.getElementById('detailPanel').classList.remove('active');
+        }
+
+        // ==================== 搜索功能 ====================
+
+        function searchLocations() {
+            const query = document.getElementById('searchInput').value.toLowerCase().trim();
+            if (!query) {
+                renderHierarchy(locations);
+                return;
+            }
+
+            const filtered = locations.filter(loc =>
+                loc.name.toLowerCase().includes(query) ||
+                loc.description.toLowerCase().includes(query) ||
+                loc.loot.some(item => item.toLowerCase().includes(query))
+            );
+
+            renderHierarchy(filtered);
+        }
+
+        // ==================== 统计功能 ====================
 
         function updateStats() {
-            document.getElementById('townCount').textContent = locations.filter(l => l.type === 'town').length;
-            document.getElementById('dungeonCount').textContent = locations.filter(l => l.type === 'dungeon').length;
-            document.getElementById('fieldCount').textContent = locations.filter(l => l.type === 'field').length;
-            document.getElementById('totalCount').textContent = locations.length;
+            document.getElementById('statTotal').textContent = locations.length;
+            document.getElementById('statTown').textContent = locations.filter(l => l.type === 'town').length;
+            document.getElementById('statDungeon').textContent = locations.filter(l => l.type === 'dungeon').length;
+            document.getElementById('statField').textContent = locations.filter(l => l.type === 'field').length;
         }
 
-        function getTypeIcon(t) { return ''; }
-        function getTypeLabel(t) { const l={town:'城镇',dungeon:'副本',field:'野外',special:'特殊'}; return l[t]||t; }
-        function getDangerLabel(d) { const l={safe:'安全',low:'低危',medium:'中危',high:'高危',extreme:'极危'}; return l[d]||d; }
+        // ==================== 初始化 ====================
 
-        function renderLocations(filter='all') {
-            const grid=document.getElementById('locationGrid');
-            let filtered=locations;
-            if(filter!=='all') filtered=locations.filter(l=>l.type===filter);
-            if(filtered.length===0){ grid.innerHTML='<p style="color:var(--wiki-text-secondary);padding:20px;">暂无该类型的地点</p>'; return; }
-            grid.innerHTML=filtered.map(loc=>`
-                <div class="info-card">
-                    <h4>${loc.name}</h4>
-                    <div class="meta">
-                        <span class="type-badge ${loc.type}">${getTypeLabel(loc.type)}</span>
-                        <span class="danger-badge ${loc.danger}">${getDangerLabel(loc.danger)}</span>
-                    </div>
-                    <p class="description">${loc.description}</p>
-                    <div class="loot-box"><strong>主要产出：</strong><div class="tag-list">${loc.loot.map(i=>`<span class="tag-item">${i}</span>`).join('')}</div></div>
-                    <button onclick="deleteLocation(${loc.id})" class="btn-delete">删除</button>
-                </div>
-            `).join('');
-        }
+        document.addEventListener('DOMContentLoaded', () => {
+            initFilters();
+            updateStats();
+            renderHierarchy();
 
-        function filterLocations(type){ document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active')); event.target.classList.add('active'); renderLocations(type); }
-        function searchLocations(){ const q=document.getElementById('searchInput').value.toLowerCase(); const filtered=locations.filter(l=>l.name.toLowerCase().includes(q)||l.description.toLowerCase().includes(q)); document.getElementById('locationGrid').innerHTML=filtered.map(loc=>`<div class="info-card"><h4>${loc.name}</h4><div class="meta"><span class="type-badge ${loc.type}">${getTypeLabel(loc.type)}</span><span class="danger-badge ${loc.danger}">${getDangerLabel(loc.danger)}</span></div><p class="description">${loc.description}</p><div class="loot-box"><strong>主要产出：</strong><div class="tag-list">${loc.loot.map(i=>`<span class="tag-item">${i}</span>`).join('')}</div></div><button onclick="deleteLocation(${loc.id})" class="btn-delete">删除</button></div>`).join(''); }
+            // 默认展开第一个大洲
+            setTimeout(() => toggleContinent('east'), 100);
 
-        document.getElementById('addLocationForm').addEventListener('submit',function(e){
-            e.preventDefault();
-            locations.push({ id:Date.now(), name:document.getElementById('locName').value, type:document.getElementById('locType').value, danger:document.getElementById('locDanger').value, description:document.getElementById('locDesc').value, loot:document.getElementById('locLoot').value.split(',').map(s=>s.trim()).filter(s=>s) });
-            saveLocations(); renderLocations(); updateStats(); this.reset(); alert('地点添加成功！');
+            // 搜索框回车事件
+            document.getElementById('searchInput').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') searchLocations();
+            });
         });
-
-        function deleteLocation(id){ if(confirm('确定删除？')){ locations=locations.filter(l=>l.id!==id); saveLocations(); renderLocations(); updateStats(); } }
-
-        renderLocations(); updateStats();
     </script>
 </body>
 </html>
